@@ -1,4 +1,4 @@
-import { type LevelDef, createLevel, emptySkillSet } from '../../../src/core/level';
+import { type LevelDef, createLevel, emptySkillSet } from '../../core/level';
 import { W, H, sideWalls } from './common';
 
 /** The exit is below a 10-px soil platform: one Delver opens the way for everyone. */

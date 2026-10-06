@@ -1,4 +1,4 @@
-import { type LevelDef, createLevel, emptySkillSet } from '../../../src/core/level';
+import { type LevelDef, createLevel, emptySkillSet } from '../../core/level';
 import { W, H, sideWalls } from './common';
 
 /** Flat floor from the entrance to the exit: no skills needed, everyone walks home. */

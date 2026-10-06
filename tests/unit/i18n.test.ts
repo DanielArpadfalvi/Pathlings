@@ -29,6 +29,9 @@ describe('i18n', () => {
   });
 
   it('switches language and notifies listeners', () => {
+    // Start from English whatever the host locale is (Node 22 exposes `navigator.language`,
+    // so on a Hungarian machine the detected start language is already 'hu').
+    setLanguage('en');
     const seen: string[] = [];
     const off = onLanguageChange((l) => seen.push(l));
     setLanguage('hu');

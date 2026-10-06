@@ -1,6 +1,6 @@
 /** Shared building blocks of the hand-made test levels. */
 
-import type { RasterOp } from '../../../src/core/raster';
+import type { RasterOp } from '../../core/raster';
 
 export const W = 160;
 export const H = 240;

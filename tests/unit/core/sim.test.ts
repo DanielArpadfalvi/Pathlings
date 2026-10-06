@@ -16,7 +16,7 @@ import {
   stepN,
 } from '../../../src/core/sim';
 import type { SimEvent } from '../../../src/core/world';
-import { FIXTURE_LEVELS, cliff, digDown, tunnel } from '../../fixtures/levels';
+import { FIXTURE_LEVELS, cliff, digDown, tunnel } from '../../../src/levels/test';
 
 /** A busy level: 100 creatures in a closed 320 × 480 arena with terraces, rock and metal. */
 function busyLevel(withTrap = true): LevelDef {
