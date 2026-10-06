@@ -1,5 +1,6 @@
 import { Container, Graphics } from 'pixi.js';
 import type { Sim, SimEvent } from '../core/world';
+import type { CameraState } from './camera';
 import { CreatureLayer } from './creatureLayer';
 import { PositionHistory } from './interp';
 import { ObjectLayer } from './objectLayer';
@@ -35,7 +36,7 @@ export interface RenderStats {
 export class WorldRenderer {
   /** Add this to the stage. */
   readonly root = new Container();
-  /** World-space container (1 unit = 1 world pixel); `layout` positions and scales it. */
+  /** World-space container (1 unit = 1 world pixel); `applyCamera` positions and scales it. */
   readonly world = new Container();
   readonly palette: ThemePalette;
   private readonly sky = new Graphics();
@@ -72,13 +73,12 @@ export class WorldRenderer {
     this.history.capture(sim.creatures);
   }
 
-  /** Fits the whole level into a `width` × `height` CSS-px viewport, centred. */
-  layout(width: number, height: number): void {
-    const scale = Math.max(0.1, Math.min(width / this.sim.width, height / this.sim.height));
-    this.world.scale.set(scale);
+  /** Positions and scales the world container for a camera view (see `camera.ts`). */
+  applyCamera(cam: CameraState, viewport: { w: number; h: number }): void {
+    this.world.scale.set(cam.scale);
     this.world.position.set(
-      Math.round((width - this.sim.width * scale) / 2),
-      Math.round((height - this.sim.height * scale) / 2),
+      viewport.w / 2 - cam.cx * cam.scale,
+      viewport.h / 2 - cam.cy * cam.scale,
     );
   }
 

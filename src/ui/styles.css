@@ -69,3 +69,24 @@ button {
   font-size: 18px;
   color: var(--dim);
 }
+
+.icon-button {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  border: 2px solid rgba(244, 241, 232, 0.25);
+  border-radius: 14px;
+  background: rgba(11, 16, 32, 0.72);
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.icon-button:active {
+  background: rgba(60, 80, 120, 0.85);
+}
+
+.whole-level {
+  right: 12px;
+  bottom: calc(var(--safe-bottom) + 12px);
+}

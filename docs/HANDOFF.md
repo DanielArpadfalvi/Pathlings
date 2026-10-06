@@ -8,10 +8,10 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | Terv (`docs/PLAN.md`, `docs/TASKS.md`) | ✅ |
 | M0 Alapozás (Vite+TS+Pixi+Preact, lint, Vitest, Playwright smoke, CI) | ✅ T0.1, T0.2 |
 | M1 Mag-motor (`src/core`) | ✅ T1.1–T1.7 – terep, raszterizáló, pálya-definíció+validátor, lények, 8 képesség, objektumok, sim loop, események, replay, rewind, state hash |
-| M2 Játszható prototípus | 🔄 T2.1 ✅ renderer · következik T2.2 kamera |
+| M2 Játszható prototípus | 🔄 T2.1 ✅ renderer · T2.2 ✅ kamera · következik T2.3 okos kijelölés |
 | M3–M10 | nincs elkezdve |
 
-Ellenőrzés (T2.1 után): `npm run check` 327/327 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 7/7 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
+Ellenőrzés (T2.2 után): `npm run check` 357/357 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 11/11 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
 
 ## Renderer / játékhurok (T2.1)
 - `src/game/clock.ts` (fix 60 Hz akkumulátor + alpha), `src/game/session.ts` (`GameSession`: a sim egyetlen léptetője a magon kívül; tickenként `drainEvents` → listenerek).
@@ -20,6 +20,12 @@ Ellenőrzés (T2.1 után): `npm run check` 327/327 unit teszt zöld, `npm run bu
 - Tisztaság: `tests/unit/render/renderPurity.test.ts` – a render csak allowlistes, olvasó core-függvényeket importálhat, a `game` réteget nem; `worldRenderer.test.ts` headless Pixi-vel ellenőrzi, hogy minden frame kirajzolása után a sim bitre azonos marad.
 - URL-paraméterek (prototípus/e2e): `?level=<id>` (`src/levels/test`: fixture-ök + `showcase` – minden anyag és objektum), `autoplay=1`, `seek=<tick>`, `pause=1`, `debug=1` (`window.__pathlings`: tick, stats, creatures). Paraméter nélkül attract mód (clockwork megoldása, címkártya alatt, újraindul).
 - A tesztpályák átköltöztek: `tests/fixtures/levels` → `src/levels/test`.
+
+## Kamera + input (T2.2)
+- `src/render/camera.ts` – tiszta `Camera` (középpont + skála, CSS px / világpx): alap ≈ 200 világpx széles, csípés 1×–4× (lejjebb csak a „teljes pálya” skáláig; tableten a max ≥ alap), a nézet nem hagyja el a pályát (kisebb tengelyen középre), `frameStart` (bejárat + legközelebbi, beleférő kijárat), `doubleTap` (2× rá / vissza), `toggleWholeLevel`, easing-animáció `update(dt)`-vel.
+- `src/input/gestures.ts` – tiszta gesztus-állapotgép: tap, doubleTap (300 ms / 30 px), pan 5 pt holtzónával (ugrás nélkül), két ujjas pinch + pan, harmadik ujj ignorálva. A tap jelenleg csak kamera-semleges (T2.3 köti a kijelöléshez); a doubleTap előtt egy tap is kimegy.
+- `src/input/pointerInput.ts` – DOM pointer-események → gesztusok (+ egérgörgő-zoom webre).
+- `src/app/playScreen.ts` – egy pálya a képernyőn: session + renderer + kamera + input; `main.ts` csak bootol. „Teljes pálya” gomb: `src/ui/App.tsx` (`whole-level` testid). Debug: `window.__pathlings.camera`, `.logLength`.
 
 ## Fontos tudnivalók a magról
 - Publikus API: `src/core/index.ts`. Sim: `createSim`, `step`/`stepN`, `assign`, `popAll`, `setReleaseInterval`, `canAssign`, `drainEvents`, `stateHash`, `rewindTo`, `runSolution`, `exportSolution`.
@@ -33,8 +39,7 @@ Ellenőrzés (T2.1 után): `npm run check` 327/327 unit teszt zöld, `npm run bu
 - Üzleti modell (PLAN.md §2): 30 pálya + napi pálya + szerkesztő + kódok ingyen, „Teljes játék” $2,99, opcionális Supporter $2,99 (kozmetikum).
 
 ## Következő lépések sorrendben
-1. **T2.2 Camera** – a `WorldRenderer.layout` jelenleg csak „egész pálya befér” illesztés; a kamera ezt váltja le (a `world` konténer pozíció/skála).
-2. **T2.3 Smart selection** – pontozó függvény unit tesztekkel, a `canAssign`/`bodyCenter` lekérdezésekre.
+1. **T2.3 Smart selection** – pontozó függvény unit tesztekkel, a `canAssign`/`bodyCenter` lekérdezésekre; a `PlayScreen.onGesture` `tap` ágába kötendő (a `camera.toWorld`-del).
 3. **T2.4 HUD + controls** + 5 kézi tesztpálya, e2e végigjátszással (a `src/levels/test` megoldásaival).
 4. M2 végén `game-reviewer` kör (screenshotok 360×640 / 412×915).
 5. M3 (effektek, rewind UI, hang/haptika, perf) → M4 (pályakód + szerkesztő).

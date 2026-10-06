@@ -29,7 +29,7 @@ describe('WorldRenderer (headless Pixi scene graph)', () => {
       const drawn = new GameSession(level, { autoplay: level.solution });
       const r = new WorldRenderer(drawn.sim);
       drawn.onStep((sim, events) => r.onStep(sim, events));
-      r.layout(390, 844);
+      r.applyCamera({ cx: 80, cy: 120, scale: 2 }, { w: 390, h: 844 });
       let frames = 0;
       while (!drawn.sim.ended) {
         drawn.frame(1000 / 60);
@@ -80,14 +80,14 @@ describe('WorldRenderer (headless Pixi scene graph)', () => {
     r.destroy();
   });
 
-  it('fits the level into the viewport, centred', () => {
+  it('applies a camera view to the world container', () => {
     const s = new GameSession(tunnel);
     const r = new WorldRenderer(s.sim);
-    r.layout(390, 844);
-    const scale = 390 / tunnel.w;
-    expect(r.world.scale.x).toBeCloseTo(scale);
-    expect(r.world.position.x).toBe(0);
-    expect(r.world.position.y).toBe(Math.round((844 - tunnel.h * scale) / 2));
+    r.applyCamera({ cx: 50, cy: 100, scale: 2.5 }, { w: 390, h: 844 });
+    expect(r.world.scale.x).toBe(2.5);
+    // World point (50, 100) lands in the middle of the viewport.
+    expect(r.world.position.x + 50 * 2.5).toBeCloseTo(195);
+    expect(r.world.position.y + 100 * 2.5).toBeCloseTo(422);
     r.destroy();
   });
 });
