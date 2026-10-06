@@ -6,6 +6,7 @@ import { PlayScreen } from './app/playScreen';
 import { ATTRACT_LEVEL_ID, type LaunchParams, parseLaunchParams } from './game/launchParams';
 import { findTestLevel } from './levels/test';
 import { App } from './ui/App';
+import type { DirectionFilter } from './input/selection';
 import { getLanguage } from './i18n';
 
 /** Attract mode restarts the demo this long after the level ends. */
@@ -21,6 +22,8 @@ function startLevel(app: Application, params: LaunchParams, attract: boolean): P
     paused: !attract && params.paused,
     interactive: !attract,
     wholeLevel: attract,
+    skill: params.skill,
+    filter: params.filter,
   });
 }
 
@@ -66,12 +69,26 @@ async function boot(): Promise<void> {
         get logLength() {
           return screen.session.sim.log.length;
         },
+        get lastAttempt() {
+          return screen.lastAttempt;
+        },
+        get press() {
+          return screen.press;
+        },
+        pick(x: number, y: number) {
+          return screen.pickAt(x, y);
+        },
+        toScreen(x: number, y: number) {
+          return screen.camera.toScreen({ x, y });
+        },
         get creatures() {
           return screen.session.sim.creatures.map((c) => ({
             id: c.id,
             x: c.x,
             y: c.y,
             state: c.state,
+            dir: c.dir,
+            skillsUsed: c.skillsUsed,
           }));
         },
       },
@@ -82,6 +99,12 @@ async function boot(): Promise<void> {
     h(App, {
       showTitle: attract,
       onWholeLevel: attract ? undefined : () => screen.toggleWholeLevel(),
+      filter: params.filter,
+      onFilterChange: attract
+        ? undefined
+        : (f: DirectionFilter) => {
+            screen.filter = f;
+          },
     }),
     ui,
   );

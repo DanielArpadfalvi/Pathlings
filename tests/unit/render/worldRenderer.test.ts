@@ -7,11 +7,11 @@ import { clockwork, digDown, showcase, tunnel } from '../../../src/levels/test';
 import { WorldRenderer } from '../../../src/render/worldRenderer';
 
 /** Everything about the sim a renderer could conceivably touch, as a comparable snapshot. */
-function snapshot(sim: Sim): unknown {
+function snapshot(sim: Sim, withCells: boolean): unknown {
   return {
-    hash: stateHash(sim),
+    hash: stateHash(sim), // covers the terrain cells too
     tick: sim.tick,
-    cells: Array.from(sim.terrain.cells),
+    cells: withCells ? Array.from(sim.terrain.cells) : null,
     creatures: Array.from(packCreatures(sim.creatures)),
     events: sim.events.length,
     dirty: sim.dirty,
@@ -33,10 +33,11 @@ describe('WorldRenderer (headless Pixi scene graph)', () => {
       let frames = 0;
       while (!drawn.sim.ended) {
         drawn.frame(1000 / 60);
-        const before = snapshot(drawn.sim);
+        const full = frames % 60 === 0;
+        const before = snapshot(drawn.sim, full);
         r.render(drawn.alpha, frames * 16);
         r.render(0.5, frames * 16 + 8);
-        expect(snapshot(drawn.sim)).toEqual(before);
+        expect(snapshot(drawn.sim, full)).toEqual(before);
         frames++;
       }
       expect(stateHash(drawn.sim)).toBe(stateHash(plain.sim));

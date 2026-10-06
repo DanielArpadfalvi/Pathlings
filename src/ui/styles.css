@@ -90,3 +90,14 @@ button {
   right: 12px;
   bottom: calc(var(--safe-bottom) + 12px);
 }
+
+.direction-filter {
+  left: 12px;
+  bottom: calc(var(--safe-bottom) + 12px);
+}
+
+.direction-filter[data-filter='left'],
+.direction-filter[data-filter='right'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}

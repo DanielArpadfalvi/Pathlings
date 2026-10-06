@@ -1,4 +1,4 @@
-import { Container, Sprite } from 'pixi.js';
+import { Container, Graphics, Sprite } from 'pixi.js';
 import type { Creature } from '../core/creature';
 import { PERM_GLIDER, PERM_SCALER, hasPerm } from '../core/creature';
 import { fuseSeconds } from '../core/skills/popper';
@@ -10,7 +10,10 @@ import {
   DIGITS,
   DIGIT_KEY,
   GLIDER_BADGE,
+  MARKER_KEY,
   SCALER_BADGE,
+  TARGET_ARROW,
+  TARGET_ARROW_INVALID,
 } from './creatureArt';
 import type { PositionHistory } from './interp';
 import type { PixelGrid } from './pixelArt';
@@ -19,6 +22,13 @@ import { gridAnchor, gridTexture } from './textures';
 
 /** Badges / countdown sit this many px above the foot point (just over the leaf cap). */
 const MARK_HEIGHT = 13;
+
+/** The creature the finger currently points at (§1.7 pre-highlight). */
+export interface Highlight {
+  id: number;
+  /** It can take the selected skill (yellow) or not (red). */
+  valid: boolean;
+}
 
 /** A growable pool of sprites; `begin` + `take` per frame, `end` hides the unused rest. */
 class SpritePool {
@@ -59,18 +69,26 @@ export class CreatureLayer {
   readonly container = new Container();
   private readonly bodies: SpritePool;
   private readonly marks: SpritePool;
+  private readonly outline = new Graphics();
+  private readonly arrow = new Sprite();
   /** Creatures drawn in the latest frame. */
   drawn = 0;
 
   constructor() {
     const bodyLayer = new Container();
     const markLayer = new Container();
-    this.container.addChild(bodyLayer, markLayer);
+    this.container.addChild(this.outline, bodyLayer, markLayer, this.arrow);
+    this.arrow.visible = false;
     this.bodies = new SpritePool(bodyLayer);
     this.marks = new SpritePool(markLayer);
   }
 
-  update(sim: Sim, history: PositionHistory, alpha: number): void {
+  update(
+    sim: Sim,
+    history: PositionHistory,
+    alpha: number,
+    highlight: Highlight | null = null,
+  ): void {
     this.bodies.begin();
     this.marks.begin();
     const tick = sim.tick;
@@ -85,9 +103,35 @@ export class CreatureLayer {
       s.scale.x = c.dir < 0 ? -1 : 1;
       s.alpha = creatureAlpha(c);
       this.drawMarks(c, p.x + 0.5, p.y - MARK_HEIGHT);
+      if (highlight && highlight.id === c.id) this.drawHighlight(highlight, p.x, p.y, tick);
+    }
+    if (!highlight || !creatureShown(sim, highlight.id)) {
+      this.outline.clear();
+      this.arrow.visible = false;
     }
     this.drawn = this.bodies.end();
     this.marks.end();
+  }
+
+  private drawHighlight(h: Highlight, x: number, y: number, tick: number): void {
+    const color = h.valid ? 0xfff1a8 : 0xff6a5a;
+    this.outline.clear();
+    // 1-px frame around the body (7 × 11 sprite box), drawn as four thin rects.
+    const x0 = x - 4;
+    const y0 = y - 12;
+    this.outline
+      .rect(x0, y0, 9, 1)
+      .rect(x0, y + 1, 9, 1)
+      .rect(x0, y0, 1, 14)
+      .rect(x0 + 8, y0, 1, 14)
+      .fill({ color, alpha: 0.9 });
+    const art = h.valid ? TARGET_ARROW : TARGET_ARROW_INVALID;
+    this.arrow.texture = gridTexture(art, MARKER_KEY);
+    const a = gridAnchor(art);
+    this.arrow.anchor.set(a.x, a.y);
+    // A gentle 1-px bob so the marker reads as "this one" even in a crowd.
+    this.arrow.position.set(x + 0.5, y0 - 2 - (Math.floor(tick / 15) & 1));
+    this.arrow.visible = true;
   }
 
   private drawMarks(c: Creature, x: number, y: number): void {
@@ -108,4 +152,9 @@ export class CreatureLayer {
   destroy(): void {
     this.container.destroy({ children: true });
   }
+}
+
+function creatureShown(sim: Sim, id: number): boolean {
+  const c = sim.creatures[id];
+  return c !== undefined && creaturePose(c, sim.tick) !== null;
 }

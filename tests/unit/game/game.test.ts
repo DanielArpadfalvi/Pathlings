@@ -6,7 +6,7 @@ import type { SimEvent } from '../../../src/core/world';
 import { FixedClock, MAX_FRAME_MS, TICK_MS } from '../../../src/game/clock';
 import { parseLaunchParams } from '../../../src/game/launchParams';
 import { GameSession } from '../../../src/game/session';
-import { TEST_LEVELS, findTestLevel, showcase, tunnel } from '../../../src/levels/test';
+import { TEST_LEVELS, crowd, findTestLevel, showcase, tunnel } from '../../../src/levels/test';
 
 describe('FixedClock', () => {
   it('turns real time into whole 60 Hz ticks and keeps the remainder', () => {
@@ -68,6 +68,19 @@ describe('GameSession', () => {
     expect(ticks).toHaveLength(400);
   });
 
+  it('assigns while paused: logged at the current tick, invalid ones consume nothing', () => {
+    const s = new GameSession(crowd);
+    s.seek(300);
+    s.paused = true;
+    expect(s.assign(3, 'warden')).toBe(true);
+    expect(s.sim.log).toEqual([{ kind: 'assign', tick: 300, creature: 3, skill: 'warden' }]);
+    expect(s.sim.skills.warden).toBe(9);
+    expect(s.assign(3, 'warden')).toBe(false);
+    expect(s.assign(99, 'warden')).toBe(false);
+    expect(s.sim.skills.warden).toBe(9);
+    expect(s.frame(1000)).toBe(0);
+  });
+
   it('does not advance while paused', () => {
     const s = new GameSession(tunnel);
     s.paused = true;
@@ -85,16 +98,21 @@ describe('launch params', () => {
       seek: 0,
       paused: false,
       debug: false,
+      skill: null,
+      filter: 'both',
     });
   });
 
-  it('parses level, autoplay, seek, pause and debug', () => {
-    expect(parseLaunchParams('?level=test-tunnel&autoplay=1&seek=420&pause=1&debug=true')).toEqual({
+  it('parses level, autoplay, seek, pause, debug, skill and filter', () => {
+    const q = '?level=test-tunnel&autoplay=1&seek=420&pause=1&debug=true&skill=warden&filter=left';
+    expect(parseLaunchParams(q)).toEqual({
       levelId: 'test-tunnel',
       autoplay: true,
       seek: 420,
       paused: true,
       debug: true,
+      skill: 'warden',
+      filter: 'left',
     });
   });
 
@@ -104,6 +122,9 @@ describe('launch params', () => {
     expect(p.paused).toBe(false);
     expect(p.autoplay).toBe(false);
     expect(parseLaunchParams('?seek=abc').seek).toBe(0);
+    expect(parseLaunchParams('?skill=bogus').skill).toBeNull();
+    expect(parseLaunchParams('?filter=up').filter).toBe('both');
+    expect(parseLaunchParams('?filter=right').filter).toBe('right');
   });
 });
 

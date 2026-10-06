@@ -8,10 +8,10 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | Terv (`docs/PLAN.md`, `docs/TASKS.md`) | ✅ |
 | M0 Alapozás (Vite+TS+Pixi+Preact, lint, Vitest, Playwright smoke, CI) | ✅ T0.1, T0.2 |
 | M1 Mag-motor (`src/core`) | ✅ T1.1–T1.7 – terep, raszterizáló, pálya-definíció+validátor, lények, 8 képesség, objektumok, sim loop, események, replay, rewind, state hash |
-| M2 Játszható prototípus | 🔄 T2.1 ✅ renderer · T2.2 ✅ kamera · következik T2.3 okos kijelölés |
+| M2 Játszható prototípus | 🔄 T2.1 ✅ renderer · T2.2 ✅ kamera · T2.3 ✅ okos kijelölés · következik T2.4 HUD |
 | M3–M10 | nincs elkezdve |
 
-Ellenőrzés (T2.2 után): `npm run check` 357/357 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 11/11 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
+Ellenőrzés (T2.3 után): `npm run check` 384/384 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 16/16 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
 
 ## Renderer / játékhurok (T2.1)
 - `src/game/clock.ts` (fix 60 Hz akkumulátor + alpha), `src/game/session.ts` (`GameSession`: a sim egyetlen léptetője a magon kívül; tickenként `drainEvents` → listenerek).
@@ -27,6 +27,14 @@ Ellenőrzés (T2.2 után): `npm run check` 357/357 unit teszt zöld, `npm run bu
 - `src/input/pointerInput.ts` – DOM pointer-események → gesztusok (+ egérgörgő-zoom webre).
 - `src/app/playScreen.ts` – egy pálya a képernyőn: session + renderer + kamera + input; `main.ts` csak bootol. „Teljes pálya” gomb: `src/ui/App.tsx` (`whole-level` testid). Debug: `window.__pathlings.camera`, `.logLength`.
 
+## Okos kijelölés (T2.3)
+- `src/input/selection.ts` – tiszta pontozó: 28 pt sugár a test-téglalaptól, sorrend: jogosult (`canAssign`) > távolság 6 pt-es sávokban > még nincs képessége > a koppintás felé halad > kisebb id; irányszűrő (`both/left/right`). Ha senki sem jogosult, a legközelebbi kapja a (sikertelen) próbát → később „nem” visszajelzés.
+- `src/input/gestures.ts` press-mód: ha az ujj lény közelében ér le (`hitTest`), nincs pan/tap, hanem `pressStart/Move/End/Cancel`; üres területen húzás = pásztázás.
+- `src/input/selectionController.ts` – nyomás életciklusa: kiemelés követi az ujjat, 250 ms után lupe (2,5×, 56 pt sugár), a lupéból > 56 pt-re kihúzva = mégse, elengedés = kiosztás. `refresh()` minden frame-ben (a tömeg mozog).
+- Render: `creatureLayer` kiemelés (keret + billegő nyíl; piros, ha nem jogosult), `src/render/loupe.ts` (RenderTexture-be újrarajzolt világ, kör maszk, az ujj fölött; felül lent jelenik meg).
+- Kiosztás csak `GameSession.assign`-on át (szünetben is, logolva). Ideiglenes: `?skill=<id>` és `?filter=left|right`, amíg a T2.4 képességsávja nincs kész; irányszűrő-gomb bal lent (`direction-filter`).
+- Tesztpálya: `src/levels/test/crowd.ts` (10 lény egy 44 px-es fém gödörben). Debug: `__pathlings.press`, `.lastAttempt`, `.pick(x,y)`, `.toScreen(x,y)`.
+
 ## Fontos tudnivalók a magról
 - Publikus API: `src/core/index.ts`. Sim: `createSim`, `step`/`stepN`, `assign`, `popAll`, `setReleaseInterval`, `canAssign`, `drainEvents`, `stateHash`, `rewindTo`, `runSolution`, `exportSolution`.
 - Tesztpályák referencia-megoldással: `tests/fixtures/levels/` (`FIXTURE_LEVELS`: walkHome, digDown, tunnel, clockwork, cliff) – a renderer/e2e ezekre építhet.
@@ -39,10 +47,9 @@ Ellenőrzés (T2.2 után): `npm run check` 357/357 unit teszt zöld, `npm run bu
 - Üzleti modell (PLAN.md §2): 30 pálya + napi pálya + szerkesztő + kódok ingyen, „Teljes játék” $2,99, opcionális Supporter $2,99 (kozmetikum).
 
 ## Következő lépések sorrendben
-1. **T2.3 Smart selection** – pontozó függvény unit tesztekkel, a `canAssign`/`bodyCenter` lekérdezésekre; a `PlayScreen.onGesture` `tap` ágába kötendő (a `camera.toWorld`-del).
-3. **T2.4 HUD + controls** + 5 kézi tesztpálya, e2e végigjátszással (a `src/levels/test` megoldásaival).
-4. M2 végén `game-reviewer` kör (screenshotok 360×640 / 412×915).
-5. M3 (effektek, rewind UI, hang/haptika, perf) → M4 (pályakód + szerkesztő).
+1. **T2.4 HUD + controls** (a képességsáv váltja le a `?skill=` paramétert; az irányszűrő- és teljes-pálya gomb kerüljön a vezérlősorba) + 5 kézi tesztpálya, e2e végigjátszással (a `src/levels/test` megoldásaival).
+2. M2 végén `game-reviewer` kör (screenshotok 360×640 / 412×915).
+3. M3 (effektek, rewind UI, hang/haptika, perf) → M4 (pályakód + szerkesztő).
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.

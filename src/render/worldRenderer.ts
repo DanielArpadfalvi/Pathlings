@@ -1,7 +1,7 @@
 import { Container, Graphics } from 'pixi.js';
 import type { Sim, SimEvent } from '../core/world';
 import type { CameraState } from './camera';
-import { CreatureLayer } from './creatureLayer';
+import { CreatureLayer, type Highlight } from './creatureLayer';
 import { PositionHistory } from './interp';
 import { ObjectLayer } from './objectLayer';
 import type { ThemePalette } from './palette';
@@ -44,6 +44,7 @@ export class WorldRenderer {
   private readonly objects: ObjectLayer;
   private readonly creatures = new CreatureLayer();
   private readonly history = new PositionHistory();
+  private highlight: Highlight | null = null;
 
   constructor(private readonly sim: Sim) {
     this.palette = PALETTES[sim.level.theme] ?? PALETTES.glade;
@@ -89,7 +90,12 @@ export class WorldRenderer {
   render(alpha: number, timeMs: number): void {
     this.terrain.flush();
     this.objects.update(this.sim, timeMs);
-    this.creatures.update(this.sim, this.history, alpha);
+    this.creatures.update(this.sim, this.history, alpha, this.highlight);
+  }
+
+  /** Pre-highlight of the creature under the finger (null: none). */
+  setHighlight(h: Highlight | null): void {
+    this.highlight = h;
   }
 
   get stats(): RenderStats {

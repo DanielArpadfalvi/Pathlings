@@ -4,6 +4,9 @@ export const en = {
   'app.tagline': 'Guide them home.',
   'app.loading': 'Loading…',
   'camera.wholeLevel': 'Show whole level',
+  'filter.both': 'Select creatures walking either way',
+  'filter.left': 'Select only creatures walking left',
+  'filter.right': 'Select only creatures walking right',
 } as const;
 
 export type TranslationKey = keyof typeof en;

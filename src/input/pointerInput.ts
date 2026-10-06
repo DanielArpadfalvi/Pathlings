@@ -1,4 +1,4 @@
-import type { Gesture, PointerPhase } from './gestures';
+import type { Gesture, HitTest, PointerPhase } from './gestures';
 import { GestureRecognizer } from './gestures';
 
 /** Wheel zoom step per 100 px of wheel delta (desktop / web). */
@@ -8,6 +8,8 @@ export interface PointerInputHandlers {
   onGesture(g: Gesture): void;
   /** Mouse wheel / trackpad zoom around a point (web only). */
   onWheelZoom(x: number, y: number, factor: number): void;
+  /** Whether a touch at (x, y) lands on a selectable creature (starts a press, not a pan). */
+  hitTest?: HitTest;
 }
 
 /**
@@ -15,7 +17,7 @@ export interface PointerInputHandlers {
  * CSS px). Returns a function that removes the listeners.
  */
 export function attachPointerInput(el: HTMLElement, handlers: PointerInputHandlers): () => void {
-  const rec = new GestureRecognizer();
+  const rec = new GestureRecognizer(handlers.hitTest);
 
   const feed = (e: PointerEvent, phase: PointerPhase): void => {
     const r = el.getBoundingClientRect();

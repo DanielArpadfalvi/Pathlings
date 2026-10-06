@@ -2,7 +2,10 @@
  * Pointer gestures on the play field (§1.7): one finger = tap or (after a 5-pt dead zone) pan,
  * two fingers = pinch zoom + pan, two quick taps = double tap. Pure state machine fed with
  * pointer samples in CSS px and a timestamp; returns the gestures recognised by each sample.
- * Taps are reported on release; the selection layer (T2.3) decides what a tap means.
+ *
+ * A one-finger touch that lands on a creature (the `hitTest` callback says so) is a *press*
+ * instead: no pan, no tap – `pressStart` / `pressMove` / `pressEnd` let the selection follow the
+ * finger (§1.7: pre-highlight, loupe, assign on release). A second finger cancels the press.
  */
 
 /** Movement (CSS px ≈ pt) before a touch counts as a drag instead of a tap. */
@@ -28,7 +31,14 @@ export type Gesture =
   | { type: 'pan'; dx: number; dy: number }
   | { type: 'pinch'; x: number; y: number; factor: number }
   | { type: 'panStart' }
-  | { type: 'panEnd' };
+  | { type: 'panEnd' }
+  | { type: 'pressStart'; x: number; y: number; t: number }
+  | { type: 'pressMove'; x: number; y: number; t: number }
+  | { type: 'pressEnd'; x: number; y: number; t: number }
+  | { type: 'pressCancel' };
+
+/** Whether a one-finger touch at (x, y) CSS px starts on something selectable. */
+export type HitTest = (x: number, y: number) => boolean;
 
 interface Touch {
   x: number;
@@ -44,6 +54,10 @@ export class GestureRecognizer {
   /** A second finger took part since the first one went down: the release is not a tap. */
   private multi = false;
   private lastTap: { x: number; y: number; t: number } | null = null;
+  /** The current one-finger touch is a press on a creature. */
+  private pressing = false;
+
+  constructor(private readonly hitTest: HitTest = () => false) {}
 
   /** Number of fingers currently down. */
   get active(): number {
@@ -68,12 +82,16 @@ export class GestureRecognizer {
     this.touches.set(s.id, { x: s.x, y: s.y, startX: s.x, startY: s.y });
     const out: Gesture[] = [];
     if (this.touches.size === 2) {
+      if (this.pressing) out.push({ type: 'pressCancel' });
+      this.pressing = false;
       if (!this.dragging) out.push({ type: 'panStart' });
       this.multi = true;
       this.dragging = true;
     } else {
       this.multi = false;
       this.dragging = false;
+      this.pressing = this.hitTest(s.x, s.y);
+      if (this.pressing) out.push({ type: 'pressStart', x: s.x, y: s.y, t: s.t });
     }
     return out;
   }
@@ -81,6 +99,11 @@ export class GestureRecognizer {
   private move(s: PointerSample): Gesture[] {
     const t = this.touches.get(s.id);
     if (!t) return [];
+    if (this.touches.size === 1 && this.pressing) {
+      t.x = s.x;
+      t.y = s.y;
+      return [{ type: 'pressMove', x: s.x, y: s.y, t: s.t }];
+    }
     if (this.touches.size === 1) {
       const dx = s.x - t.x;
       const dy = s.y - t.y;
@@ -122,7 +145,10 @@ export class GestureRecognizer {
     this.touches.delete(s.id);
     if (this.touches.size === 1) return []; // pinch → the remaining finger keeps panning
     const out: Gesture[] = [];
-    if (this.dragging) {
+    if (this.pressing) {
+      out.push(cancelled ? { type: 'pressCancel' } : { type: 'pressEnd', x: s.x, y: s.y, t: s.t });
+      this.lastTap = null;
+    } else if (this.dragging) {
       out.push({ type: 'panEnd' });
     } else if (!cancelled && !this.multi) {
       const last = this.lastTap;
@@ -140,6 +166,7 @@ export class GestureRecognizer {
     }
     this.dragging = false;
     this.multi = false;
+    this.pressing = false;
     return out;
   }
 }

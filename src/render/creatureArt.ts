@@ -131,3 +131,12 @@ export const DIGITS: readonly PixelGrid[] = DIGIT_ROWS.map((rows) => ({ rows, ox
 export const BADGE_KEY: ColorKey = { c: 0xffc94a, g: 0x8ff06a };
 export const SCALER_BADGE: PixelGrid = { rows: ['.c.', 'ccc', 'c.c'], ox: 1 };
 export const GLIDER_BADGE: PixelGrid = { rows: ['ggg', 'g.g', '.g.'], ox: 1 };
+
+/** Selection marker above the highlighted creature: a down arrow (5 × 4). */
+export const MARKER_KEY: ColorKey = { y: 0xfff1a8, k: 0x1a1626, r: 0xff6a5a };
+export const TARGET_ARROW: PixelGrid = { rows: ['kyyyk', '.kyk.', '..k..', '.....'], ox: 2 };
+/** The same arrow in red: the highlighted creature cannot take the selected skill. */
+export const TARGET_ARROW_INVALID: PixelGrid = {
+  rows: ['krrrk', '.krk.', '..k..', '.....'],
+  ox: 2,
+};

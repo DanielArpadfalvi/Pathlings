@@ -1,7 +1,7 @@
-import type { LevelDef } from '../core/level';
+import type { LevelDef, SkillId } from '../core/level';
 import type { InputLog } from '../core/replay';
 import { playLog } from '../core/replay';
-import { createSim, drainEvents, step } from '../core/sim';
+import { assign, createSim, drainEvents, step } from '../core/sim';
 import type { Sim, SimEvent } from '../core/world';
 import { FixedClock } from './clock';
 
@@ -56,6 +56,14 @@ export class GameSession {
     else step(this.sim);
     const events = drainEvents(this.sim);
     for (const l of this.listeners) l(this.sim, events);
+  }
+
+  /**
+   * Player command: give `skill` to creature `id` now (works while paused; logged for replay).
+   * Returns false – consuming nothing – when the creature cannot take it.
+   */
+  assign(id: number, skill: SkillId): boolean {
+    return assign(this.sim, id, skill);
   }
 
   /** Fast-forwards to `tick` (or the level end) without waiting for real time. */
