@@ -170,13 +170,14 @@ export class PlayScreen {
             valid: this.skill !== null && canAssign(sim, view.target, this.skill),
           },
     );
-    this.renderer.applyCamera(this.camera.state, this.camera.viewport);
+    this.renderer.applyCamera(this.camera.state, this.camera.screenCenter);
     this.renderer.render(this.session.alpha, nowMs);
     this.loupe.update(
       this.app.renderer,
       this.renderer.world,
       this.camera.state,
       this.camera.viewport,
+      this.camera.screenCenter,
       view.loupe ? { at: view.loupe, zoom: LOUPE_ZOOM, radius: LOUPE_RADIUS } : null,
     );
   }

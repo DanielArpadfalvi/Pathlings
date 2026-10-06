@@ -74,13 +74,10 @@ export class WorldRenderer {
     this.history.capture(sim.creatures);
   }
 
-  /** Positions and scales the world container for a camera view (see `camera.ts`). */
-  applyCamera(cam: CameraState, viewport: { w: number; h: number }): void {
+  /** Positions and scales the world container so world point (cx, cy) lands on `center`. */
+  applyCamera(cam: CameraState, center: { x: number; y: number }): void {
     this.world.scale.set(cam.scale);
-    this.world.position.set(
-      viewport.w / 2 - cam.cx * cam.scale,
-      viewport.h / 2 - cam.cy * cam.scale,
-    );
+    this.world.position.set(center.x - cam.cx * cam.scale, center.y - cam.cy * cam.scale);
   }
 
   /**

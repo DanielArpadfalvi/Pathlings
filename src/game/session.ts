@@ -1,7 +1,15 @@
 import type { LevelDef, SkillId } from '../core/level';
 import type { InputLog } from '../core/replay';
 import { playLog } from '../core/replay';
-import { assign, createSim, drainEvents, step } from '../core/sim';
+import {
+  adjustReleaseInterval,
+  assign,
+  createSim,
+  drainEvents,
+  popAll,
+  releaseBounds,
+  step,
+} from '../core/sim';
 import type { Sim, SimEvent } from '../core/world';
 import { FixedClock } from './clock';
 
@@ -64,6 +72,21 @@ export class GameSession {
    */
   assign(id: number, skill: SkillId): boolean {
     return assign(this.sim, id, skill);
+  }
+
+  /** Player command: "pop all" – every creature becomes a Popper, no more are released. */
+  popAll(): boolean {
+    return popAll(this.sim);
+  }
+
+  /**
+   * Release-rate buttons: `direction` −1 = slower, +1 = faster. One press moves an eighth of the
+   * level's range (at least 1 tick), so ~8 presses span slowest → fastest.
+   */
+  changeRelease(direction: 1 | -1): boolean {
+    const { fastest, slowest } = releaseBounds(this.sim);
+    const stepTicks = Math.max(1, Math.round((slowest - fastest) / 8));
+    return adjustReleaseInterval(this.sim, -direction * stepTicks);
   }
 
   /** Fast-forwards to `tick` (or the level end) without waiting for real time. */

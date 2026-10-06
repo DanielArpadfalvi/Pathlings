@@ -35,6 +35,7 @@ export class Loupe {
     world: Container,
     cam: CameraState,
     viewport: { w: number; h: number },
+    center: { x: number; y: number },
     view: LoupeView | null,
   ): void {
     if (!view) {
@@ -63,8 +64,8 @@ export class Loupe {
     }
 
     // World point under the finger, shown in the middle of the loupe.
-    const wx = cam.cx + (view.at.x - viewport.w / 2) / cam.scale;
-    const wy = cam.cy + (view.at.y - viewport.h / 2) / cam.scale;
+    const wx = cam.cx + (view.at.x - center.x) / cam.scale;
+    const wy = cam.cy + (view.at.y - center.y) / cam.scale;
     const scale = cam.scale * view.zoom;
     const saved = { x: world.position.x, y: world.position.y, s: world.scale.x };
     world.scale.set(scale);

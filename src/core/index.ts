@@ -10,6 +10,7 @@ export * from './replay';
 export * from './rng';
 export * from './sim';
 export * from './skills';
+export * from './stars';
 export * from './stamps';
 export * from './terrain';
 export * from './version';

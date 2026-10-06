@@ -42,6 +42,9 @@ export class Camera {
   scale = 1;
   private viewW = 1;
   private viewH = 1;
+  /** Screen strips covered by UI (HUD on top, controls at the bottom), CSS px. */
+  private insetTop = 0;
+  private insetBottom = 0;
   private anim: { from: CameraState; to: CameraState; t: number } | null = null;
 
   constructor(
@@ -56,13 +59,23 @@ export class Camera {
     return { w: this.viewW, h: this.viewH };
   }
 
+  /** Height of the visible strip between the UI insets. */
+  private get visH(): number {
+    return Math.max(1, this.viewH - this.insetTop - this.insetBottom);
+  }
+
+  /** Screen point where the camera centre (cx, cy) is drawn: the middle of the visible strip. */
+  get screenCenter(): Point {
+    return { x: this.viewW / 2, y: this.insetTop + this.visH / 2 };
+  }
+
   get state(): CameraState {
     return { cx: this.cx, cy: this.cy, scale: this.scale };
   }
 
   /** Scale at which the whole level fits the viewport. */
   get fitScale(): number {
-    return Math.min(this.viewW / this.worldW, this.viewH / this.worldH);
+    return Math.min(this.viewW / this.worldW, this.visH / this.worldH);
   }
 
   /** ~200 world px across, within the zoom limits. */
@@ -95,6 +108,13 @@ export class Camera {
     this.set(this.state);
   }
 
+  /** UI strips that hide part of the viewport; the camera frames the strip in between. */
+  setInsets(top: number, bottom: number): void {
+    this.insetTop = Math.max(0, top);
+    this.insetBottom = Math.max(0, bottom);
+    this.set(this.state);
+  }
+
   /** Jumps to a state (clamped); cancels any animation. */
   set(s: CameraState): void {
     this.anim = null;
@@ -108,7 +128,7 @@ export class Camera {
   clamped(s: CameraState): CameraState {
     const scale = clamp(s.scale, this.minScale, this.maxScale);
     const halfW = this.viewW / scale / 2;
-    const halfH = this.viewH / scale / 2;
+    const halfH = this.visH / scale / 2;
     const cx = halfW * 2 >= this.worldW ? this.worldW / 2 : clamp(s.cx, halfW, this.worldW - halfW);
     const cy = halfH * 2 >= this.worldH ? this.worldH / 2 : clamp(s.cy, halfH, this.worldH - halfH);
     return { cx, cy, scale };
@@ -117,14 +137,14 @@ export class Camera {
   toWorld(p: Point): Point {
     return {
       x: this.cx + (p.x - this.viewW / 2) / this.scale,
-      y: this.cy + (p.y - this.viewH / 2) / this.scale,
+      y: this.cy + (p.y - this.screenCenter.y) / this.scale,
     };
   }
 
   toScreen(p: Point): Point {
     return {
       x: (p.x - this.cx) * this.scale + this.viewW / 2,
-      y: (p.y - this.cy) * this.scale + this.viewH / 2,
+      y: (p.y - this.cy) * this.scale + this.screenCenter.y,
     };
   }
 
@@ -144,7 +164,7 @@ export class Camera {
     const w = this.toWorld(at);
     return {
       cx: w.x - (at.x - this.viewW / 2) / s,
-      cy: w.y - (at.y - this.viewH / 2) / s,
+      cy: w.y - (at.y - this.screenCenter.y) / s,
       scale: s,
     };
   }
@@ -178,7 +198,7 @@ export class Camera {
       return;
     }
     const viewW = this.viewW / scale;
-    const viewH = this.viewH / scale;
+    const viewH = this.visH / scale;
     let box = entrance;
     let best = Infinity;
     for (const e of exits) {
