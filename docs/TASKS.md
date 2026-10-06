@@ -1,0 +1,74 @@
+# Task list
+
+Status: `[ ]` todo · `[~]` in progress · `[x]` done (verified by orchestrator). Acceptance criteria (AC) must all hold.
+Plan / numbers: `docs/PLAN.md` (Hungarian). Section refs like (§1.1) point there.
+
+## M0 – Foundation
+- [ ] **T0.1 Scaffold** – Vite + TS strict, ESLint (flat config) + Prettier, Vitest, Playwright (Chromium from /opt/pw-browsers), PixiJS v8, Preact, fflate. Scripts per CLAUDE.md. Portrait Pixi canvas (fills viewport, DPR-aware, nearest-neighbour scaling) + Preact overlay root. App id `com.arpadfalvi.pathlings` in one config constant. AC: `npm run check`, `npm run build`, `npm run test:e2e` (smoke: page loads, canvas exists, no console errors) all pass.
+- [ ] **T0.2 CI** – `.github/workflows/ci.yml` (node 22, npm ci, check, build, e2e), copied/adapted from Swaplight. AC: valid YAML, mirrors local commands; a lint rule or test fails the build if `src/core/**` uses `Math.random`, `Date.now`, `performance.now`, DOM or Pixi imports.
+
+## M1 – Core engine (`src/core`)
+- [ ] **T1.1 Terrain + materials** – byte mask (pattern: Craterpult `src/core/terrain.ts`), materials air/soil/rock/metal/one-way-L/one-way-R/crumble (§1.1), `materialAt`, `isSolid`, carve circle/rect/9-px column/tunnel step, write-plank (only into air), dirty-rect result, crumble timers. AC: unit tests per material (metal never removed, one-way only removable in its direction, crumble disappears 60 ticks after first contact); ≥ 90 % line coverage of the module.
+- [ ] **T1.2 Rasterizer** – editor ops → terrain: rect, circle, ramp, polygon (integer scanline), brush stroke (3 sizes), eraser, stamps (data-defined pixel shapes), all integer-only. AC: golden-hash tests for ≥ 12 op combinations; same ops list ⇒ identical mask hash; no float values reach `cells`.
+- [ ] **T1.3 Creature state machine** – spawn, walk (1 px / 3 ticks, 6 px step-up, turn at walls), fall (1 px/tick, death above 60 px), exit (20-tick enter), deaths (water, lava, out of bounds), release rate (+/− within [min, 4×]). AC: scenario tests with tiny hand-built terrains for each rule, numbers exactly as in §1.1.
+- [ ] **T1.4 Eight skills** – Scaler, Glider, Popper, Warden, Mason, Burrower, Sloper, Delver with numbers from §1.1 table; `canAssign` rules; permanent skills stack ("all-rounder"); invalid assignment does not consume stock; Pop-all. AC: ≥ 2 scenario tests per skill (incl. edge cases: Mason hits wall, Burrower runs out of material, Delver/Burrower stop at metal, Warden freed by digging under it, Popper countdown = 300 ticks, crater r = 12 leaves metal).
+- [ ] **T1.5 Objects** – entrance(s), exit(s), water, lava, trap (1 kill / 180 ticks), teleporter pair, bounce pad (40 px). AC: scenario test per object; multi-entrance spawns alternate deterministically.
+- [ ] **T1.6 Sim loop, events, replay** – `createSim(levelDef)`, `step()`, commands (assign skill by creature id, release rate, pop-all), event stream (spawned, saved, died, skillAssigned, terrainChanged, levelEnded), input log, FNV-1a state hash, keyframes every 60 ticks, `rewindTo(tick)`, headless `runSolution()`. AC: determinism test (same level + log ⇒ same hash, 3 runs); rewind to any tick then resume ⇒ same hash as straight run; 18 000-tick headless run with 100 creatures < 300 ms in Vitest on CI.
+- [ ] **T1.7 Level definition + validation** – types per §3.3, validator (entrance + exit present, required ≤ creatures, sizes, op limit 1024). AC: unit tests for every validation error.
+
+## M2 – Playable prototype
+- [ ] **T2.1 Renderer** – terrain texture with dirty-rect partial uploads (≤ 1 upload/frame), per-material procedural pixel patterns + edge highlight, code-defined creature sprites (walk/fall/dig/build/bash/climb/glide/block), objects, interpolation between ticks. AC: Playwright screenshot of a test level reviewed; frame never mutates core state (render module has no core write imports – lint/test).
+- [ ] **T2.2 Camera** – portrait, default zoom ≈ 200 world px across, 1×–4× pinch zoom, one-finger pan with 5 pt dead-zone, double-tap zoom, "whole level" button, start framing entrance (+ exit if it fits). AC: e2e: pinch + pan via synthesized pointer events changes camera without issuing commands.
+- [ ] **T2.3 Smart selection** – 28 pt radius candidate scoring (§1.7: eligible > distance > unassigned > direction > id), pre-highlight under finger, loupe after 250 ms hold (2.5×), drag-off-to-cancel, direction filter, assignment while paused. AC: unit tests for the scoring function (≥ 8 crowd cases); e2e: tapping 10 pt beside a creature in a crowd of 10 assigns to the expected one.
+- [ ] **T2.4 HUD + controls** – top HUD (out / saved / required / time), bottom skill bar (8 buttons ≥ 48×48 pt with stock), pause, speed (0.5/1/2/4×), release ±, pop-all (0.6 s hold + confirm), level end screen. 5 hand-made test levels. AC: e2e plays a scripted solution through the UI and reaches "level complete"; screenshots reviewed.
+
+## M3 – Game feel
+- [ ] **T3.1 Animation & effects** – full creature animation set (§1.11), Popper shake + crater particles, exit "pop-in", plank sparkle, lava glow, screen shake (off in reduced motion). AC: screenshot/video review by reviewer agent, no reviewer "major" findings.
+- [ ] **T3.2 Rewind + speed polish** – hold-to-rewind (4×), timeline scrub feedback, auto-pause-on-select option. AC: e2e: make a fatal mistake, rewind 5 s, fix it, finish the level; memory < 30 MB for a 10-min run (measured in a unit/perf test via keyframe size accounting).
+- [ ] **T3.3 Audio + haptics** – procedural SFX (step, dig, plank rising pitch, pop, save chord, invalid "no"), generative music per world (tempo follows speed), Capacitor Haptics via `platform`. AC: all SFX triggered from the event stream (unit test with a fake audio sink); volume settings respected.
+- [ ] **T3.4 Performance pass** – 100 creatures on 640×960 at 4× speed. AC: Playwright perf probe ≥ 55 FPS average on CI Chromium (CPU throttle 4×) over 20 s; core tick < 0.5 ms average.
+
+## M4 – Level editor & level codes
+- [ ] **T4.1 Level code** – binary format §3.3 (varint/delta, CRC32, `SIM_VERSION`), fflate deflate-raw level 9, base64url, `PL1-` prefix, whitespace-tolerant parse. AC: round-trip property test on 200 generated levels; any single-byte corruption ⇒ rejected; typical test level ≤ 1 KB compressed; hard limit 4 KB enforced.
+- [ ] **T4.2 Verification on load** – decode → rasterize → replay embedded solution headless → "verified" only if saved ≥ required and final hash matches. AC: tests: valid code verified; code with tampered solution, tampered terrain op, or edited `required` ⇒ "not verified"; verification of a 5-min level < 300 ms.
+- [ ] **T4.3 Editor core** – op list model, undo/redo (≥ 100 steps), tools (brush 3 sizes, shapes, stamps ~16/theme, eraser, objects, hand), properties panel fields (§1.8), live validation + code-size meter. AC: unit tests for undo/redo and op-limit; e2e builds a small level with each tool.
+- [ ] **T4.4 Editor UI (portrait, one-handed)** – bottom toolbar, material picker, property sheet, test-play button, publish flow (must win test-play ⇒ code generated with solution). AC: e2e: build → test-play → solve scripted → copy code → paste on "Play code" screen → level loads as verified.
+- [ ] **T4.5 Sharing** – copy/paste via `platform` clipboard, system share sheet (text), "Play code" screen with paste detection, my-levels collection (saved/received, favourites, delete). AC: e2e with clipboard mock; received levels persist across reload.
+
+## M5 – Content
+- [ ] **T5.1 Level pipeline** – `src/levels/<world>/NN.json`, `scripts/validate-levels` (runs every reference solution, checks hash, stars thresholds, difficulty tag, title i18n keys) wired into `npm run check`. AC: CI fails if any built-in level is unsolvable or a solution drifts.
+- [ ] **T5.2 World 1 – Mossy Glade (20) + tutorial** – first 8 levels introduce one skill each with contextual bubbles, ghost hand, auto-pause; controls introduced over levels 1–3; skippable. AC: all 20 validated; e2e completes tutorial level 1 by following the hints only.
+- [ ] **T5.3 World 2 – Crystal Deep (20)** – rock, metal, one-way, lava, vertical shafts. AC: validated; difficulty tags 3–8.
+- [ ] **T5.4 World 3 – Clockworks (20)** – traps, teleporters, bounce pads, multi entrance/exit. AC: validated; difficulty tags 5–9.
+- [ ] **T5.5 World 4 – Skyreach (20)** – crumble, big drops, Scaler+Glider combos. AC: validated; difficulty tags 7–10.
+- [ ] **T5.6 Bonus pool (30) + Daily level** – date-seeded pick from bonus pool (seeded RNG, UTC date) + one modifier (e.g. −1 of a skill, −60 s), modifier solutions validated in CI. AC: same date ⇒ same level+modifier on every platform (unit test); all 30 × modifier combos used in the next 365 days validated.
+- [ ] **T5.7 Hints & solution viewer** – 2 hints per level unlocked after 3 fails, solution replay after 5 fails, "solved with help" mark. AC: unit tests for unlock counters; e2e opens the solution replay.
+
+## M6 – Meta & UI
+- [ ] **T6.1 Main menu, world map, level select** – 3-open-levels progression rule, world gate at 17/20, locked levels show lock + price from the first minute (§2). AC: unit tests for unlock rules; e2e navigates menu → world → level → back.
+- [ ] **T6.2 Settings & pause** – volumes, haptics, speed default, auto-pause, touch radius 20/28/36 pt, left-handed layout, high contrast, reduced motion, larger text, language, restart tutorial, restore purchases. AC: each setting persists and has a visible effect (e2e screenshot per toggle).
+- [ ] **T6.3 Save system** – `platform` storage, versioned schema + migrations, stars, fail counters, my-levels, settings. AC: migration tests from v1 fixtures; corrupted save ⇒ safe defaults, no crash.
+- [ ] **T6.4 i18n EN/HU + accessibility audit** – all strings via `src/i18n`, skill icons + shapes (no color-only info). AC: test fails on missing keys in either language; reviewer agent accessibility checklist has no "major".
+
+## M7 – Mobile shell
+- [ ] **T7.1 Capacitor 8 setup** – android/ios projects, app id `com.arpadfalvi.pathlings`, portrait lock (tablet: centered portrait UI), safe areas, status bar, lifecycle (auto-pause on background), back button handling, clipboard + share plugins behind `platform`. AC: `npx cap sync` clean; web mock and native impls behind same interfaces.
+- [ ] **T7.2 Icon + splash from code** – `scripts/make-assets.ts` (Swaplight pattern) with an original Pathling character. AC: generated assets committed; reviewer approves.
+- [ ] **T7.3 Native CI** – `android.yml` (AAB/APK), `ios.yml` (macOS runner), adapted from Swaplight. AC: both workflows green on the default branch (unsigned/debug if secrets absent).
+- [ ] **T7.4 Deep link (optional)** – `https://<site>/l#PL1-…` and custom scheme open "Play code". AC: e2e for web route; native config present.
+
+## M8 – Monetization
+- [ ] **T8.1 Purchases interface** – `Purchases` in `platform` with mock + RevenueCat impl; entitlements `full_game` (2.99 USD non-consumable) and `supporter` (2.99 USD non-consumable, cosmetic only); restore; offline-safe cached entitlement. AC: unit tests with mock for buy/restore/cancel/offline.
+- [ ] **T8.2 Gates + paywall** – free: 30 campaign levels (world 1 + world 2 levels 1–10), today's daily level, full editor, all codes; paid: rest of world 2, worlds 3–4, bonus/daily archive. Paywall shown once after W2-10 ("Later" button) and from the menu; never mid-level; no "Lite/Demo/Trial" wording. Supporter in Settings only (golden leaf cap + supporter mark in author field). AC: e2e: free user cannot open W2-11, can play any code and use every editor object; after mock purchase all unlock; restore works.
+
+## M9 – Release prep
+- [ ] **T9.1 Store listing EN/HU** – first line states what is free and the unlock price; no trademarked names or keywords of the reference game; generated screenshots (`scripts/store-frames.ts` pattern) incl. editor and code sharing. AC: texts within store length limits; screenshot set for 6.7"/6.5" iPhone, 12.9" iPad, Android phone.
+- [ ] **T9.2 Privacy** – privacy policy page (`docs/site/`), "Data Not Collected" answers (no analytics/crash/ad SDK; RevenueCat classification documented), age-rating questionnaire answers. AC: `docs/store-privacy-answers.md` complete; dependency audit shows no analytics/ad SDKs.
+- [ ] **T9.3 Signed release pipeline** – `docs/RELEASE.md`, `docs/APP-STORE-CHECKLIST.md`, `docs/PLAY-STORE-CHECKLIST.md` (Swaplight pattern); Family Sharing on for iOS IAPs. AC: workflows produce signed builds once owner secrets exist; checklist lists every owner action.
+- [ ] **T9.4 Balance + full QA pass** – reviewer agent plays all 110 levels via UI-level replays, touch-precision test on small/large phone viewports, level-code compatibility test (codes generated in M4 still verify). AC: no open "major" findings; version `1.0.0` set in package.json and native projects.
+
+## M10 – 1.1 ideas (optional)
+- [ ] T10.1 Online level browser (upload, like, search, featured, moderation; backend decision e.g. Supabase)
+- [ ] T10.2 QR code generate/scan for level codes
+- [ ] T10.3 Landscape layout (phones + tablets)
+- [ ] T10.4 World 5 + new objects (conveyor, switch/door, wind) behind a new `SIM_VERSION`
+- [ ] T10.5 Challenge levels, online daily leaderboard, more languages (DE, ES, PT-BR, JA), cloud save
