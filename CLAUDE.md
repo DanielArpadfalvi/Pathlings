@@ -2,6 +2,8 @@
 
 Portrait "guide the walkers home" puzzle game: creatures march automatically, the player hands out a limited set of skills on destructible/buildable pixel terrain. Includes a level editor and offline level-code sharing. Plan: `docs/PLAN.md` (Hungarian). Task list / status: `docs/TASKS.md`.
 
+**Starting a new session? Read `docs/HANDOFF.md` first** (current state, next steps, local setup).
+
 ## Stack
 Vite + TypeScript (strict) · PixiJS v8 (gameplay canvas) · Preact (DOM UI overlay) · Capacitor 8 (iOS/Android) · fflate · Vitest · Playwright.
 

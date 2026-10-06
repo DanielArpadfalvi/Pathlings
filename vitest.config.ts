@@ -4,6 +4,8 @@ export default defineConfig({
   test: {
     include: ['tests/unit/**/*.test.ts'],
     environment: 'node',
+    // Timing assertions (perf budgets) are skipped under coverage instrumentation.
+    env: { PATHLINGS_COVERAGE: process.argv.includes('--coverage') ? '1' : '' },
     coverage: {
       provider: 'v8',
       include: ['src/core/**/*.ts'],
