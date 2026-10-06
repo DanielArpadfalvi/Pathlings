@@ -1,0 +1,71 @@
+:root {
+  --bg: #0b1020;
+  --text: #f4f1e8;
+  --dim: #a7b0c8;
+  --accent: #8fe36b;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#app,
+#stage,
+#ui {
+  position: fixed;
+  inset: 0;
+}
+
+#ui {
+  pointer-events: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.title-card {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--safe-top) + 18vh);
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: 44px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  text-shadow: 0 3px 0 #2c5a1e;
+}
+
+.tagline {
+  margin: 8px 0 0;
+  font-size: 18px;
+  color: var(--dim);
+}

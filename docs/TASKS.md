@@ -4,8 +4,8 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done (verified by orchestrator)
 Plan / numbers: `docs/PLAN.md` (Hungarian). Section refs like (§1.1) point there.
 
 ## M0 – Foundation
-- [ ] **T0.1 Scaffold** – Vite + TS strict, ESLint (flat config) + Prettier, Vitest, Playwright (Chromium from /opt/pw-browsers), PixiJS v8, Preact, fflate. Scripts per CLAUDE.md. Portrait Pixi canvas (fills viewport, DPR-aware, nearest-neighbour scaling) + Preact overlay root. App id `com.arpadfalvi.pathlings` in one config constant. AC: `npm run check`, `npm run build`, `npm run test:e2e` (smoke: page loads, canvas exists, no console errors) all pass.
-- [ ] **T0.2 CI** – `.github/workflows/ci.yml` (node 22, npm ci, check, build, e2e), copied/adapted from Swaplight. AC: valid YAML, mirrors local commands; a lint rule or test fails the build if `src/core/**` uses `Math.random`, `Date.now`, `performance.now`, DOM or Pixi imports.
+- [x] **T0.1 Scaffold** – Vite + TS strict, ESLint (flat config) + Prettier, Vitest, Playwright (Chromium from /opt/pw-browsers), PixiJS v8, Preact, fflate. Scripts per CLAUDE.md. Portrait Pixi canvas (fills viewport, DPR-aware, nearest-neighbour scaling) + Preact overlay root. App id `com.arpadfalvi.pathlings` in one config constant. AC: `npm run check`, `npm run build`, `npm run test:e2e` (smoke: page loads, canvas exists, no console errors) all pass.
+- [x] **T0.2 CI** – `.github/workflows/ci.yml` (node 22, npm ci, check, build, e2e), copied/adapted from Swaplight. AC: valid YAML, mirrors local commands; a lint rule or test fails the build if `src/core/**` uses `Math.random`, `Date.now`, `performance.now`, DOM or Pixi imports.
 
 ## M1 – Core engine (`src/core`)
 - [ ] **T1.1 Terrain + materials** – byte mask (pattern: Craterpult `src/core/terrain.ts`), materials air/soil/rock/metal/one-way-L/one-way-R/crumble (§1.1), `materialAt`, `isSolid`, carve circle/rect/9-px column/tunnel step, write-plank (only into air), dirty-rect result, crumble timers. AC: unit tests per material (metal never removed, one-way only removable in its direction, crumble disappears 60 ticks after first contact); ≥ 90 % line coverage of the module.
