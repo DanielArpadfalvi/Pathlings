@@ -27,7 +27,9 @@ import { WebAudioEngine } from '../audio/synth';
 import { type AudioSettings, DEFAULT_AUDIO, sanitizeAudio } from '../audio/volume';
 import { getHaptics } from '../platform/haptics';
 import { type DailyLevel, dailyLevel, modifierText, utcDate } from './daily';
-import type { DailyInfo } from './hud';
+import type { DailyInfo, HelpInfo } from './hud';
+import { HelpTracker } from './help';
+import { hashHex } from '../core/hash';
 
 /** Game speeds of the speed button, in cycle order starting from 1× (§1.7). */
 export const SPEEDS = [1, 2, 4, 0.5] as const;
@@ -37,12 +39,16 @@ const END_SCREEN_DELAY_MS = 700;
 const ATTRACT_RESTART_MS = 2000;
 /** Hold-to-rewind runs backwards at this multiple of real time (§1.7). */
 export const REWIND_SPEED = 4;
+/** A retry after this many ticks counts as a failed attempt (hint / solution unlock). */
+export const RETRY_COUNTS_AFTER_TICKS = 5 * 60;
 
 /** UI → game commands (buttons, keyboard). */
 export interface GameActions {
   play(): void;
   /** Today's daily level (bonus pool + modifier). */
   playDaily(): void;
+  /** Replay the level's reference solution (once unlocked by failed attempts). */
+  watchSolution(): void;
   selectSkill(skill: SkillId): void;
   togglePause(): void;
   cycleSpeed(): void;
@@ -129,6 +135,11 @@ export class GameApp implements GameActions, EditorActions {
   private rewindAcc = 0;
   /** The daily level being played (null: any other level). */
   private daily: DailyLevel | null = null;
+  readonly help = new HelpTracker(getStore());
+  /** The current screen replays the reference solution (no player input). */
+  private watching = false;
+  /** The current attempt's outcome was counted (win / fail). */
+  private outcomeCounted = false;
 
   constructor(
     private readonly app: Application,
@@ -213,7 +224,7 @@ export class GameApp implements GameActions, EditorActions {
     }
     const level = this.levels[this.index] as LevelDef;
     const screen = new PlayScreen(this.app, level, {
-      autoplay: fromParams && p.autoplay ? level.solution : undefined,
+      autoplay: this.watching || (fromParams && p.autoplay) ? level.solution : undefined,
       seek: fromParams ? p.seek : 0,
       paused: fromParams && p.paused,
       interactive: true,
@@ -263,6 +274,7 @@ export class GameApp implements GameActions, EditorActions {
     if (this.mode === 'play') this.ps.filter = filter;
     this.endedAt = -1;
     this.rewinding = false;
+    this.outcomeCounted = false;
     this.publishHud();
   }
 
@@ -296,7 +308,10 @@ export class GameApp implements GameActions, EditorActions {
     this.audio.setDucked(this.mode === 'play' && (session.paused || session.sim.ended));
     const ended = session.sim.ended;
     if (!ended) this.endedAt = -1;
-    else if (this.endedAt < 0) this.endedAt = this.now;
+    else if (this.endedAt < 0) {
+      this.endedAt = this.now;
+      this.countOutcome();
+    }
     if (this.mode === 'title' && ended && this.now - this.endedAt > ATTRACT_RESTART_MS) {
       this.replaceScreen();
       return;
@@ -330,6 +345,8 @@ export class GameApp implements GameActions, EditorActions {
       testPlay: this.testing,
       tutorial: this.tutorial?.view ?? null,
       daily: this.daily ? dailyInfo(this.daily) : null,
+      help: this.helpInfo(),
+      watching: this.watching,
     });
   }
 
@@ -344,12 +361,56 @@ export class GameApp implements GameActions, EditorActions {
     return this.dailyCache;
   }
 
+  /** Key of the current level in the help records (null: no help, e.g. test play). */
+  private helpKey(): string | null {
+    if (this.mode !== 'play' || this.testing || !this.screen) return null;
+    if (this.daily) return `daily:${this.daily.date}`;
+    const level = this.ps.session.level;
+    if (level.id) return level.id;
+    return level.solution ? `code:${hashHex(level.solution.finalHash)}` : null;
+  }
+
+  private helpInfo(): HelpInfo | null {
+    const key = this.helpKey();
+    if (!key) return null;
+    const level = this.ps.session.level;
+    const view = this.help.view(key);
+    const all = level.hintKeys?.length
+      ? level.hintKeys.map((k) => t(k as TranslationKey))
+      : level.hints.filter((h) => h.trim() !== '');
+    return {
+      ...view,
+      hints: view.hintsUnlocked ? all : [],
+      hintCount: all.length,
+      hasSolution: level.solution !== undefined,
+    };
+  }
+
+  /** Counts a finished attempt once (never while watching the solution). */
+  private countOutcome(): void {
+    const key = this.helpKey();
+    if (!key || this.watching || this.outcomeCounted) return;
+    this.outcomeCounted = true;
+    const sim = this.ps.session.sim;
+    if (sim.saved >= sim.level.required) this.help.recordWin(key);
+    else this.help.recordFail(key);
+  }
+
+  watchSolution(): void {
+    const key = this.helpKey();
+    if (!key || !this.ps.session.level.solution) return;
+    if (!this.help.watchSolution(key)) return;
+    this.watching = true;
+    this.replaceScreen();
+  }
+
   playDaily(): void {
     const today = this.dailyFor(this.params.daily ?? 'today');
     if (!today) return;
     this.testing = false;
     this.mode = 'play';
     this.daily = today;
+    this.watching = false;
     this.levels = [today.level];
     this.index = 0;
     this.replaceScreen();
@@ -357,6 +418,7 @@ export class GameApp implements GameActions, EditorActions {
 
   play(): void {
     this.daily = null;
+    this.watching = false;
     this.testing = false;
     this.mode = 'play';
     this.levels = BUILTIN_LEVELS.w1.length > 0 ? BUILTIN_LEVELS.w1 : FIXTURE_LEVELS;
@@ -365,7 +427,7 @@ export class GameApp implements GameActions, EditorActions {
   }
 
   selectSkill(skill: SkillId): void {
-    if (this.mode !== 'play') return;
+    if (this.mode !== 'play' || this.watching) return;
     this.ps.skill = this.ps.skill === skill ? null : skill;
     this.publishHud();
   }
@@ -398,12 +460,18 @@ export class GameApp implements GameActions, EditorActions {
 
   retry(): void {
     if (this.mode !== 'play') return;
+    // Giving up a running attempt counts as a failed one (a quick restart does not).
+    if (!this.ps.session.sim.ended && this.ps.session.sim.tick >= RETRY_COUNTS_AFTER_TICKS) {
+      this.countOutcome();
+    }
+    this.watching = false;
     this.replaceScreen();
   }
 
   next(): void {
     if (this.mode !== 'play') return;
     if (this.index + 1 < this.levels.length) {
+      this.watching = false;
       this.index++;
       this.replaceScreen();
     }
@@ -561,6 +629,7 @@ export class GameApp implements GameActions, EditorActions {
   playLoaded(): void {
     if (!this.loaded) return;
     this.daily = null;
+    this.watching = false;
     this.testing = false;
     this.mode = 'play';
     this.levels = [this.loaded];

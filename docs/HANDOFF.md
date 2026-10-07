@@ -11,7 +11,7 @@ Utolsó frissítés: 2026-10-07. A Pathlingset a **lokális, Pathlings-könyvtá
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 ✅ perf |
 | M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
-| M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · T5.4 ✅ Óraműhely (20) · T5.5 ✅ Felhőszirt (20) · T5.6 ✅ bónusz (30) + napi pálya · következik T5.7 tippek |
+| M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · T5.4 ✅ Óraműhely (20) · T5.5 ✅ Felhőszirt (20) · T5.6 ✅ bónusz (30) + napi pálya · T5.7 ✅ tippek + megoldás |
 | M6–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
@@ -125,8 +125,14 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - App: `src/app/daily.ts` (`utcDate`, `dailyLevel`, `modifierText`), `GameApp.playDaily`, címkártya „Napi pálya” gomb (mai pálya + módosító), HUD-jelvény (`daily-badge`). URL: `?daily=YYYY-MM-DD|today`. E2E: `tests/e2e/daily.spec.ts`.
 - Több pályán szándékosan +1 készlet van, hogy a „−1 képesség” módosító választható legyen.
 
+## Tippek + megoldás-visszajátszás (T5.7)
+- `src/app/help.ts` – `HelpTracker` (tár: `pathlings.help.v1`, a T6.3 mentésrendszer veszi át): pályánkénti sikertelen próbák, 3 után tippek, 5 után megoldás; „segítséggel megoldva”, ha a győzelem előtt megnézte a megoldást (egy későbbi tiszta győzelem törli).
+- Sikertelen próba: vesztes pályavég, vagy újrakezdés (`r`) legalább 5 s játék után (`RETRY_COUNTS_AFTER_TICKS`). Kulcs: pálya-id, napi pályánál `daily:<dátum>`, kódos pályánál `code:<hash>`; tesztjátéknál nincs.
+- `GameApp.watchSolution()` – a referenciamegoldás autoplay-jel (`watching`: nincs képesség-választás, „Megoldás-visszajátszás” jelvény, a pálya végén „Próbáld meg te”). UI: `?` gomb a lebegő sorban + `HelpPanel`, vesztes végképernyőn „Segítség”.
+- E2E: `tests/e2e/help.spec.ts` (headless szoftveres GL-en lassú, ~1 perc).
+
 ## Következő lépések sorrendben
-1. M5: T5.7 tippek + megoldás-visszajátszás; utána M6–M9 (a napi archívum / fizetős kapu a T8.2-ben).
+1. M6: T6.1 menü/világtérkép → T6.2 beállítások → T6.3 mentés → T6.4 i18n/a11y; utána M7–M9.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.

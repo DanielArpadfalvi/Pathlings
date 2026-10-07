@@ -42,7 +42,7 @@ Plan / numbers: `docs/PLAN.md` (Hungarian). Section refs like (§1.1) point ther
 - [x] **T5.4 World 3 – Clockworks (20)** – traps, teleporters, bounce pads, multi entrance/exit. AC: validated; difficulty tags 5–9.
 - [x] **T5.5 World 4 – Skyreach (20)** – crumble, big drops, Scaler+Glider combos. AC: validated; difficulty tags 7–10.
 - [x] **T5.6 Bonus pool (30) + Daily level** – date-seeded pick from bonus pool (seeded RNG, UTC date) + one modifier (e.g. −1 of a skill, −60 s), modifier solutions validated in CI. AC: same date ⇒ same level+modifier on every platform (unit test); all 30 × modifier combos used in the next 365 days validated.
-- [ ] **T5.7 Hints & solution viewer** – 2 hints per level unlocked after 3 fails, solution replay after 5 fails, "solved with help" mark. AC: unit tests for unlock counters; e2e opens the solution replay.
+- [x] **T5.7 Hints & solution viewer** – 2 hints per level unlocked after 3 fails, solution replay after 5 fails, "solved with help" mark. AC: unit tests for unlock counters; e2e opens the solution replay.
 
 ## M6 – Meta & UI
 - [ ] **T6.1 Main menu, world map, level select** – 3-open-levels progression rule, world gate at 17/20, locked levels show lock + price from the first minute (§2). AC: unit tests for unlock rules; e2e navigates menu → world → level → back.

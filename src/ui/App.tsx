@@ -7,6 +7,7 @@ import { getLanguage, onLanguageChange, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
 import { EditorHud } from './EditorHud';
 import { CodePanel, MyLevelsPanel } from './Panels';
+import { HelpPanel } from './HelpPanel';
 import type { MyLevel } from '../app/myLevels';
 import { NEXT_FILTER, PlayHud } from './PlayHud';
 
@@ -58,6 +59,7 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
   const editorView = useStore(editorStore);
   const [codeOpen, setCodeOpen] = useState(false);
   const [myOpen, setMyOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const myLevels = useStore(myStore);
 
   if (hud.mode === 'title') {
@@ -160,6 +162,18 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
       >
         <FilterIcon filter={hud.filter} />
       </button>
+      {hud.help && !hud.watching && (hud.help.hintCount > 0 || hud.help.hasSolution) ? (
+        <button
+          type="button"
+          class={`icon-button ${hud.help.hintsUnlocked ? 'help-ready' : ''}`}
+          data-testid="help"
+          aria-label={t('help.button')}
+          title={t('help.button')}
+          onClick={() => setHelpOpen(true)}
+        >
+          ?
+        </button>
+      ) : null}
       {hud.testPlay ? (
         <button
           type="button"
@@ -175,5 +189,19 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
       {wholeLevel}
     </>
   );
-  return <PlayHud hud={hud} actions={actions} floating={floating} />;
+  return (
+    <>
+      <PlayHud hud={hud} actions={actions} floating={floating} onHelp={() => setHelpOpen(true)} />
+      {helpOpen && hud.help && (
+        <HelpPanel
+          help={hud.help}
+          onWatch={() => {
+            setHelpOpen(false);
+            actions.watchSolution();
+          }}
+          onClose={() => setHelpOpen(false)}
+        />
+      )}
+    </>
+  );
 }

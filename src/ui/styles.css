@@ -712,3 +712,19 @@ button {
   text-align: center;
   color: var(--dim);
 }
+
+.hint-list {
+  text-align: left;
+  margin: 8px 0;
+  padding-left: 22px;
+  line-height: 1.4;
+}
+
+.help-ready {
+  border-color: var(--accent);
+}
+
+.solution-badge {
+  background: rgba(60, 40, 100, 0.85);
+  color: #e3d4ff;
+}

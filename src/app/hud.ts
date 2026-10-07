@@ -7,6 +7,7 @@ import { type TranslationKey, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
 import type { PlayScreen } from './playScreen';
 import type { TutorialView } from './tutorial';
+import type { HelpView } from './help';
 
 export interface EndInfo {
   won: boolean;
@@ -49,7 +50,19 @@ export interface HudState {
   tutorial: TutorialView | null;
   /** Daily level: on the title card today's offer, during play the badge text. */
   daily: DailyInfo | null;
+  /** Hints / solution state of the current level (null: no help, e.g. test play). */
+  help: HelpInfo | null;
+  /** The reference solution is being replayed. */
+  watching: boolean;
   end: EndInfo | null;
+}
+
+export interface HelpInfo extends HelpView {
+  /** Translated hints, empty until unlocked. */
+  hints: string[];
+  /** Number of hints the level has. */
+  hintCount: number;
+  hasSolution: boolean;
 }
 
 export interface DailyInfo {
@@ -85,6 +98,8 @@ export const TITLE_HUD: HudState = {
   testPlay: false,
   tutorial: null,
   daily: null,
+  help: null,
+  watching: false,
   end: null,
 };
 
@@ -124,6 +139,8 @@ export function hudFor(
     testPlay: false,
     tutorial: null,
     daily: null,
+    help: null,
+    watching: false,
     end:
       showEnd && sim.ended
         ? {
