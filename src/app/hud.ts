@@ -54,6 +54,8 @@ export interface HudState {
   help: HelpInfo | null;
   /** The reference solution is being replayed. */
   watching: boolean;
+  /** The pause menu is open. */
+  pauseMenu: boolean;
   end: EndInfo | null;
 }
 
@@ -100,6 +102,7 @@ export const TITLE_HUD: HudState = {
   daily: null,
   help: null,
   watching: false,
+  pauseMenu: false,
   end: null,
 };
 
@@ -141,6 +144,7 @@ export function hudFor(
     daily: null,
     help: null,
     watching: false,
+    pauseMenu: false,
     end:
       showEnd && sim.ended
         ? {

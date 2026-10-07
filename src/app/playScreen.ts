@@ -6,7 +6,12 @@ import { canAssign } from '../core/sim';
 import { GameSession } from '../game/session';
 import type { Gesture } from '../input/gestures';
 import { attachPointerInput } from '../input/pointerInput';
-import { type DirectionFilter, candidatesFromSim, pickCandidate } from '../input/selection';
+import {
+  type DirectionFilter,
+  SELECT_RADIUS,
+  candidatesFromSim,
+  pickCandidate,
+} from '../input/selection';
 import {
   LOUPE_RADIUS,
   LOUPE_ZOOM,
@@ -28,6 +33,10 @@ export interface PlayScreenOptions {
   wholeLevel?: boolean;
   skill?: SkillId | null;
   filter?: DirectionFilter;
+  /** Smart-selection radius in points (setting, §1.7). */
+  touchRadius?: number;
+  /** Reduced motion; default: the system preference. */
+  reducedMotion?: boolean;
 }
 
 /** Outcome of a release on a creature, for feedback (sound / haptics from M3 on). */
@@ -54,6 +63,8 @@ export class PlayScreen {
   onAttempt: ((a: AssignAttempt) => void) | null = null;
   /** "Auto-pause while selecting" option (§1.7 point 5). */
   autoPause = false;
+  /** Smart-selection radius in points. */
+  touchRadius: number;
   /** The current press paused the game and will resume it. */
   private resumeAfterPress = false;
   private readonly selection: SelectionController;
@@ -68,8 +79,11 @@ export class PlayScreen {
     this.session = new GameSession(level, { autoplay: options.autoplay });
     this.skill = options.skill ?? null;
     this.filter = options.filter ?? 'both';
+    this.touchRadius = options.touchRadius ?? SELECT_RADIUS;
     const sim = this.session.sim;
-    this.renderer = new WorldRenderer(sim, { reducedMotion: prefersReducedMotion() });
+    this.renderer = new WorldRenderer(sim, {
+      reducedMotion: options.reducedMotion ?? prefersReducedMotion(),
+    });
     this.session.onStep((s, events) => this.renderer.onStep(s, events));
     if (options.seek) this.session.seek(options.seek);
     this.session.paused = options.paused ?? false;
@@ -104,6 +118,7 @@ export class PlayScreen {
       y: w.y,
       scale: this.camera.scale,
       filter: this.filter,
+      radius: this.touchRadius,
     });
   }
 
@@ -208,6 +223,6 @@ export class PlayScreen {
   }
 }
 
-function prefersReducedMotion(): boolean {
+export function prefersReducedMotion(): boolean {
   return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 }

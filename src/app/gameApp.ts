@@ -8,6 +8,9 @@ import { FIXTURE_LEVELS, findTestLevel } from '../levels/test';
 import { BUILTIN_LEVELS, builtInLevel } from '../levels/catalog';
 import { TUTORIAL } from '../levels/tutorial';
 import { SaveManager } from './save';
+import type { Settings } from './settings';
+import { prefersReducedMotion } from './playScreen';
+import { detectLanguage, navigatorLanguages, onLanguageChange, setLanguage } from '../i18n';
 import { type MenuPage, type MenuView, buildMenu } from './menu';
 import { canPlay } from './progression';
 import type { WorldId } from '../levels/validate';
@@ -56,6 +59,8 @@ export interface GameActions {
   watchSolution(): void;
   /** Leave the level for the menu (its world's level select for campaign levels). */
   exitToMenu(): void;
+  /** Open / close the pause menu (pauses the game while open). */
+  setPauseMenu(open: boolean): void;
   selectSkill(skill: SkillId): void;
   togglePause(): void;
   cycleSpeed(): void;
@@ -83,6 +88,14 @@ export interface MenuActions {
   playLevel(id: string): void;
   /** Show / hide the full-game offer (tapping a paid level). */
   showOffer(open: boolean): void;
+}
+
+/** UI → settings commands. */
+export interface SettingsActions {
+  setSettings(patch: Partial<Settings>): void;
+  restartTutorial(): void;
+  /** Restores purchases; resolves to whether the full game is owned afterwards. */
+  restorePurchases(): Promise<boolean>;
 }
 
 /** UI → editor commands. */
@@ -124,7 +137,7 @@ export type CodeLoadResult =
  * The running game: title (attract demo) or one level of the prototype sequence (the five
  * hand-made test levels), the HUD store the DOM overlay renders, and the commands it sends.
  */
-export class GameApp implements GameActions, EditorActions, MenuActions {
+export class GameApp implements GameActions, EditorActions, MenuActions, SettingsActions {
   readonly hud = new Store<HudState>(TITLE_HUD);
   readonly editorView = new Store<EditorView | null>(null);
   private screen: PlayScreen | null;
@@ -156,6 +169,10 @@ export class GameApp implements GameActions, EditorActions, MenuActions {
   /** Full-game entitlement and its price (T8 wires the store). */
   fullGame = false;
   price = '$2.99';
+  readonly settings: Store<Settings>;
+  /** Pause menu open (the game was paused for it; `resumeAfterMenu`: it was running). */
+  private pauseMenu = false;
+  private resumeAfterMenu = false;
   private menuPage: MenuPage = 'main';
   private menuWorld: WorldId | null = null;
   private offerOpen = false;
@@ -172,6 +189,12 @@ export class GameApp implements GameActions, EditorActions, MenuActions {
     private readonly app: Application,
     private readonly params: LaunchParams,
   ) {
+    this.settings = new Store<Settings>(this.save.settings);
+    this.applySettings(this.save.settings);
+    onLanguageChange(() => {
+      this.publishMenu();
+      this.publishHud();
+    });
     const direct = params.levelId
       ? (builtInLevel(params.levelId) ?? findTestLevel(params.levelId))
       : undefined;
@@ -257,8 +280,11 @@ export class GameApp implements GameActions, EditorActions, MenuActions {
       interactive: true,
       skill: fromParams ? p.skill : null,
       filter: fromParams ? p.filter : 'both',
+      touchRadius: this.save.settings.touchRadius,
+      reducedMotion: this.reducedMotion(),
     });
-    screen.autoPause = p.autoPause;
+    screen.autoPause = p.autoPause || this.save.settings.autoPause;
+    if (!this.watching) screen.session.speed = this.save.settings.defaultSpeed;
     screen.camera.setInsets(this.insets.top, this.insets.bottom);
     return screen;
   }
@@ -302,6 +328,7 @@ export class GameApp implements GameActions, EditorActions, MenuActions {
     this.endedAt = -1;
     this.rewinding = false;
     this.outcomeCounted = false;
+    this.pauseMenu = false;
     this.publishHud();
   }
 
@@ -378,6 +405,7 @@ export class GameApp implements GameActions, EditorActions, MenuActions {
       daily: this.daily ? dailyInfo(this.daily) : null,
       help: this.helpInfo(),
       watching: this.watching,
+      pauseMenu: this.pauseMenu,
     });
   }
 
@@ -821,6 +849,50 @@ export class GameApp implements GameActions, EditorActions, MenuActions {
   setHaptics(on: boolean): void {
     this.hapticsOn = on;
     if (this.feedback) this.feedback.hapticsEnabled = on;
+  }
+
+  // --- Settings -------------------------------------------------------------------------------
+
+  setSettings(patch: Partial<Settings>): void {
+    const s = this.save.setSettings(patch);
+    this.settings.set(s);
+    this.applySettings(s);
+  }
+
+  private applySettings(s: Settings): void {
+    this.setAudio(s.audio);
+    this.setHaptics(s.haptics);
+    setLanguage(s.language === 'auto' ? detectLanguage(navigatorLanguages()) : s.language);
+    if (this.screen && this.mode === 'play') {
+      this.screen.touchRadius = s.touchRadius;
+      this.screen.autoPause = this.params.autoPause || s.autoPause;
+    }
+  }
+
+  private reducedMotion(): boolean {
+    const m = this.save.settings.reducedMotion;
+    return m === 'system' ? prefersReducedMotion() : m === 'on';
+  }
+
+  restartTutorial(): void {
+    this.save.setTutorialSkipped(false);
+  }
+
+  restorePurchases(): Promise<boolean> {
+    return Promise.resolve(this.fullGame);
+  }
+
+  setPauseMenu(open: boolean): void {
+    if (this.mode !== 'play' || open === this.pauseMenu) return;
+    this.pauseMenu = open;
+    const session = this.ps.session;
+    if (open) {
+      this.resumeAfterMenu = !session.paused && !session.sim.ended;
+      session.paused = true;
+    } else if (this.resumeAfterMenu) {
+      session.paused = false;
+    }
+    this.publishHud();
   }
 
   // --- Keyboard (web) ---------------------------------------------------------------------------

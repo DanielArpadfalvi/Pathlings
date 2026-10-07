@@ -26,7 +26,7 @@ export function detectLanguage(preferred: readonly string[]): Language {
   return DEFAULT_LANGUAGE;
 }
 
-function navigatorLanguages(): string[] {
+export function navigatorLanguages(): string[] {
   const nav = globalThis.navigator as Navigator | undefined;
   if (!nav) return [];
   if (nav.languages && nav.languages.length > 0) return [...nav.languages];

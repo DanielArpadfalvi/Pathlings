@@ -21,6 +21,9 @@ function exposeDebug(game: GameApp): void {
       get camera() {
         return { ...game.current.camera.state, ...game.current.camera.viewport };
       },
+      get input() {
+        return { touchRadius: game.current.touchRadius, autoPause: game.current.autoPause };
+      },
       get logLength() {
         return game.current.session.sim.log.length;
       },
@@ -108,6 +111,7 @@ async function boot(): Promise<void> {
       editor: game.editorView,
       myLevels: game.myLevelsList,
       menu: game.menu,
+      settings: game.settings,
       actions: game,
     }),
     ui,

@@ -46,9 +46,9 @@ function TopBar({ hud, actions }: { hud: HudState; actions: HudActions }) {
           type="button"
           class="hud-exit"
           data-testid="exit"
-          aria-label={hud.testPlay ? t('end.edit') : t('hud.menu')}
-          title={hud.testPlay ? t('end.edit') : t('hud.menu')}
-          onClick={() => actions.exitToMenu()}
+          aria-label={t('hud.menu')}
+          title={t('hud.menu')}
+          onClick={() => actions.setPauseMenu(true)}
         >
           ‹
         </button>

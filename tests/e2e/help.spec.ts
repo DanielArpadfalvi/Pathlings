@@ -9,7 +9,7 @@ async function loseOnce(page: Page): Promise<void> {
 test.describe('hints and solution viewer', () => {
   test('hints unlock after 3 fails, the solution replay after 5', async ({ page }) => {
     // Two full level loads plus a replay; each UI step is slow under software GL.
-    test.setTimeout(90_000);
+    test.setTimeout(150_000);
     const errors: string[] = [];
     page.on('pageerror', (err) => errors.push(err.message));
 

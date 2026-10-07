@@ -36,6 +36,7 @@ test.describe('menu', () => {
     await page.getByTestId('level-w1-03').click();
     await expect(page.getByTestId('hud')).toBeVisible();
     await page.getByTestId('exit').click();
+    await page.getByTestId('pause-quit').click();
     await expect(select).toHaveAttribute('data-world', 'w1');
     await page.getByTestId('menu-back').click();
     await expect(page.getByTestId('world-map')).toBeVisible();

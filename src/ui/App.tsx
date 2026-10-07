@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { EditorView } from '../app/editorScreen';
-import type { EditorActions, GameActions, MenuActions } from '../app/gameApp';
+import type { EditorActions, GameActions, MenuActions, SettingsActions } from '../app/gameApp';
+import type { Settings } from '../app/settings';
+import { SettingsPanel } from './SettingsPanel';
 import type { MenuView } from '../app/menu';
 import { MenuPages, OfferSheet } from './Menu';
 import type { HudState } from '../app/hud';
@@ -18,7 +20,8 @@ export interface AppProps {
   editor: Store<EditorView | null>;
   myLevels: Store<MyLevel[]>;
   menu: Store<MenuView>;
-  actions: GameActions & EditorActions & MenuActions;
+  settings: Store<Settings>;
+  actions: GameActions & EditorActions & MenuActions & SettingsActions;
 }
 
 /** Pixel arrows: ← →, ←, or →. */
@@ -60,6 +63,7 @@ export function App({
   editor: editorStore,
   myLevels: myStore,
   menu: menuStore,
+  settings: settingsStore,
   actions,
 }: AppProps) {
   const [, setLanguage] = useState(getLanguage());
@@ -71,6 +75,20 @@ export function App({
   const [helpOpen, setHelpOpen] = useState(false);
   const myLevels = useStore(myStore);
   const menu = useStore(menuStore);
+  const settings = useStore(settingsStore);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  // Display settings act on the whole overlay through classes on <html>.
+  useEffect(() => {
+    const c = document.documentElement.classList;
+    c.toggle('left-handed', settings.leftHanded);
+    c.toggle('high-contrast', settings.highContrast);
+    c.toggle('large-text', settings.largeText);
+    c.toggle('reduce-motion', settings.reducedMotion === 'on');
+    document.documentElement.lang = getLanguage();
+  }, [settings]);
+  const settingsSheet = settingsOpen ? (
+    <SettingsPanel settings={settings} actions={actions} onClose={() => setSettingsOpen(false)} />
+  ) : null;
 
   if (hud.mode === 'title' && menu.page !== 'main') {
     return (
@@ -133,7 +151,16 @@ export function App({
           {t('title.myLevels')}
         </button>
         {codeOpen && <CodePanel actions={actions} onClose={() => setCodeOpen(false)} />}
+        <button
+          type="button"
+          class="text-button editor-button"
+          data-testid="open-settings"
+          onClick={() => setSettingsOpen(true)}
+        >
+          {t('settings.title')}
+        </button>
         {menu.offer && <OfferSheet price={menu.price} onClose={() => actions.showOffer(false)} />}
+        {settingsSheet}
         {myOpen && (
           <MyLevelsPanel levels={myLevels} actions={actions} onClose={() => setMyOpen(false)} />
         )}
@@ -212,6 +239,52 @@ export function App({
   return (
     <>
       <PlayHud hud={hud} actions={actions} floating={floating} onHelp={() => setHelpOpen(true)} />
+      {hud.pauseMenu && !settingsOpen && (
+        <div class="sheet-backdrop">
+          <div
+            class="sheet pause-sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('pause.title')}
+            data-testid="pause-menu"
+          >
+            <h2>{t('pause.title')}</h2>
+            <button
+              type="button"
+              class="text-button primary"
+              data-testid="pause-resume"
+              onClick={() => actions.setPauseMenu(false)}
+            >
+              {t('pause.resume')}
+            </button>
+            <button
+              type="button"
+              class="text-button"
+              data-testid="pause-restart"
+              onClick={() => actions.retry()}
+            >
+              {t('end.retry')}
+            </button>
+            <button
+              type="button"
+              class="text-button"
+              data-testid="pause-settings"
+              onClick={() => setSettingsOpen(true)}
+            >
+              {t('settings.title')}
+            </button>
+            <button
+              type="button"
+              class="text-button"
+              data-testid="pause-quit"
+              onClick={() => actions.exitToMenu()}
+            >
+              {hud.testPlay ? t('end.edit') : t('pause.quit')}
+            </button>
+          </div>
+        </div>
+      )}
+      {settingsSheet}
       {helpOpen && hud.help && (
         <HelpPanel
           help={hud.help}
