@@ -1,8 +1,6 @@
 import { Container, Graphics, Sprite } from 'pixi.js';
 import type { LevelObject } from '../core/level';
 import { objectRect } from '../core/level';
-import { trapArmed } from '../core/objects';
-import type { Sim } from '../core/world';
 import type { PixelGrid } from './pixelArt';
 import type { ThemePalette } from './palette';
 import {
@@ -38,7 +36,7 @@ function artFor(o: LevelObject): PixelGrid | null {
 
 /**
  * Level objects: fixed-size ones as pixel sprites on their zones, water and lava as animated
- * Graphics in front of the terrain. Reads the sim (trap reload state), never writes it.
+ * Graphics in front of the terrain. Trap reload state comes in as a read-only predicate.
  */
 export class ObjectLayer {
   /** Behind the creatures: hatches, exits, traps, portals, pads. */
@@ -82,10 +80,11 @@ export class ObjectLayer {
   }
 
   /** Per-frame update; `timeMs` drives purely cosmetic motion (liquid ripples, lava glow). */
-  update(sim: Sim, timeMs: number): void {
+  /** `isTrapArmed(objectIndex)` tells which traps are loaded (always true in the editor). */
+  update(isTrapArmed: (index: number) => boolean, timeMs: number): void {
     for (const t of this.traps) {
       t.sprite.texture = gridTexture(
-        trapArmed(sim, t.index) ? TRAP_ART : TRAP_RELOADING_ART,
+        isTrapArmed(t.index) ? TRAP_ART : TRAP_RELOADING_ART,
         OBJECT_KEY,
       );
     }

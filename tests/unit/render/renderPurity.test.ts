@@ -32,6 +32,8 @@ export const CORE_READ_ALLOWLIST = new Set([
   // objects
   'objectRect',
   'trapArmed',
+  // editor preview: rasterizes a level definition into a fresh terrain (no sim involved)
+  'buildTerrain',
 ]);
 
 interface CoreImport {

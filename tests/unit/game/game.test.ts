@@ -129,6 +129,7 @@ describe('launch params', () => {
       skill: null,
       filter: 'both',
       autoPause: false,
+      editor: false,
     });
   });
 
@@ -144,6 +145,7 @@ describe('launch params', () => {
       skill: 'warden',
       filter: 'left',
       autoPause: true,
+      editor: false,
     });
   });
 

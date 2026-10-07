@@ -181,6 +181,13 @@ describe('web haptics', () => {
     h.trigger('warning');
     h.trigger('light');
     expect(calls).toEqual([VIBRATION_PATTERNS.warning, VIBRATION_PATTERNS.light]);
+    const blocked: unknown[] = [];
+    const idle = {
+      userActivation: { hasBeenActive: false },
+      vibrate: (p: unknown) => blocked.push(p),
+    } as unknown as Navigator;
+    createWebHaptics(idle).trigger('heavy');
+    expect(blocked).toEqual([]);
     expect(() => createWebHaptics(undefined).trigger('heavy')).not.toThrow();
     expect(() => createWebHaptics({}).trigger('heavy')).not.toThrow();
   });

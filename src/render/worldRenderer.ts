@@ -1,6 +1,7 @@
 import { Container, Graphics } from 'pixi.js';
 import type { Sim, SimEvent } from '../core/world';
 import type { CameraState } from './camera';
+import { trapArmed } from '../core/objects';
 import { CreatureLayer, type Highlight } from './creatureLayer';
 import { EffectsLayer } from './effects';
 import { PositionHistory } from './interp';
@@ -114,7 +115,7 @@ export class WorldRenderer {
     this.lastTime = timeMs;
     this.effects.update(dt);
     this.terrain.flush();
-    this.objects.update(this.sim, timeMs);
+    this.objects.update((i) => trapArmed(this.sim, i), timeMs);
     this.creatures.update(this.sim, this.history, alpha, this.highlight);
   }
 

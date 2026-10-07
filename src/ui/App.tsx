@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'preact/hooks';
-import type { GameActions } from '../app/gameApp';
+import type { EditorView } from '../app/editorScreen';
+import type { EditorActions, GameActions } from '../app/gameApp';
 import type { HudState } from '../app/hud';
 import type { Store } from '../app/store';
 import { getLanguage, onLanguageChange, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
+import { EditorHud } from './EditorHud';
 import { NEXT_FILTER, PlayHud } from './PlayHud';
 
 export interface AppProps {
   hud: Store<HudState>;
-  actions: GameActions;
+  editor: Store<EditorView | null>;
+  actions: GameActions & EditorActions;
 }
 
 /** Pixel arrows: ← →, ←, or →. */
@@ -45,10 +48,11 @@ function useStore<T>(store: Store<T>): T {
 }
 
 /** Root of the DOM overlay above the Pixi canvas: title card or the play HUD. */
-export function App({ hud: store, actions }: AppProps) {
+export function App({ hud: store, editor: editorStore, actions }: AppProps) {
   const [, setLanguage] = useState(getLanguage());
   useEffect(() => onLanguageChange(setLanguage), []);
   const hud = useStore(store);
+  const editorView = useStore(editorStore);
 
   if (hud.mode === 'title') {
     return (
@@ -63,7 +67,43 @@ export function App({ hud: store, actions }: AppProps) {
         >
           {t('title.play')}
         </button>
+        <button
+          type="button"
+          class="text-button editor-button"
+          data-testid="open-editor"
+          onClick={() => actions.openEditor()}
+        >
+          {t('title.editor')}
+        </button>
       </div>
+    );
+  }
+
+  const wholeLevel = (
+    <button
+      type="button"
+      class="icon-button"
+      data-testid="whole-level"
+      aria-label={t('camera.wholeLevel')}
+      title={t('camera.wholeLevel')}
+      onClick={() => actions.toggleWholeLevel()}
+    >
+      <WholeLevelIcon />
+    </button>
+  );
+
+  if (hud.mode === 'editor' && editorView) {
+    return (
+      <EditorHud
+        view={editorView}
+        actions={actions}
+        floating={
+          <>
+            <span />
+            {wholeLevel}
+          </>
+        }
+      />
     );
   }
 
@@ -80,16 +120,7 @@ export function App({ hud: store, actions }: AppProps) {
       >
         <FilterIcon filter={hud.filter} />
       </button>
-      <button
-        type="button"
-        class="icon-button"
-        data-testid="whole-level"
-        aria-label={t('camera.wholeLevel')}
-        title={t('camera.wholeLevel')}
-        onClick={() => actions.toggleWholeLevel()}
-      >
-        <WholeLevelIcon />
-      </button>
+      {wholeLevel}
     </>
   );
   return <PlayHud hud={hud} actions={actions} floating={floating} />;

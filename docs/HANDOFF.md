@@ -10,7 +10,7 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | M1 Mag-motor (`src/core`) | ✅ T1.1–T1.7 – terep, raszterizáló, pálya-definíció+validátor, lények, 8 képesség, objektumok, sim loop, események, replay, rewind, state hash |
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 perf-mérő kész, CI-n még ellenőrizendő |
-| M4 Szerkesztő + pályakód | 🔄 T4.1 ✅ pályakód · T4.2 ✅ ellenőrzés · következik T4.3 szerkesztő-mag |
+| M4 Szerkesztő + pályakód | 🔄 T4.1 ✅ pályakód · T4.2 ✅ ellenőrzés · T4.3 ✅ szerkesztő-mag · következik T4.4 szerkesztő UI |
 | M5–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
@@ -83,9 +83,17 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - `src/core/code/verify.ts` – `verifyLevel` (headless `runSolution`: `verified` / `noSolution` / `unsolved` / `hashMismatch` / `olderVersion`), `loadLevelCode` (dekódol + ellenőriz). 5 perces, 100 lényes pálya ellenőrzése < 300 ms.
 - Kódban nincs `id`, `titleKey`, `hintKeys` (közösségi pályák). Teszt: 200 generált pálya oda-vissza, minden egybájtos/egykarakteres sérülés elutasítva.
 
+## Szerkesztő (T4.3)
+- `src/editor/doc.ts` – `EditorDoc`: immutábilis `LevelDef` vázlat + history (200 lépés), `addOps` (1024-es op-limit, túllépéskor nem fogyaszt lépést), objektum add/update/remove, `setProps` (§1.8 határokkal), `status` (validáció + tömörített kódméret vs 4 KB). `newDraft(preset, theme)`.
+- `src/editor/tools.ts` – tiszta eszközök: `StrokeBuilder` (ecset/radír, ≤ 256 pontos, összeérő darabok), `shapeFromDrag` (téglalap/kör/rámpa; felfelé-jobbra húzás = jobbra emelkedő), `PolyBuilder` (koppintásonként, első pont közelében zár), `stampAt`, `objectAt` (pályán belülre szorítva), `objectAtPoint`, `moveObject`. `src/editor/palette.ts`: témánként 16 bélyeg (8 közös + 8 tematikus; az új bélyegek a `core/stamps.ts`-ben).
+- `src/app/editorScreen.ts` – `EditorScreen`: dokumentum + `EditorRenderer` (`src/render/editorRenderer.ts`: terep újraraszterezése változáskor, áttetsző előnézet, sokszög-sarkok, kijelölés-keret, pályahatár) + kamera + gesztusok (egy ujj = aktív eszköz / kéz: objektum húzása, két ujj = pásztázás/zoom).
+- `src/ui/EditorHud.tsx` – felül vissza/visszavonás/újra + állapot (op-szám, KB, javítandó), alul eszközsor és eszközönkénti opciók (méret, anyag, formák, bélyegek, objektumok, kijelölt objektum műveletei). `GameApp` `editor` mód (`openEditor`, `exitEditor`, Ctrl+Z / Ctrl+Shift+Z); `?editor=1`.
+- Debug: `__pathlings.editor`, `editorToScreen(x,y)`, `step(n)` (teszt-hook).
+- A web-haptika csak felhasználói gesztus után rezget (különben a Chrome konzolhibát ír).
+
 ## Következő lépések sorrendben
 1. M3: T3.4 perf.
-2. M4: T4.3 szerkesztő-mag → T4.4 szerkesztő UI → T4.5 megosztás; M5 (tartalom + `scripts/validate-levels`), M6–M9.
+2. M4: T4.4 szerkesztő UI → T4.5 megosztás; M5 (tartalom + `scripts/validate-levels`), M6–M9.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.

@@ -32,6 +32,10 @@ export function createWebHaptics(
 ): Haptics {
   return {
     trigger(kind) {
+      // Browsers refuse (and log an error) before the first user gesture.
+      const activation = (nav as { userActivation?: { hasBeenActive: boolean } } | undefined)
+        ?.userActivation;
+      if (activation && !activation.hasBeenActive) return;
       try {
         nav?.vibrate?.(VIBRATION_PATTERNS[kind]);
       } catch {

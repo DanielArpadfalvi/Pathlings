@@ -7,6 +7,8 @@ import type { DirectionFilter } from '../input/selection';
 import { FIXTURE_LEVELS, findTestLevel } from '../levels/test';
 import { type HudState, TITLE_HUD, hudFor } from './hud';
 import { PlayScreen } from './playScreen';
+import { EditorScreen, type EditorView } from './editorScreen';
+import type { Tool } from '../editor/tools';
 import { Store } from './store';
 import { FeedbackDirector } from '../audio/feedback';
 import { WebAudioEngine } from '../audio/synth';
@@ -41,14 +43,30 @@ export interface GameActions {
   rewindEnd(): void;
 }
 
+/** UI → editor commands. */
+export interface EditorActions {
+  openEditor(): void;
+  exitEditor(): void;
+  setTool(tool: Tool): void;
+  undo(): void;
+  redo(): void;
+  deleteSelected(): void;
+  flipSelected(): void;
+  finishPoly(): void;
+  toggleWholeLevel(): void;
+  setInsets(top: number, bottom: number): void;
+}
+
 /**
  * The running game: title (attract demo) or one level of the prototype sequence (the five
  * hand-made test levels), the HUD store the DOM overlay renders, and the commands it sends.
  */
-export class GameApp implements GameActions {
+export class GameApp implements GameActions, EditorActions {
   readonly hud = new Store<HudState>(TITLE_HUD);
-  private screen: PlayScreen;
-  private mode: 'title' | 'play';
+  readonly editorView = new Store<EditorView | null>(null);
+  private screen: PlayScreen | null;
+  private editor: EditorScreen | null = null;
+  private mode: 'title' | 'play' | 'editor';
   private levels: readonly LevelDef[] = FIXTURE_LEVELS;
   private index = 0;
   private endedAt = -1;
@@ -67,7 +85,11 @@ export class GameApp implements GameActions {
     private readonly params: LaunchParams,
   ) {
     const direct = params.levelId ? findTestLevel(params.levelId) : undefined;
-    if (direct) {
+    if (params.editor) {
+      this.mode = 'editor';
+      this.screen = null;
+      this.editor = this.createEditor();
+    } else if (direct) {
       const i = FIXTURE_LEVELS.indexOf(direct);
       if (i < 0) this.levels = [direct];
       this.index = Math.max(0, i);
@@ -77,7 +99,10 @@ export class GameApp implements GameActions {
       this.mode = 'title';
       this.screen = this.createScreen(false);
     }
-    app.renderer.on('resize', (w: number, h: number) => this.screen.resize(w, h));
+    app.renderer.on('resize', (w: number, h: number) => {
+      this.screen?.resize(w, h);
+      this.editor?.resize(w, h);
+    });
     app.ticker.add((t) => this.frame(t.deltaMS));
     window.addEventListener('keydown', this.onKey);
     window.addEventListener('keyup', this.onKeyUp);
@@ -87,8 +112,27 @@ export class GameApp implements GameActions {
     this.publish();
   }
 
+  /** The play screen (title demo or level); throws in the editor. */
   get current(): PlayScreen {
+    if (!this.screen) throw new Error('no play screen in the editor');
     return this.screen;
+  }
+
+  get currentEditor(): EditorScreen | null {
+    return this.editor;
+  }
+
+  private get ps(): PlayScreen {
+    return this.current;
+  }
+
+  private createEditor(level?: LevelDef): EditorScreen {
+    const ed = new EditorScreen(this.app, level);
+    ed.setInsets(this.insets.top, this.insets.bottom);
+    ed.onViewChange = () => this.publish();
+    this.audio.playMusic(ed.doc.level.theme);
+    this.audio.setDucked(true);
+    return ed;
   }
 
   private createScreen(fromParams: boolean): PlayScreen {
@@ -114,6 +158,7 @@ export class GameApp implements GameActions {
   /** Sound, haptics and music for the current screen. */
   private attachFeedback(): void {
     const screen = this.screen;
+    if (!screen) return;
     if (this.mode === 'title') {
       this.feedback = null;
     } else {
@@ -133,11 +178,14 @@ export class GameApp implements GameActions {
   };
 
   private replaceScreen(): void {
-    const filter = this.screen.filter;
-    this.screen.destroy();
+    const filter = this.screen?.filter ?? 'both';
+    this.screen?.destroy();
+    this.editor?.destroy();
+    this.editor = null;
+    this.editorView.set(null);
     this.screen = this.createScreen(false);
     this.attachFeedback();
-    if (this.mode === 'play') this.screen.filter = filter;
+    if (this.mode === 'play') this.ps.filter = filter;
     this.endedAt = -1;
     this.rewinding = false;
     this.publish();
@@ -154,14 +202,19 @@ export class GameApp implements GameActions {
 
   private frameBody(dtMs: number): void {
     this.now += dtMs;
+    if (this.editor) {
+      this.editor.frame(dtMs, this.now);
+      return;
+    }
+    if (!this.screen) return;
     if (this.rewinding) {
       this.rewindAcc += (Math.min(dtMs, 100) * REWIND_SPEED * 60) / 1000;
       const whole = Math.floor(this.rewindAcc);
       this.rewindAcc -= whole;
-      if (whole > 0) this.screen.session.rewindBy(whole);
+      if (whole > 0) this.ps.session.rewindBy(whole);
     }
-    this.screen.frame(dtMs, this.now);
-    const session = this.screen.session;
+    this.ps.frame(dtMs, this.now);
+    const session = this.ps.session;
     this.audio.setSpeed(session.speed);
     this.audio.setDucked(this.mode === 'play' && (session.paused || session.sim.ended));
     const ended = session.sim.ended;
@@ -175,6 +228,12 @@ export class GameApp implements GameActions {
   }
 
   private publish(): void {
+    if (this.editor) {
+      this.hud.set({ ...TITLE_HUD, mode: 'editor' });
+      this.editorView.set(this.editor.view);
+      return;
+    }
+    if (!this.screen) return;
     if (this.mode === 'title') {
       this.hud.set(TITLE_HUD);
       return;
@@ -202,19 +261,19 @@ export class GameApp implements GameActions {
 
   selectSkill(skill: SkillId): void {
     if (this.mode !== 'play') return;
-    this.screen.skill = this.screen.skill === skill ? null : skill;
+    this.ps.skill = this.ps.skill === skill ? null : skill;
     this.publish();
   }
 
   togglePause(): void {
     if (this.mode !== 'play') return;
-    this.screen.session.paused = !this.screen.session.paused;
+    this.ps.session.paused = !this.ps.session.paused;
     this.publish();
   }
 
   cycleSpeed(): void {
     if (this.mode !== 'play') return;
-    const s = this.screen.session;
+    const s = this.ps.session;
     const i = SPEEDS.indexOf(s.speed as (typeof SPEEDS)[number]);
     s.speed = SPEEDS[(i + 1) % SPEEDS.length] as number;
     this.publish();
@@ -222,13 +281,13 @@ export class GameApp implements GameActions {
 
   release(direction: 1 | -1): void {
     if (this.mode !== 'play') return;
-    this.screen.session.changeRelease(direction);
+    this.ps.session.changeRelease(direction);
     this.publish();
   }
 
   popAll(): void {
     if (this.mode !== 'play') return;
-    this.screen.session.popAll();
+    this.ps.session.popAll();
     this.publish();
   }
 
@@ -246,24 +305,68 @@ export class GameApp implements GameActions {
   }
 
   toggleWholeLevel(): void {
-    this.screen.toggleWholeLevel();
+    if (this.editor) this.editor.toggleWholeLevel();
+    else this.ps.toggleWholeLevel();
   }
 
   setFilter(filter: DirectionFilter): void {
-    this.screen.filter = filter;
+    if (this.mode !== 'play') return;
+    this.ps.filter = filter;
     this.publish();
   }
 
   setInsets(top: number, bottom: number): void {
     this.insets = { top, bottom };
-    if (this.mode === 'play') this.screen.camera.setInsets(top, bottom);
+    if (this.mode === 'play') this.ps.camera.setInsets(top, bottom);
+    this.editor?.setInsets(top, bottom);
+  }
+
+  // --- EditorActions ----------------------------------------------------------------------------
+
+  openEditor(): void {
+    this.screen?.destroy();
+    this.screen = null;
+    this.feedback = null;
+    this.mode = 'editor';
+    this.editor = this.createEditor();
+    this.publish();
+  }
+
+  exitEditor(): void {
+    if (!this.editor) return;
+    this.mode = 'title';
+    this.replaceScreen();
+  }
+
+  setTool(tool: Tool): void {
+    this.editor?.setTool(tool);
+  }
+
+  undo(): void {
+    this.editor?.undo();
+  }
+
+  redo(): void {
+    this.editor?.redo();
+  }
+
+  deleteSelected(): void {
+    this.editor?.deleteSelected();
+  }
+
+  flipSelected(): void {
+    this.editor?.flipSelected();
+  }
+
+  finishPoly(): void {
+    this.editor?.finishPoly();
   }
 
   rewindStart(): void {
     if (this.mode !== 'play' || this.rewinding) return;
     this.rewinding = true;
     this.rewindAcc = 0;
-    this.screen.session.paused = true;
+    this.ps.session.paused = true;
     this.publish();
   }
 
@@ -286,6 +389,12 @@ export class GameApp implements GameActions {
   // --- Keyboard (web) ---------------------------------------------------------------------------
 
   private readonly onKey = (e: KeyboardEvent): void => {
+    if (this.editor && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+      if (e.shiftKey) this.redo();
+      else this.undo();
+      e.preventDefault();
+      return;
+    }
     if (this.mode !== 'play' || e.ctrlKey || e.metaKey || e.altKey) return;
     const digit = Number.parseInt(e.key, 10);
     if (digit >= 1 && digit <= SKILLS.length) {
@@ -318,6 +427,7 @@ export class GameApp implements GameActions {
     window.removeEventListener('pointerdown', this.unlockAudio, true);
     window.removeEventListener('keydown', this.unlockAudio, true);
     this.audio.destroy();
-    this.screen.destroy();
+    this.screen?.destroy();
+    this.editor?.destroy();
   }
 }

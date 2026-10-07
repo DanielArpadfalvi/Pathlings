@@ -28,6 +28,24 @@ function exposeDebug(game: GameApp): void {
       get press() {
         return game.current.press;
       },
+      get editor() {
+        const ed = game.currentEditor;
+        if (!ed) return null;
+        const level = ed.doc.level;
+        return {
+          ops: level.ops,
+          objects: level.objects,
+          w: level.w,
+          h: level.h,
+          tool: ed.tool,
+          selected: ed.selected,
+          canUndo: ed.doc.canUndo,
+          status: ed.doc.status,
+        };
+      },
+      editorToScreen(x: number, y: number) {
+        return game.currentEditor?.camera.toScreen({ x, y }) ?? null;
+      },
       get frameMs() {
         return game.frameMs;
       },
@@ -36,6 +54,10 @@ function exposeDebug(game: GameApp): void {
       },
       get nuked() {
         return game.current.session.sim.nuked;
+      },
+      /** Test hook: simulate exactly `n` ticks now (the game should be paused). */
+      step(n: number) {
+        for (let i = 0; i < n; i++) game.current.session.stepOnce();
       },
       pick(x: number, y: number) {
         return game.current.pickAt(x, y);
@@ -70,7 +92,7 @@ async function boot(): Promise<void> {
   const game = new GameApp(app, params);
   if (params.debug) exposeDebug(game);
 
-  render(h(App, { hud: game.hud, actions: game }), ui);
+  render(h(App, { hud: game.hud, editor: game.editorView, actions: game }), ui);
   root.dataset.ready = 'true';
 }
 

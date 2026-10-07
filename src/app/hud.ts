@@ -18,7 +18,7 @@ export interface EndInfo {
 
 /** Everything the DOM overlay shows during play, as plain data (see `Store`). */
 export interface HudState {
-  mode: 'title' | 'play';
+  mode: 'title' | 'play' | 'editor';
   levelTitle: string;
   levelNumber: number;
   levelCount: number;

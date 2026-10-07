@@ -88,15 +88,11 @@ test.describe('rewind', () => {
     expect(d.hud.skills?.burrower).toBe(1);
     expect(d.hud.paused).toBe(true);
 
-    // Fix it: run slowly into the winning window (ticks 131–160), assign, finish fast.
-    await setSpeed(page, '0.5');
-    await page.getByTestId('pause').click();
-    await expect
-      .poll(async () => (await info(page)).tick, { timeout: 20_000 })
-      .toBeGreaterThan(137);
-    await page.getByTestId('pause').click();
-    const t = (await info(page)).tick;
-    expect(t).toBeLessThanOrEqual(158);
+    // Fix it: step precisely into the winning window (ticks 131–160), assign, finish fast.
+    await page.evaluate((n) => {
+      (window as unknown as { __pathlings: { step(n: number): void } }).__pathlings.step(n);
+    }, 145 - d.tick);
+    expect((await info(page)).tick).toBe(145);
     await pointerOnCreature(page, 0, ['pointerdown', 'pointerup']);
     expect((await info(page)).lastAttempt?.ok).toBe(true);
     await setSpeed(page, '4');
@@ -110,13 +106,12 @@ test.describe('rewind', () => {
     await page.goto('/?level=crowd&seek=300&autopause=1&skill=warden&debug=1');
     await expect(page.locator('#app')).toHaveAttribute('data-ready', 'true');
     await pointerOnCreature(page, 4, ['pointerdown']);
-    expect((await info(page)).hud.paused).toBe(true);
+    await expect.poll(async () => (await info(page)).hud.paused).toBe(true);
     const t = (await info(page)).tick;
     await page.waitForTimeout(200);
     expect((await info(page)).tick).toBe(t);
     await pointerOnCreature(page, 4, ['pointerup']);
-    const d = await info(page);
-    expect(d.lastAttempt?.ok).toBe(true);
-    expect(d.hud.paused).toBe(false);
+    expect((await info(page)).lastAttempt?.ok).toBe(true);
+    await expect.poll(async () => (await info(page)).hud.paused).toBe(false);
   });
 });
