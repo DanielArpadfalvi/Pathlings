@@ -3,8 +3,10 @@ import { TICKS_PER_SECOND } from '../core/level';
 import { liveCount, releaseBounds, timeLeftTicks } from '../core/sim';
 import type { LevelEndReason } from '../core/world';
 import { rateRun } from '../core/stars';
+import { type TranslationKey, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
 import type { PlayScreen } from './playScreen';
+import type { TutorialView } from './tutorial';
 
 export interface EndInfo {
   won: boolean;
@@ -44,6 +46,7 @@ export interface HudState {
   canRewind: boolean;
   /** Test play of the editor draft (end screen offers Edit / Publish). */
   testPlay: boolean;
+  tutorial: TutorialView | null;
   end: EndInfo | null;
 }
 
@@ -70,6 +73,7 @@ export const TITLE_HUD: HudState = {
   rewinding: false,
   canRewind: false,
   testPlay: false,
+  tutorial: null,
   end: null,
 };
 
@@ -86,7 +90,7 @@ export function hudFor(
   const stars = rateRun(level, sim.saved, sim.assignments).count;
   return {
     mode: 'play',
-    levelTitle: level.title,
+    levelTitle: level.titleKey ? t(level.titleKey as TranslationKey) : level.title,
     levelNumber,
     levelCount,
     out: liveCount(sim),
@@ -107,6 +111,7 @@ export function hudFor(
     rewinding,
     canRewind: sim.tick > 0,
     testPlay: false,
+    tutorial: null,
     end:
       showEnd && sim.ended
         ? {

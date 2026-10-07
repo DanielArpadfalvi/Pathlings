@@ -1,0 +1,121 @@
+{
+  "v": 1,
+  "id": "w1-11",
+  "title": "Higher Ground",
+  "author": "",
+  "theme": "glade",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 160,
+      "y": 430,
+      "w": 160,
+      "h": 10
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 240,
+      "y": 420,
+      "w": 80,
+      "h": 10
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 284,
+      "y": 408
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 2,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w1-11.title",
+  "difficulty": 3,
+  "hintKeys": ["level.w1-11.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 335,
+        "creature": 0,
+        "skill": "mason"
+      },
+      {
+        "kind": "assign",
+        "tick": 887,
+        "creature": 0,
+        "skill": "mason"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 1791257787
+  },
+  "plan": [
+    {
+      "assign": "mason",
+      "creature": 0,
+      "when": {
+        "xGte": 138,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "mason",
+      "creature": 0,
+      "when": {
+        "xGte": 218,
+        "yLte": 430,
+        "state": "walk"
+      }
+    }
+  ]
+}

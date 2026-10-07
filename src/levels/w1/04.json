@@ -1,0 +1,115 @@
+{
+  "v": 1,
+  "id": "w1-04",
+  "title": "Stop Right There",
+  "author": "",
+  "theme": "glade",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 230,
+      "y": 440,
+      "w": 60,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 160,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 34,
+      "y": 428
+    },
+    {
+      "type": "water",
+      "x": 230,
+      "y": 452,
+      "w": 60,
+      "h": 28
+    }
+  ],
+  "creatures": 10,
+  "required": 9,
+  "master": 9,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 2,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w1-04.title",
+  "difficulty": 1,
+  "hintKeys": ["level.w1-04.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 161,
+        "creature": 0,
+        "skill": "warden"
+      },
+      {
+        "kind": "popAll",
+        "tick": 1500
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 3621454442
+  },
+  "plan": [
+    {
+      "assign": "warden",
+      "creature": 0,
+      "when": {
+        "xGte": 200,
+        "state": "walk"
+      }
+    },
+    {
+      "popAll": true,
+      "when": {
+        "tick": 1500
+      }
+    }
+  ]
+}

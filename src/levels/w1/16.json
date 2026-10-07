@@ -1,0 +1,119 @@
+{
+  "v": 1,
+  "id": "w1-16",
+  "title": "Pop the Lid",
+  "author": "",
+  "theme": "glade",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 230,
+      "y": 400,
+      "w": 90,
+      "h": 10
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 230,
+      "y": 400,
+      "w": 8,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 274,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 9,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 1,
+    "warden": 1,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w1-16.title",
+  "difficulty": 4,
+  "hintKeys": ["level.w1-16.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 599,
+        "creature": 0,
+        "skill": "warden"
+      },
+      {
+        "kind": "assign",
+        "tick": 599,
+        "creature": 0,
+        "skill": "popper"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 4147390082
+  },
+  "plan": [
+    {
+      "assign": "warden",
+      "creature": 0,
+      "when": {
+        "xGte": 226,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "popper",
+      "creature": 0,
+      "when": {
+        "state": "warden"
+      }
+    }
+  ]
+}

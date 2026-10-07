@@ -5,6 +5,9 @@ import type { LaunchParams } from '../game/launchParams';
 import { ATTRACT_LEVEL_ID } from '../game/launchParams';
 import type { DirectionFilter } from '../input/selection';
 import { FIXTURE_LEVELS, findTestLevel } from '../levels/test';
+import { BUILTIN_LEVELS, builtInLevel } from '../levels/catalog';
+import { TUTORIAL, TUTORIAL_SKIPPED_KEY } from '../levels/tutorial';
+import { TutorialDirector } from './tutorial';
 import { type HudState, TITLE_HUD, hudFor } from './hud';
 import { PlayScreen } from './playScreen';
 import { EditorScreen, type EditorView } from './editorScreen';
@@ -49,6 +52,9 @@ export interface GameActions {
   /** Rewind button pressed / released (the game stays paused afterwards). */
   rewindStart(): void;
   rewindEnd(): void;
+  /** Tutorial: "Got it" / skip the whole tutorial. */
+  tutorialOk(): void;
+  skipTutorial(): void;
 }
 
 /** UI → editor commands. */
@@ -100,6 +106,7 @@ export class GameApp implements GameActions, EditorActions {
   /** The current play screen is a test play of the editor draft. */
   private testing = false;
   private loaded: LevelDef | null = null;
+  private tutorial: TutorialDirector | null = null;
   readonly myLevels = new MyLevels(getStore(), () => Date.now());
   readonly myLevelsList = new Store<MyLevel[]>(this.myLevels.list());
   private mode: 'title' | 'play' | 'editor';
@@ -120,15 +127,19 @@ export class GameApp implements GameActions, EditorActions {
     private readonly app: Application,
     private readonly params: LaunchParams,
   ) {
-    const direct = params.levelId ? findTestLevel(params.levelId) : undefined;
+    const direct = params.levelId
+      ? (builtInLevel(params.levelId) ?? findTestLevel(params.levelId))
+      : undefined;
     if (params.editor) {
       this.mode = 'editor';
       this.screen = null;
       this.editor = this.createEditor();
     } else if (direct) {
-      const i = FIXTURE_LEVELS.indexOf(direct);
-      if (i < 0) this.levels = [direct];
-      this.index = Math.max(0, i);
+      // A built-in level opens inside its world's sequence ("next" works); test levels alone.
+      const world = Object.values(BUILTIN_LEVELS).find((list) => list.includes(direct));
+      const list = world ?? (FIXTURE_LEVELS.includes(direct) ? FIXTURE_LEVELS : [direct]);
+      this.levels = list;
+      this.index = Math.max(0, list.indexOf(direct));
       this.mode = 'play';
       this.screen = this.createScreen(true);
     } else {
@@ -204,7 +215,12 @@ export class GameApp implements GameActions, EditorActions {
   /** Sound, haptics and music for the current screen. */
   private attachFeedback(): void {
     const screen = this.screen;
+    this.tutorial = null;
     if (!screen) return;
+    const steps = TUTORIAL[screen.session.level.id];
+    if (this.mode === 'play' && steps && getStore().get(TUTORIAL_SKIPPED_KEY) !== '1') {
+      this.tutorial = new TutorialDirector(steps, screen);
+    }
     if (this.mode === 'title') {
       this.feedback = null;
     } else {
@@ -260,6 +276,7 @@ export class GameApp implements GameActions, EditorActions {
       this.rewindAcc -= whole;
       if (whole > 0) this.ps.session.rewindBy(whole);
     }
+    this.tutorial?.update(this.now);
     this.ps.frame(dtMs, this.now);
     const session = this.ps.session;
     this.audio.setSpeed(session.speed);
@@ -294,7 +311,7 @@ export class GameApp implements GameActions, EditorActions {
       showEnd && !this.rewinding,
       this.rewinding,
     );
-    this.hud.set({ ...hud, testPlay: this.testing });
+    this.hud.set({ ...hud, testPlay: this.testing, tutorial: this.tutorial?.view ?? null });
   }
 
   // --- GameActions ------------------------------------------------------------------------------
@@ -302,7 +319,7 @@ export class GameApp implements GameActions, EditorActions {
   play(): void {
     this.testing = false;
     this.mode = 'play';
-    this.levels = FIXTURE_LEVELS;
+    this.levels = BUILTIN_LEVELS.w1.length > 0 ? BUILTIN_LEVELS.w1 : FIXTURE_LEVELS;
     this.index = 0;
     this.replaceScreen();
   }
@@ -543,6 +560,19 @@ export class GameApp implements GameActions, EditorActions {
   rewindEnd(): void {
     if (!this.rewinding) return;
     this.rewinding = false;
+    this.publishHud();
+  }
+
+  tutorialOk(): void {
+    this.tutorial?.ok();
+    this.tutorial?.update(this.now);
+    this.publishHud();
+  }
+
+  skipTutorial(): void {
+    getStore().set(TUTORIAL_SKIPPED_KEY, '1');
+    this.tutorial?.stop();
+    this.tutorial = null;
     this.publishHud();
   }
 

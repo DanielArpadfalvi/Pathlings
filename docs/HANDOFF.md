@@ -11,7 +11,7 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 ✅ perf |
 | M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
-| M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · következik T5.2 Mohaliget (20) + tutorial |
+| M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · következik T5.3 Kristálymély |
 | M6–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
@@ -111,8 +111,15 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - `src/levels/plan.ts` – `compilePlan`: feltételes lépések (`assign` + `when: {tick,xGte,xLte,yGte,yLte,state,dir}`, `popAll`, `release`) → pontos napló + hash. `npm run levels:solve [id…]` újraírja a JSON-ok `solution`-jét.
 - `src/levels/validate.ts` – `checkBuiltIn`: id = útvonal, érvényes, téma és nehézségi tartomány világonként (w1 1–6, w2 3–8, w3 5–9, w4 7–10, bonus 1–10), szövegek minden nyelven, a megoldás lefut, hash egyezik, **a referencia mindhárom csillagot megszerzi**. `npm run validate-levels` (a `check` része) – CI-kapu.
 
+## Tartalom-szerkesztés + Mohaliget (T5.2)
+- Pályák kódból: `scripts/author/build.ts` (segédek: `rect`, `cut`, `ramp`, `sideWalls`, `entrance`, `exitOn`, `water`, `each(skill, ids, when)`), világonként `scripts/author/w1.ts` (`LevelSpec`: geometria, objektumok, lényszám, szükséges, készlet, terv, EN/HU cím+tippek). `npm run levels:author [world|id…]` lefordítja a tervet, a ★★-t a referencia mentettjeire, a ★★★-t a kiosztásszámra kalibrálja, kiírja a JSON-t és a `src/i18n/levels.*.ts`-t; figyelmeztet, ha egy pálya képesség nélkül is nyerhető. Hibakeresés: `npx tsx scripts/trace-level.ts <id> [lény…]` (halálok okkal, lépések, pályák).
+- **Tervezési szabály:** egy akna/alagút tetejétől a lenti talajig ≤ 60 px (a követők a tetejéről esnek!); az egymás alatti Ásók ne ugyanabba az oszlopba ássanak.
+- W1: 20 pálya (1–8 egy-egy képesség, 9–20 kombinációk; 19–20 480×720), mind ellenőrizve.
+- Tutorial: `src/levels/tutorial.ts` (lépések: trigger `start`/`creatureX`/`tick`, cél UI-testid vagy lény, `pause`, teljesítés `ok`/`skillSelected`/`assigned`/`timeout`), `src/app/tutorial.ts` (`TutorialDirector`), `src/ui/TutorialOverlay.tsx` (buborék, szellemkéz, célkiemelés, kihagyás – `pathlings.tutorialSkipped.v1`). Az 1–3. pálya a vezérlést is bemutatja (szünet, sebesség, kamera, visszatekerés).
+- A „Játék” gomb a W1-et indítja; `?level=w1-07` közvetlenül (a világ sorrendjében, „következő” működik).
+
 ## Következő lépések sorrendben
-1. M5: T5.2–T5.5 világok (80 pálya) → T5.6 bónusz + napi → T5.7 tippek; utána M6–M9.
+1. M5: T5.3–T5.5 világok (60 pálya) → T5.6 bónusz + napi → T5.7 tippek; utána M6–M9.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.

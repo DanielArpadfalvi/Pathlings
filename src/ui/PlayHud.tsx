@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { PublishPanel } from './Panels';
+import { TutorialOverlay } from './TutorialOverlay';
 import type { SkillId } from '../core/level';
 import { SKILLS } from '../core/level';
 import type { EditorActions, GameActions } from '../app/gameApp';
@@ -339,6 +340,13 @@ export function PlayHud({
         <div class="rewind-badge" data-testid="rewind-badge">
           <RewindIcon /> {t('hud.rewinding')}
         </div>
+      )}
+      {hud.tutorial && !hud.end && (
+        <TutorialOverlay
+          view={hud.tutorial}
+          onOk={() => actions.tutorialOk()}
+          onSkip={() => actions.skipTutorial()}
+        />
       )}
       <EndScreen hud={hud} actions={actions} />
     </>

@@ -16,7 +16,8 @@
     "check": "npm run typecheck && npm run lint && npm run test && npm run validate-levels",
     "test:e2e": "playwright test",
     "validate-levels": "tsx scripts/validate-levels.ts",
-    "levels:solve": "tsx scripts/solve-levels.ts"
+    "levels:solve": "tsx scripts/solve-levels.ts",
+    "levels:author": "tsx scripts/author-levels.ts"
   },
   "dependencies": {
     "fflate": "^0.8.3",

@@ -1,0 +1,145 @@
+{
+  "v": 1,
+  "id": "w1-15",
+  "title": "Wrong Way",
+  "author": "",
+  "theme": "glade",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 60,
+      "y": 380,
+      "w": 260,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 6,
+      "y": 440,
+      "w": 54,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 60,
+      "y": 420,
+      "w": 6,
+      "h": 20
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 150,
+      "y": 370,
+      "dir": -1
+    },
+    {
+      "type": "exit",
+      "x": 264,
+      "y": 428
+    },
+    {
+      "type": "water",
+      "x": 6,
+      "y": 452,
+      "w": 54,
+      "h": 28
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 9,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 1,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 1
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w1-15.title",
+  "difficulty": 4,
+  "hintKeys": ["level.w1-15.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 191,
+        "creature": 0,
+        "skill": "warden"
+      },
+      {
+        "kind": "assign",
+        "tick": 476,
+        "creature": 1,
+        "skill": "delver"
+      },
+      {
+        "kind": "popAll",
+        "tick": 2400
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 804859182
+  },
+  "plan": [
+    {
+      "assign": "warden",
+      "creature": 0,
+      "when": {
+        "xLte": 100,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "delver",
+      "creature": 1,
+      "when": {
+        "xGte": 180,
+        "state": "walk"
+      }
+    },
+    {
+      "popAll": true,
+      "when": {
+        "tick": 2400
+      }
+    }
+  ]
+}
