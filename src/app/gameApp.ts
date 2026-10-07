@@ -8,6 +8,10 @@ import { FIXTURE_LEVELS, findTestLevel } from '../levels/test';
 import { type HudState, TITLE_HUD, hudFor } from './hud';
 import { PlayScreen } from './playScreen';
 import { Store } from './store';
+import { FeedbackDirector } from '../audio/feedback';
+import { WebAudioEngine } from '../audio/synth';
+import { type AudioSettings, DEFAULT_AUDIO, sanitizeAudio } from '../audio/volume';
+import { getHaptics } from '../platform/haptics';
 
 /** Game speeds of the speed button, in cycle order starting from 1× (§1.7). */
 export const SPEEDS = [1, 2, 4, 0.5] as const;
@@ -51,6 +55,10 @@ export class GameApp implements GameActions {
   private now = 0;
   private insets = { top: 0, bottom: 0 };
   private rewinding = false;
+  readonly audio = new WebAudioEngine();
+  private audioSettings: AudioSettings = DEFAULT_AUDIO;
+  private feedback: FeedbackDirector | null = null;
+  private hapticsOn = true;
   /** Fractional ticks still to rewind (rewinding is real-time driven). */
   private rewindAcc = 0;
 
@@ -73,6 +81,9 @@ export class GameApp implements GameActions {
     app.ticker.add((t) => this.frame(t.deltaMS));
     window.addEventListener('keydown', this.onKey);
     window.addEventListener('keyup', this.onKeyUp);
+    window.addEventListener('pointerdown', this.unlockAudio, true);
+    window.addEventListener('keydown', this.unlockAudio, true);
+    this.attachFeedback();
     this.publish();
   }
 
@@ -100,10 +111,32 @@ export class GameApp implements GameActions {
     return screen;
   }
 
+  /** Sound, haptics and music for the current screen. */
+  private attachFeedback(): void {
+    const screen = this.screen;
+    if (this.mode === 'title') {
+      this.feedback = null;
+    } else {
+      const fb = new FeedbackDirector(this.audio, getHaptics());
+      fb.hapticsEnabled = this.hapticsOn;
+      this.feedback = fb;
+      screen.session.onStep((sim, events) => fb.onEvents(sim, events));
+      screen.onAttempt = (a) => {
+        if (!a.ok) fb.rejected(screen.session.sim.tick);
+      };
+    }
+    this.audio.playMusic(screen.session.level.theme);
+  }
+
+  private readonly unlockAudio = (): void => {
+    this.audio.unlock();
+  };
+
   private replaceScreen(): void {
     const filter = this.screen.filter;
     this.screen.destroy();
     this.screen = this.createScreen(false);
+    this.attachFeedback();
     if (this.mode === 'play') this.screen.filter = filter;
     this.endedAt = -1;
     this.rewinding = false;
@@ -119,7 +152,10 @@ export class GameApp implements GameActions {
       if (whole > 0) this.screen.session.rewindBy(whole);
     }
     this.screen.frame(dtMs, this.now);
-    const ended = this.screen.session.sim.ended;
+    const session = this.screen.session;
+    this.audio.setSpeed(session.speed);
+    this.audio.setDucked(this.mode === 'play' && (session.paused || session.sim.ended));
+    const ended = session.sim.ended;
     if (!ended) this.endedAt = -1;
     else if (this.endedAt < 0) this.endedAt = this.now;
     if (this.mode === 'title' && ended && this.now - this.endedAt > ATTRACT_RESTART_MS) {
@@ -228,6 +264,16 @@ export class GameApp implements GameActions {
     this.publish();
   }
 
+  setAudio(settings: Partial<AudioSettings>): void {
+    this.audioSettings = sanitizeAudio({ ...this.audioSettings, ...settings });
+    this.audio.setVolumes(this.audioSettings);
+  }
+
+  setHaptics(on: boolean): void {
+    this.hapticsOn = on;
+    if (this.feedback) this.feedback.hapticsEnabled = on;
+  }
+
   // --- Keyboard (web) ---------------------------------------------------------------------------
 
   private readonly onKey = (e: KeyboardEvent): void => {
@@ -260,6 +306,9 @@ export class GameApp implements GameActions {
   destroy(): void {
     window.removeEventListener('keydown', this.onKey);
     window.removeEventListener('keyup', this.onKeyUp);
+    window.removeEventListener('pointerdown', this.unlockAudio, true);
+    window.removeEventListener('keydown', this.unlockAudio, true);
+    this.audio.destroy();
     this.screen.destroy();
   }
 }

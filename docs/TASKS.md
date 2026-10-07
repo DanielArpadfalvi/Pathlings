@@ -25,7 +25,7 @@ Plan / numbers: `docs/PLAN.md` (Hungarian). Section refs like (§1.1) point ther
 ## M3 – Game feel
 - [x] **T3.1 Animation & effects** – full creature animation set (§1.11), Popper shake + crater particles, exit "pop-in", plank sparkle, lava glow, screen shake (off in reduced motion). AC: screenshot/video review by reviewer agent, no reviewer "major" findings.
 - [x] **T3.2 Rewind + speed polish** – hold-to-rewind (4×), timeline scrub feedback, auto-pause-on-select option. AC: e2e: make a fatal mistake, rewind 5 s, fix it, finish the level; memory < 30 MB for a 10-min run (measured in a unit/perf test via keyframe size accounting).
-- [ ] **T3.3 Audio + haptics** – procedural SFX (step, dig, plank rising pitch, pop, save chord, invalid "no"), generative music per world (tempo follows speed), Capacitor Haptics via `platform`. AC: all SFX triggered from the event stream (unit test with a fake audio sink); volume settings respected.
+- [x] **T3.3 Audio + haptics** – procedural SFX (step, dig, plank rising pitch, pop, save chord, invalid "no"), generative music per world (tempo follows speed), Capacitor Haptics via `platform`. AC: all SFX triggered from the event stream (unit test with a fake audio sink); volume settings respected.
 - [ ] **T3.4 Performance pass** – 100 creatures on 640×960 at 4× speed. AC: Playwright perf probe ≥ 55 FPS average on CI Chromium (CPU throttle 4×) over 20 s; core tick < 0.5 ms average.
 
 ## M4 – Level editor & level codes

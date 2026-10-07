@@ -50,6 +50,8 @@ export class PlayScreen {
   filter: DirectionFilter;
   /** Latest release on a creature (diagnostics / tests; feedback hooks come with M3). */
   lastAttempt: AssignAttempt | null = null;
+  /** Called after every release on a creature (sound / haptic feedback). */
+  onAttempt: ((a: AssignAttempt) => void) | null = null;
   /** "Auto-pause while selecting" option (§1.7 point 5). */
   autoPause = false;
   /** The current press paused the game and will resume it. */
@@ -154,6 +156,7 @@ export class PlayScreen {
     const skill = this.skill;
     const ok = skill !== null && this.session.assign(id, skill);
     this.lastAttempt = { id, skill, ok };
+    this.onAttempt?.(this.lastAttempt);
   }
 
   /** One display frame: advance the sim by real time, animate the camera, draw. */
