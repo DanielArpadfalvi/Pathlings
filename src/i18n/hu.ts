@@ -72,6 +72,8 @@ export const hu: Record<TranslationKey, string> = {
   'daily.mod.timeMinus': '−{seconds} mp',
   'daily.mod.requiredPlus': '+1 szükséges',
   'help.button': 'Segítség',
+  'help.ready': 'Segítség – a tippek elérhetők',
+  'app.canvas': 'Pályanézet: a Pathlingek és a terep',
   'hud.menu': 'Menü',
   'pause.title': 'Szünet',
   'pause.resume': 'Folytatás',

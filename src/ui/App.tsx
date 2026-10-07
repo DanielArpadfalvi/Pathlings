@@ -214,11 +214,16 @@ export function App({
           type="button"
           class={`icon-button ${hud.help.hintsUnlocked ? 'help-ready' : ''}`}
           data-testid="help"
-          aria-label={t('help.button')}
-          title={t('help.button')}
+          aria-label={hud.help.hintsUnlocked ? t('help.ready') : t('help.button')}
+          title={hud.help.hintsUnlocked ? t('help.ready') : t('help.button')}
           onClick={() => setHelpOpen(true)}
         >
           ?
+          {hud.help.hintsUnlocked && (
+            <span class="help-badge" data-testid="help-badge" aria-hidden="true">
+              !
+            </span>
+          )}
         </button>
       ) : null}
       {hud.testPlay ? (

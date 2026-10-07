@@ -12,7 +12,8 @@ Utolsó frissítés: 2026-10-07. A Pathlingset a **lokális, Pathlings-könyvtá
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 ✅ perf |
 | M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
 | M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · T5.4 ✅ Óraműhely (20) · T5.5 ✅ Felhőszirt (20) · T5.6 ✅ bónusz (30) + napi pálya · T5.7 ✅ tippek + megoldás |
-| M6–M10 | nincs elkezdve |
+| M6 Meta + UI | ✅ T6.1 menü/világtérkép/pályaválasztó · T6.2 beállítások + szünetmenü · T6.3 mentés · T6.4 i18n + a11y |
+| M7–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
 
@@ -131,8 +132,15 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - `GameApp.watchSolution()` – a referenciamegoldás autoplay-jel (`watching`: nincs képesség-választás, „Megoldás-visszajátszás” jelvény, a pálya végén „Próbáld meg te”). UI: `?` gomb a lebegő sorban + `HelpPanel`, vesztes végképernyőn „Segítség”.
 - E2E: `tests/e2e/help.spec.ts` (headless szoftveres GL-en lassú, ~1 perc).
 
+## Meta + UI (M6)
+- **Mentés (T6.3):** `src/app/save.ts` – `SaveManager`, egyetlen verziózott rekord `pathlings.save` (v2: `levels` = pályánkénti csillag, legjobb eredmény, sikertelen próbák, segítség-állapot; `settings`; `tutorialSkipped`). v1 = a régi szórt kulcsok (`pathlings.help.v1`, `pathlings.tutorialSkipped.v1`) → migrálva, majd törölve. Sérült adat mezőnként alapértékre esik. A „saját pályák” és a vázlat saját `.v1` kulcson marad (kódokat tárol, bejegyzésenként validálva). `HelpTracker` a mentésre épül.
+- **Progresszió (T6.1):** `src/app/progression.ts` (tiszta): mindig 3 nyitott megoldatlan pálya, a 20. a 17/20-nál, a következő világ az előző 20. pályájával; ingyenes: W1 + W2 1–10 (+ mai napi, szerkesztő, kódok); a többi `paid` (lakat + ár). A bónusz-archívum progresszió nélkül, csak teljes játékkal. `src/app/menu.ts` (`MenuView`), `src/ui/Menu.tsx` (világtérkép, pályaválasztó, `OfferSheet`). „Játék”: első indításkor egyből W1-01, különben világtérkép. `GameApp.fullGame` / `price` – a T8 köti be a bolthoz.
+- **Beállítások (T6.2):** `src/app/settings.ts` (`sanitizeSettings`), `src/ui/SettingsPanel.tsx`; élőben hat (`GameApp.setSettings` → hang, rezgés, nyelv, kijelölési sugár, auto-szünet; a kezdősebesség és a reduced motion új pályától). Megjelenítés: osztályok a `<html>`-en (`left-handed`, `high-contrast`, `large-text`, `reduce-motion`), a betűméret `--text-scale`-lel. Szünetmenü: a HUD bal felső „‹” gombja (folytatás, újra, beállítások, kilépés). Debug: `__pathlings.input`.
+- **i18n + a11y (T6.4):** `tests/unit/i18nUsage.test.ts` (nincs beégetett UI-szöveg, placeholder-egyezés, dinamikus kulcsok), `docs/ACCESSIBILITY.md` ellenőrzőlista.
+- E2E-tipp: ebben a konténerben minden kattintás ~2,5 s (szoftveres GL, stabil frame-ekre vár) – a hosszú UI-folyamatok tesztjeinek saját időkeretük van.
+
 ## Következő lépések sorrendben
-1. M6: T6.1 menü/világtérkép → T6.2 beállítások → T6.3 mentés → T6.4 i18n/a11y; utána M7–M9.
+1. M7: T7.1 Capacitor → T7.2 ikon/splash → T7.3 natív CI → T7.4 deep link; utána M8 (vásárlás + kapuk), M9.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.

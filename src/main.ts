@@ -6,7 +6,7 @@ import { parseLaunchParams } from './game/launchParams';
 import { App } from './ui/App';
 import { encodeLevel } from './core/code/levelCode';
 import { findTestLevel } from './levels/test';
-import { getLanguage } from './i18n';
+import { getLanguage, onLanguageChange, t } from './i18n';
 
 /** Read-only diagnostics for e2e tests (`?debug=1`). */
 function exposeDebug(game: GameApp): void {
@@ -102,6 +102,10 @@ async function boot(): Promise<void> {
   const params = parseLaunchParams(window.location.search);
 
   const app = await createStage(stage);
+  // The world itself is visual; screen readers get a name for it, the HUD carries the numbers.
+  app.canvas.setAttribute('role', 'img');
+  app.canvas.setAttribute('aria-label', t('app.canvas'));
+  onLanguageChange(() => app.canvas.setAttribute('aria-label', t('app.canvas')));
   const game = new GameApp(app, params);
   if (params.debug) exposeDebug(game);
 

@@ -70,6 +70,8 @@ const ui = {
   'daily.mod.timeMinus': '−{seconds} s',
   'daily.mod.requiredPlus': '+1 needed',
   'help.button': 'Help',
+  'help.ready': 'Help – hints are ready',
+  'app.canvas': 'Level view: the Pathlings and their terrain',
   'hud.menu': 'Menu',
   'pause.title': 'Paused',
   'pause.resume': 'Resume',

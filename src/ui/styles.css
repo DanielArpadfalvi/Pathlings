@@ -226,7 +226,7 @@ button {
 
 .release .control-button {
   flex: 1;
-  min-width: 46px;
+  min-width: 48px;
 }
 
 .release-value {
@@ -655,7 +655,7 @@ button {
   background: none;
   color: #5a5470;
   text-decoration: underline;
-  min-height: 44px;
+  min-height: 48px;
   padding: 0 4px;
 }
 
@@ -872,8 +872,8 @@ button {
 }
 
 .hud-exit {
-  min-width: 40px;
-  min-height: 40px;
+  min-width: 48px;
+  min-height: 48px;
   border: none;
   background: none;
   font-size: calc(26px * var(--text-scale));
@@ -969,4 +969,30 @@ button {
 .reduce-motion *::after {
   animation-duration: 0.01ms !important;
   transition-duration: 0.01ms !important;
+}
+
+/* Keyboard / switch-control focus is always visible. */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #fff1a8;
+  outline-offset: 2px;
+}
+
+.help-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: #fff1a8;
+  color: #1a1a1a;
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 800;
+  line-height: 18px;
+}
+
+.icon-button {
+  position: relative;
 }
