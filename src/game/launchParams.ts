@@ -6,6 +6,7 @@
  * - `pause=1`     start paused (with `seek`: a frozen frame for screenshots);
  * - `skill=<id>`  preselect a skill (e2e / testing; players use the skill bar);
  * - `filter=left|right` start with that direction filter;
+ * - `autopause=1` pause while a finger is selecting (settings arrive with T6.2);
  * - `debug=1`     expose read-only render stats as `window.__pathlings`.
  */
 import { type SkillId, isSkillId } from '../core/level';
@@ -19,6 +20,7 @@ export interface LaunchParams {
   debug: boolean;
   skill: SkillId | null;
   filter: DirectionFilter;
+  autoPause: boolean;
 }
 
 export const ATTRACT_LEVEL_ID = 'test-clockwork';
@@ -38,6 +40,7 @@ export function parseLaunchParams(search: string): LaunchParams {
     paused: flag(p, 'pause'),
     debug: flag(p, 'debug'),
     skill: isSkillId(p.get('skill')) ? (p.get('skill') as SkillId) : null,
+    autoPause: flag(p, 'autopause'),
     filter: p.get('filter') === 'left' ? 'left' : p.get('filter') === 'right' ? 'right' : 'both',
   };
 }

@@ -1,6 +1,6 @@
 import type { LevelDef, SkillId } from '../core/level';
 import type { InputLog } from '../core/replay';
-import { playLog } from '../core/replay';
+import { playLog, rewindTo } from '../core/replay';
 import {
   adjustReleaseInterval,
   assign,
@@ -87,6 +87,20 @@ export class GameSession {
     const { fastest, slowest } = releaseBounds(this.sim);
     const stepTicks = Math.max(1, Math.round((slowest - fastest) / 8));
     return adjustReleaseInterval(this.sim, -direction * stepTicks);
+  }
+
+  /**
+   * Rewinds `ticks` ticks (not below 0): restores the nearest keyframe and re-simulates; player
+   * commands at or after the target tick are dropped from the log (§1.4). Listeners get the
+   * `rewound` event. Returns the new tick.
+   */
+  rewindBy(ticks: number): number {
+    if (ticks <= 0 || this.sim.tick === 0) return this.sim.tick;
+    rewindTo(this.sim, Math.max(0, this.sim.tick - Math.floor(ticks)));
+    this.clock.reset();
+    const events = drainEvents(this.sim);
+    for (const l of this.listeners) l(this.sim, events);
+    return this.sim.tick;
   }
 
   /** Fast-forwards to `tick` (or the level end) without waiting for real time. */

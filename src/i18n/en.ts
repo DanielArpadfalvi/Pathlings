@@ -27,6 +27,8 @@ export const en = {
   'control.releaseRate': 'Release rate',
   'control.popAll': 'Hold to pop everyone',
   'control.popAllConfirm': 'Tap again to pop all',
+  'control.rewind': 'Hold to rewind',
+  'hud.rewinding': 'Rewinding',
   'end.won': 'Level complete!',
   'end.lost': 'Not enough made it home',
   'end.timeUp': 'Time is up',

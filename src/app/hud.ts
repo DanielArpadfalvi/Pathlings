@@ -38,6 +38,10 @@ export interface HudState {
   canSlower: boolean;
   nuked: boolean;
   filter: DirectionFilter;
+  /** Played share of the time limit, 0…1 (timeline bar). */
+  progress: number;
+  rewinding: boolean;
+  canRewind: boolean;
   end: EndInfo | null;
 }
 
@@ -60,6 +64,9 @@ export const TITLE_HUD: HudState = {
   canSlower: false,
   nuked: false,
   filter: 'both',
+  progress: 0,
+  rewinding: false,
+  canRewind: false,
   end: null,
 };
 
@@ -68,6 +75,7 @@ export function hudFor(
   levelNumber: number,
   levelCount: number,
   showEnd: boolean,
+  rewinding = false,
 ): HudState {
   const sim = screen.session.sim;
   const level = sim.level;
@@ -92,6 +100,9 @@ export function hudFor(
     canSlower: sim.releaseInterval < slowest && !sim.ended,
     nuked: sim.nuked,
     filter: screen.filter,
+    progress: Math.min(1, Math.round((sim.tick / level.timeLimitTicks) * 1000) / 1000),
+    rewinding,
+    canRewind: sim.tick > 0,
     end:
       showEnd && sim.ended
         ? {

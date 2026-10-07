@@ -81,6 +81,34 @@ describe('GameSession', () => {
     expect(s.frame(1000)).toBe(0);
   });
 
+  it('rewinds: drops later commands, restores stock, notifies listeners', () => {
+    const s = new GameSession(tunnel);
+    const seen: string[] = [];
+    s.onStep((_sim, evs) => evs.forEach((e) => seen.push(e.type)));
+    s.seek(100);
+    expect(s.assign(0, 'burrower')).toBe(true);
+    s.seek(400);
+    expect(s.rewindBy(310)).toBe(90);
+    expect(s.sim.log).toEqual([]);
+    expect(s.sim.skills.burrower).toBe(1);
+    expect(seen.at(-1)).toBe('rewound');
+    expect(s.rewindBy(10_000)).toBe(0);
+    expect(s.rewindBy(5)).toBe(0);
+  });
+
+  it('a rewound and replayed run matches a straight run', () => {
+    const straight = new GameSession(tunnel, { autoplay: tunnel.solution });
+    straight.seek(Infinity);
+    const s = new GameSession(tunnel);
+    s.seek(152);
+    s.assign(0, 'burrower');
+    s.seek(500);
+    s.rewindBy(200); // back to 300: the assignment at 152 stays
+    expect(s.sim.log).toHaveLength(1);
+    s.seek(Infinity);
+    expect(stateHash(s.sim)).toBe(stateHash(straight.sim));
+  });
+
   it('does not advance while paused', () => {
     const s = new GameSession(tunnel);
     s.paused = true;
@@ -100,11 +128,13 @@ describe('launch params', () => {
       debug: false,
       skill: null,
       filter: 'both',
+      autoPause: false,
     });
   });
 
   it('parses level, autoplay, seek, pause, debug, skill and filter', () => {
-    const q = '?level=test-tunnel&autoplay=1&seek=420&pause=1&debug=true&skill=warden&filter=left';
+    const q =
+      '?level=test-tunnel&autoplay=1&seek=420&pause=1&debug=true&skill=warden&filter=left&autopause=1';
     expect(parseLaunchParams(q)).toEqual({
       levelId: 'test-tunnel',
       autoplay: true,
@@ -113,6 +143,7 @@ describe('launch params', () => {
       debug: true,
       skill: 'warden',
       filter: 'left',
+      autoPause: true,
     });
   });
 

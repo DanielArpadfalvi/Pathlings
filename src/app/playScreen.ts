@@ -50,6 +50,10 @@ export class PlayScreen {
   filter: DirectionFilter;
   /** Latest release on a creature (diagnostics / tests; feedback hooks come with M3). */
   lastAttempt: AssignAttempt | null = null;
+  /** "Auto-pause while selecting" option (§1.7 point 5). */
+  autoPause = false;
+  /** The current press paused the game and will resume it. */
+  private resumeAfterPress = false;
   private readonly selection: SelectionController;
   private readonly loupe = new Loupe();
   private readonly detachInput: (() => void) | null;
@@ -117,6 +121,10 @@ export class PlayScreen {
         this.camera.doubleTap({ x: g.x, y: g.y });
         break;
       case 'pressStart':
+        if (this.autoPause && !this.session.paused && !this.session.sim.ended) {
+          this.session.paused = true;
+          this.resumeAfterPress = true;
+        }
         this.selection.start(g.x, g.y, g.t);
         break;
       case 'pressMove':
@@ -125,14 +133,21 @@ export class PlayScreen {
       case 'pressEnd': {
         const id = this.selection.end(g.x, g.y, g.t);
         if (id !== null) this.tryAssign(id);
+        this.endAutoPause();
         break;
       }
       case 'pressCancel':
         this.selection.cancel();
+        this.endAutoPause();
         break;
       default:
         break;
     }
+  }
+
+  private endAutoPause(): void {
+    if (this.resumeAfterPress) this.session.paused = false;
+    this.resumeAfterPress = false;
   }
 
   private tryAssign(id: number): void {

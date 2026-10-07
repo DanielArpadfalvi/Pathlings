@@ -58,6 +58,7 @@ export const PauseIcon = () => <PixelIcon d="M2 1h3v10H2zM7 1h3v10H7z" />;
 export const PlayIcon = () => <PixelIcon d="M2 1h2v1h2v1h2v1h2v1h1v2h-1v1H8v1H6v1H4v1H2z" />;
 export const MinusIcon = () => <PixelIcon d="M1 5h10v2H1z" size={18} />;
 export const PlusIcon = () => <PixelIcon d="M5 1h2v4h4v2H7v4H5V7H1V5h4z" size={18} />;
+export const RewindIcon = () => <PixelIcon d="M12 2L7 6l5 4zM6 2L1 6l5 4z" size={18} />;
 export const FastIcon = () => <PixelIcon d="M0 2l5 4-5 4zM6 2l5 4-5 4z" size={18} />;
 export const PopAllIcon = () => (
   <PixelIcon d="M5 0h2v3H5zM5 9h2v3H5zM0 5h3v2H0zM9 5h3v2H9zM1 1h2v2H1zM9 1h2v2H9zM1 9h2v2H1zM9 9h2v2H9zM4 4h4v4H4z" />

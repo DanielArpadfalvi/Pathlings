@@ -28,6 +28,8 @@ export const hu: Record<TranslationKey, string> = {
   'control.releaseRate': 'Kiadási ütem',
   'control.popAll': 'Tartsd nyomva: mind pukkan',
   'control.popAllConfirm': 'Koppints újra: mind pukkan',
+  'control.rewind': 'Tartsd nyomva: visszatekerés',
+  'hud.rewinding': 'Visszatekerés',
   'end.won': 'Pálya teljesítve!',
   'end.lost': 'Nem jutott haza elég Pathling',
   'end.timeUp': 'Lejárt az idő',

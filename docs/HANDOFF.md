@@ -9,10 +9,10 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | M0 Alapozás (Vite+TS+Pixi+Preact, lint, Vitest, Playwright smoke, CI) | ✅ T0.1, T0.2 |
 | M1 Mag-motor (`src/core`) | ✅ T1.1–T1.7 – terep, raszterizáló, pálya-definíció+validátor, lények, 8 képesség, objektumok, sim loop, események, replay, rewind, state hash |
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
-| M3 Játékélmény | 🔄 T3.1 ✅ effektek · következik T3.2 rewind |
+| M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · következik T3.3 hang/haptika |
 | M4–M10 | nincs elkezdve |
 
-Ellenőrzés (T3.1 után): `npm run check` 399/399 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 24/24 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
+Ellenőrzés (T3.2 után): `npm run check` 402/402 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
 
 ## Renderer / játékhurok (T2.1)
 - `src/game/clock.ts` (fix 60 Hz akkumulátor + alpha), `src/game/session.ts` (`GameSession`: a sim egyetlen léptetője a magon kívül; tickenként `drainEvents` → listenerek).
@@ -58,8 +58,14 @@ Ellenőrzés (T3.1 után): `npm run check` 399/399 unit teszt zöld, `npm run bu
 - Popper az utolsó 90 tickben remeg (`creatureLayer`), kijárat-felvillanás belépéskor, láva-buborékok (`objectLayer`).
 - Ha a Vite dev szerver félkész modulállapotnál beragad (HMR „does not provide an export”), indítsd újra.
 
+## Visszatekerés (T3.2)
+- `GameSession.rewindBy(ticks)` (core `rewindTo`: kulcsképkocka + újraszimulálás, a cél utáni parancsok törlődnek, `rewound` esemény a listenereknek).
+- `GameApp.rewindStart/End`: nyomva tartva 4× valós idejű visszafelé futás, utána szünet; HUD idővonal-sáv (`progress`), „Visszatekerés” jelvény; billentyű: `z`/Backspace.
+- Auto-szünet kijelöléskor: `PlayScreen.autoPause` (egyelőre `?autopause=1`, T6.2 beállítás lesz).
+- Memória: `tests/unit/core/memoryBudget.test.ts` – 10 perc, 100 lény, folyamatos ásás → kulcsképkockák < 30 MB.
+
 ## Következő lépések sorrendben
-1. M3: T3.2 rewind UI → T3.3 hang/haptika → T3.4 perf.
+1. M3: T3.3 hang/haptika → T3.4 perf.
 2. M4 (pályakód + szerkesztő), M5 (tartalom + `scripts/validate-levels`), M6–M9.
 
 ## Munkamódszer

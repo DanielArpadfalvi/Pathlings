@@ -14,6 +14,7 @@ import {
   PlusIcon,
   PopAllIcon,
   RetryIcon,
+  RewindIcon,
   SkillIcon,
   StarIcon,
 } from './icons';
@@ -37,25 +38,30 @@ function clock(seconds: number): string {
 function TopBar({ hud }: { hud: HudState }) {
   const low = hud.timeLeftSeconds <= 30;
   return (
-    <div class="hud-numbers">
-      <span class="hud-item" title={t('hud.out')} data-testid="hud-out">
-        <span class="hud-label">{t('hud.out')}</span> {hud.out}
-      </span>
-      <span
-        class={`hud-item ${hud.saved >= hud.required ? 'hud-good' : ''}`}
-        title={t('hud.saved')}
-        data-testid="hud-saved"
-      >
-        <span class="hud-label">{t('hud.saved')}</span> {hud.saved}/{hud.required}
-      </span>
-      <span
-        class={`hud-item ${low ? 'hud-warn' : ''}`}
-        title={t('hud.time')}
-        data-testid="hud-time"
-      >
-        {clock(hud.timeLeftSeconds)}
-      </span>
-    </div>
+    <>
+      <div class="hud-numbers">
+        <span class="hud-item" title={t('hud.out')} data-testid="hud-out">
+          <span class="hud-label">{t('hud.out')}</span> {hud.out}
+        </span>
+        <span
+          class={`hud-item ${hud.saved >= hud.required ? 'hud-good' : ''}`}
+          title={t('hud.saved')}
+          data-testid="hud-saved"
+        >
+          <span class="hud-label">{t('hud.saved')}</span> {hud.saved}/{hud.required}
+        </span>
+        <span
+          class={`hud-item ${low ? 'hud-warn' : ''}`}
+          title={t('hud.time')}
+          data-testid="hud-time"
+        >
+          {clock(hud.timeLeftSeconds)}
+        </span>
+      </div>
+      <div class={`timeline ${hud.rewinding ? 'rewinding' : ''}`} aria-hidden="true">
+        <div class="timeline-fill" style={{ width: `${hud.progress * 100}%` }} />
+      </div>
+    </>
   );
 }
 
@@ -136,6 +142,27 @@ function PopAllButton({ hud, actions }: { hud: HudState; actions: GameActions })
   );
 }
 
+function RewindButton({ hud, actions }: { hud: HudState; actions: GameActions }) {
+  const stop = (): void => actions.rewindEnd();
+  return (
+    <button
+      type="button"
+      class={`control-button ${hud.rewinding ? 'active' : ''}`}
+      data-testid="rewind"
+      data-rewinding={hud.rewinding}
+      aria-label={t('control.rewind')}
+      title={t('control.rewind')}
+      disabled={!hud.canRewind && !hud.rewinding}
+      onPointerDown={() => actions.rewindStart()}
+      onPointerUp={stop}
+      onPointerLeave={stop}
+      onPointerCancel={stop}
+    >
+      <RewindIcon />
+    </button>
+  );
+}
+
 function ControlBar({ hud, actions }: { hud: HudState; actions: GameActions }) {
   return (
     <div class="control-bar">
@@ -160,6 +187,7 @@ function ControlBar({ hud, actions }: { hud: HudState; actions: GameActions }) {
         <FastIcon />
         <span class="control-label">{hud.speed}×</span>
       </button>
+      <RewindButton hud={hud} actions={actions} />
       <div class="release" role="group" aria-label={t('control.releaseRate')}>
         <button
           type="button"
@@ -281,6 +309,11 @@ export function PlayHud({
         <SkillBar hud={hud} actions={actions} />
         <ControlBar hud={hud} actions={actions} />
       </div>
+      {hud.rewinding && (
+        <div class="rewind-badge" data-testid="rewind-badge">
+          <RewindIcon /> {t('hud.rewinding')}
+        </div>
+      )}
       <EndScreen hud={hud} actions={actions} />
     </>
   );

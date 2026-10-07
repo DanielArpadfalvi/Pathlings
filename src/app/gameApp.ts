@@ -15,6 +15,8 @@ export const SPEEDS = [1, 2, 4, 0.5] as const;
 const END_SCREEN_DELAY_MS = 700;
 /** Attract mode restarts the demo this long after it ends. */
 const ATTRACT_RESTART_MS = 2000;
+/** Hold-to-rewind runs backwards at this multiple of real time (§1.7). */
+export const REWIND_SPEED = 4;
 
 /** UI → game commands (buttons, keyboard). */
 export interface GameActions {
@@ -30,6 +32,9 @@ export interface GameActions {
   setFilter(filter: DirectionFilter): void;
   /** Heights of the UI strips covering the canvas (HUD top, controls bottom), CSS px. */
   setInsets(top: number, bottom: number): void;
+  /** Rewind button pressed / released (the game stays paused afterwards). */
+  rewindStart(): void;
+  rewindEnd(): void;
 }
 
 /**
@@ -45,6 +50,9 @@ export class GameApp implements GameActions {
   private endedAt = -1;
   private now = 0;
   private insets = { top: 0, bottom: 0 };
+  private rewinding = false;
+  /** Fractional ticks still to rewind (rewinding is real-time driven). */
+  private rewindAcc = 0;
 
   constructor(
     private readonly app: Application,
@@ -64,6 +72,7 @@ export class GameApp implements GameActions {
     app.renderer.on('resize', (w: number, h: number) => this.screen.resize(w, h));
     app.ticker.add((t) => this.frame(t.deltaMS));
     window.addEventListener('keydown', this.onKey);
+    window.addEventListener('keyup', this.onKeyUp);
     this.publish();
   }
 
@@ -86,6 +95,7 @@ export class GameApp implements GameActions {
       skill: fromParams ? p.skill : null,
       filter: fromParams ? p.filter : 'both',
     });
+    screen.autoPause = p.autoPause;
     screen.camera.setInsets(this.insets.top, this.insets.bottom);
     return screen;
   }
@@ -96,14 +106,22 @@ export class GameApp implements GameActions {
     this.screen = this.createScreen(false);
     if (this.mode === 'play') this.screen.filter = filter;
     this.endedAt = -1;
+    this.rewinding = false;
     this.publish();
   }
 
   private frame(dtMs: number): void {
     this.now += dtMs;
+    if (this.rewinding) {
+      this.rewindAcc += (Math.min(dtMs, 100) * REWIND_SPEED * 60) / 1000;
+      const whole = Math.floor(this.rewindAcc);
+      this.rewindAcc -= whole;
+      if (whole > 0) this.screen.session.rewindBy(whole);
+    }
     this.screen.frame(dtMs, this.now);
     const ended = this.screen.session.sim.ended;
-    if (ended && this.endedAt < 0) this.endedAt = this.now;
+    if (!ended) this.endedAt = -1;
+    else if (this.endedAt < 0) this.endedAt = this.now;
     if (this.mode === 'title' && ended && this.now - this.endedAt > ATTRACT_RESTART_MS) {
       this.replaceScreen();
       return;
@@ -117,7 +135,15 @@ export class GameApp implements GameActions {
       return;
     }
     const showEnd = this.endedAt >= 0 && this.now - this.endedAt >= END_SCREEN_DELAY_MS;
-    this.hud.set(hudFor(this.screen, this.index + 1, this.levels.length, showEnd));
+    this.hud.set(
+      hudFor(
+        this.screen,
+        this.index + 1,
+        this.levels.length,
+        showEnd && !this.rewinding,
+        this.rewinding,
+      ),
+    );
   }
 
   // --- GameActions ------------------------------------------------------------------------------
@@ -188,6 +214,20 @@ export class GameApp implements GameActions {
     if (this.mode === 'play') this.screen.camera.setInsets(top, bottom);
   }
 
+  rewindStart(): void {
+    if (this.mode !== 'play' || this.rewinding) return;
+    this.rewinding = true;
+    this.rewindAcc = 0;
+    this.screen.session.paused = true;
+    this.publish();
+  }
+
+  rewindEnd(): void {
+    if (!this.rewinding) return;
+    this.rewinding = false;
+    this.publish();
+  }
+
   // --- Keyboard (web) ---------------------------------------------------------------------------
 
   private readonly onKey = (e: KeyboardEvent): void => {
@@ -205,14 +245,21 @@ export class GameApp implements GameActions {
       this.cycleSpeed();
     } else if (e.key === 'r') {
       this.retry();
+    } else if (e.key === 'z' || e.key === 'Backspace') {
+      if (!e.repeat) this.rewindStart();
     } else {
       return;
     }
     e.preventDefault();
   };
 
+  private readonly onKeyUp = (e: KeyboardEvent): void => {
+    if (e.key === 'z' || e.key === 'Backspace') this.rewindEnd();
+  };
+
   destroy(): void {
     window.removeEventListener('keydown', this.onKey);
+    window.removeEventListener('keyup', this.onKeyUp);
     this.screen.destroy();
   }
 }

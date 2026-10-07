@@ -95,6 +95,7 @@ for (const viewport of [
         'skill-delver',
         'pause',
         'speed',
+        'rewind',
         'release-faster',
         'release-slower',
         'pop-all',
