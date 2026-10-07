@@ -89,6 +89,8 @@ test.describe('publish flow', () => {
   test('build → test-play → solve → copy code → paste on "Play a code" → verified', async ({
     page,
   }, testInfo) => {
+    // Long UI flow: each click waits for stable frames, ~2.5 s apiece under software GL.
+    test.setTimeout(90_000);
     await page.goto('/?debug=1');
     await page.getByTestId('open-editor').click();
     await expect(page.getByTestId('editor')).toBeVisible();

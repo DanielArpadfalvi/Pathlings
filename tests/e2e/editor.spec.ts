@@ -71,6 +71,8 @@ test.describe('level editor', () => {
   test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
 
   test('build a small level with every tool', async ({ page }, testInfo) => {
+    // Long UI flow: each click waits for stable frames, ~2.5 s apiece under software GL.
+    test.setTimeout(90_000);
     const errors = collectErrors(page);
     await page.goto('/?debug=1');
     await page.getByTestId('open-editor').click();
