@@ -2,6 +2,7 @@ import { Container, Graphics } from 'pixi.js';
 import type { Sim, SimEvent } from '../core/world';
 import type { CameraState } from './camera';
 import { CreatureLayer, type Highlight } from './creatureLayer';
+import { EffectsLayer } from './effects';
 import { PositionHistory } from './interp';
 import { ObjectLayer } from './objectLayer';
 import type { ThemePalette } from './palette';
@@ -20,12 +21,21 @@ function mixRgb(a: number, b: number, t: number): number {
   return ch(16) | ch(8) | ch(0);
 }
 
+export interface WorldRendererOptions {
+  /** No screen shake or creature jitter (accessibility, §1.10). */
+  reducedMotion?: boolean;
+}
+
+/** Longest real-time step fed to effects (a stalled tab must not explode particles). */
+const MAX_EFFECT_DT = 100;
+
 export interface RenderStats {
   /** Terrain texture uploads so far. */
   terrainUploads: number;
   /** Texels uploaded in the latest frame. */
   lastUploadTexels: number;
   creaturesDrawn: number;
+  particles: number;
 }
 
 /**
@@ -42,12 +52,19 @@ export class WorldRenderer {
   private readonly sky = new Graphics();
   private readonly terrain: TerrainLayer;
   private readonly objects: ObjectLayer;
-  private readonly creatures = new CreatureLayer();
+  private readonly creatures: CreatureLayer;
+  private readonly effects: EffectsLayer;
+  private lastTime: number | null = null;
   private readonly history = new PositionHistory();
   private highlight: Highlight | null = null;
 
-  constructor(private readonly sim: Sim) {
+  constructor(
+    private readonly sim: Sim,
+    options: WorldRendererOptions = {},
+  ) {
     this.palette = PALETTES[sim.level.theme] ?? PALETTES.glade;
+    this.creatures = new CreatureLayer(options.reducedMotion ?? false);
+    this.effects = new EffectsLayer(this.palette, options.reducedMotion ?? false);
     this.terrain = new TerrainLayer(sim.terrain, this.palette);
     this.objects = new ObjectLayer(sim.objects, this.palette);
     this.drawSky();
@@ -57,6 +74,7 @@ export class WorldRenderer {
       this.objects.back,
       this.creatures.container,
       this.objects.front,
+      this.effects.container,
     );
     this.root.addChild(this.world);
     this.history.capture(sim.creatures);
@@ -66,18 +84,24 @@ export class WorldRenderer {
   onStep(sim: Sim, events: readonly SimEvent[]): void {
     for (const ev of events) {
       if (ev.type === 'terrainChanged') this.terrain.invalidate(ev.rect);
+      else if (ev.type === 'exiting') this.objects.flashExit(ev.exit);
       else if (ev.type === 'rewound') {
         this.terrain.invalidateAll();
         this.history.reset();
       }
     }
+    this.effects.onEvents(sim, events);
     this.history.capture(sim.creatures);
   }
 
   /** Positions and scales the world container so world point (cx, cy) lands on `center`. */
   applyCamera(cam: CameraState, center: { x: number; y: number }): void {
     this.world.scale.set(cam.scale);
-    this.world.position.set(center.x - cam.cx * cam.scale, center.y - cam.cy * cam.scale);
+    const shake = this.effects.shakeOffset;
+    this.world.position.set(
+      center.x - cam.cx * cam.scale + shake.x,
+      center.y - cam.cy * cam.scale + shake.y,
+    );
   }
 
   /**
@@ -85,6 +109,10 @@ export class WorldRenderer {
    * previous and the latest tick; `timeMs` only drives cosmetic motion.
    */
   render(alpha: number, timeMs: number): void {
+    const dt =
+      this.lastTime === null ? 0 : Math.min(MAX_EFFECT_DT, Math.max(0, timeMs - this.lastTime));
+    this.lastTime = timeMs;
+    this.effects.update(dt);
     this.terrain.flush();
     this.objects.update(this.sim, timeMs);
     this.creatures.update(this.sim, this.history, alpha, this.highlight);
@@ -100,6 +128,7 @@ export class WorldRenderer {
       terrainUploads: this.terrain.uploads,
       lastUploadTexels: this.terrain.lastUploadTexels,
       creaturesDrawn: this.creatures.drawn,
+      particles: this.effects.particles.length,
     };
   }
 
@@ -117,6 +146,7 @@ export class WorldRenderer {
     this.terrain.destroy();
     this.objects.destroy();
     this.creatures.destroy();
+    this.effects.destroy();
     this.root.destroy({ children: true });
   }
 }

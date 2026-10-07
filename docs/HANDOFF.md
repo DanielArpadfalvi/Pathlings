@@ -9,9 +9,10 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | M0 Alapozás (Vite+TS+Pixi+Preact, lint, Vitest, Playwright smoke, CI) | ✅ T0.1, T0.2 |
 | M1 Mag-motor (`src/core`) | ✅ T1.1–T1.7 – terep, raszterizáló, pálya-definíció+validátor, lények, 8 képesség, objektumok, sim loop, események, replay, rewind, state hash |
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
-| M3–M10 | nincs elkezdve |
+| M3 Játékélmény | 🔄 T3.1 ✅ effektek · következik T3.2 rewind |
+| M4–M10 | nincs elkezdve |
 
-Ellenőrzés (T2.4 után): `npm run check` 392/392 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 24/24 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
+Ellenőrzés (T3.1 után): `npm run check` 399/399 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 24/24 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
 
 ## Renderer / játékhurok (T2.1)
 - `src/game/clock.ts` (fix 60 Hz akkumulátor + alpha), `src/game/session.ts` (`GameSession`: a sim egyetlen léptetője a magon kívül; tickenként `drainEvents` → listenerek).
@@ -52,8 +53,13 @@ Ellenőrzés (T2.4 után): `npm run check` 392/392 unit teszt zöld, `npm run bu
 - `src/core/stars.ts` – `rateRun` (★/★★/★★★); szimulációt nem érint.
 - `GameSession.popAll`, `changeRelease(±1)` (egy nyomás = a tartomány 1/8-a).
 
+## Effektek (T3.1)
+- `src/render/effects.ts` – `EffectsLayer`: eseményvezérelt részecskék (kráter + szikra + képernyőrázás, víz-csobbanás, láva-parázs, levél-puff halálnál, hazaérés-csillogás, deszka-csillanás – piros az utolsó 3-nál, teleport, ugrópárna-por, kiosztás-gyűrű, csapda), max. 600 részecske, valós idejű, a szimet nem érinti. `reducedMotion` (a `prefers-reduced-motion` alapján; T6.2-ben beállítás) → nincs rázás és Popper-remegés.
+- Popper az utolsó 90 tickben remeg (`creatureLayer`), kijárat-felvillanás belépéskor, láva-buborékok (`objectLayer`).
+- Ha a Vite dev szerver félkész modulállapotnál beragad (HMR „does not provide an export”), indítsd újra.
+
 ## Következő lépések sorrendben
-1. M3: T3.1 animációk/effektek → T3.2 rewind UI → T3.3 hang/haptika → T3.4 perf.
+1. M3: T3.2 rewind UI → T3.3 hang/haptika → T3.4 perf.
 2. M4 (pályakód + szerkesztő), M5 (tartalom + `scripts/validate-levels`), M6–M9.
 
 ## Munkamódszer

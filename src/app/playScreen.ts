@@ -63,7 +63,7 @@ export class PlayScreen {
     this.skill = options.skill ?? null;
     this.filter = options.filter ?? 'both';
     const sim = this.session.sim;
-    this.renderer = new WorldRenderer(sim);
+    this.renderer = new WorldRenderer(sim, { reducedMotion: prefersReducedMotion() });
     this.session.onStep((s, events) => this.renderer.onStep(s, events));
     if (options.seek) this.session.seek(options.seek);
     this.session.paused = options.paused ?? false;
@@ -188,4 +188,8 @@ export class PlayScreen {
     this.loupe.destroy();
     this.renderer.destroy();
   }
+}
+
+function prefersReducedMotion(): boolean {
+  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 }

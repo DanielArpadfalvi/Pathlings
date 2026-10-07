@@ -17,6 +17,8 @@ import {
 } from './objectArt';
 import { gridTexture } from './textures';
 
+const EXIT_FLASH_MS = 350;
+
 function artFor(o: LevelObject): PixelGrid | null {
   switch (o.type) {
     case 'entrance':
@@ -47,6 +49,9 @@ export class ObjectLayer {
   /** Additive lava heat haze. */
   private readonly glow = new Graphics();
   private readonly traps: { index: number; sprite: Sprite }[] = [];
+  /** Exit object index → time (ms) its "pop-in" flash started. */
+  private readonly exitFlash = new Map<number, number>();
+  private lastTime = 0;
 
   constructor(
     private readonly objects: readonly LevelObject[],
@@ -71,6 +76,11 @@ export class ObjectLayer {
     });
   }
 
+  /** A creature hopped into exit object `index`: flash its doorway. */
+  flashExit(index: number): void {
+    this.exitFlash.set(index, this.lastTime);
+  }
+
   /** Per-frame update; `timeMs` drives purely cosmetic motion (liquid ripples, lava glow). */
   update(sim: Sim, timeMs: number): void {
     for (const t of this.traps) {
@@ -79,7 +89,9 @@ export class ObjectLayer {
         OBJECT_KEY,
       );
     }
+    this.lastTime = timeMs;
     this.drawLiquids(timeMs);
+    this.drawExitFlashes(timeMs);
   }
 
   private drawLiquids(timeMs: number): void {
@@ -100,10 +112,31 @@ export class ObjectLayer {
         if ((x + phase) % 7 < 5) g.rect(o.x + x, o.y, 1, 1).fill(surface);
       }
       if (!water) {
+        // Bubbles popping on the surface: a few bright pixels that hop around every 180 ms.
+        const slot = Math.floor(timeMs / 180);
+        for (let x = 1; x < o.w - 1; x++) {
+          const h = Math.imul(x * 374761393 + slot * 668265263, 0x27d4eb2d) >>> 27;
+          if (h === 0) g.rect(o.x + x, o.y - 1, 1, 1).fill(surface);
+          else if (h === 1 && o.h > 3) g.rect(o.x + x, o.y + 1, 1, 1).fill(0xfff1a8);
+        }
         // One additive row of heat haze; fainter rows read as a muddy shadow on dark skies.
         const pulse = 0.45 + 0.15 * Math.sin(timeMs / 400);
         this.glow.rect(o.x, o.y - 1, o.w, 1).fill({ color: this.palette.lava.glow, alpha: pulse });
       }
+    }
+  }
+
+  private drawExitFlashes(timeMs: number): void {
+    for (const [index, start] of this.exitFlash) {
+      const o = this.objects[index];
+      const k = 1 - (timeMs - start) / EXIT_FLASH_MS;
+      if (!o || k <= 0) {
+        this.exitFlash.delete(index);
+        continue;
+      }
+      // Additive warm light in the doorway (columns 3–8, rows 5–10 of EXIT_ART).
+      this.glow.rect(o.x + 3, o.y + 5, 6, 6).fill({ color: 0xffd34a, alpha: 0.8 * k });
+      this.glow.rect(o.x + 2, o.y + 3, 8, 2).fill({ color: 0xfff1a8, alpha: 0.4 * k });
     }
   }
 

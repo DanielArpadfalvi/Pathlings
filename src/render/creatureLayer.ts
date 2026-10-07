@@ -22,6 +22,8 @@ import { gridAnchor, gridTexture } from './textures';
 
 /** Badges / countdown sit this many px above the foot point (just over the leaf cap). */
 const MARK_HEIGHT = 13;
+/** Fuse ticks left when the Popper starts to tremble. */
+export const POPPER_SHAKE_TICKS = 90;
 
 /** The creature the finger currently points at (§1.7 pre-highlight). */
 export interface Highlight {
@@ -74,7 +76,7 @@ export class CreatureLayer {
   /** Creatures drawn in the latest frame. */
   drawn = 0;
 
-  constructor() {
+  constructor(private readonly reducedMotion = false) {
     const bodyLayer = new Container();
     const markLayer = new Container();
     this.container.addChild(this.outline, bodyLayer, markLayer, this.arrow);
@@ -99,7 +101,7 @@ export class CreatureLayer {
       const grid = frames[pf.frame % frames.length] as PixelGrid;
       const p = history.position(c, alpha);
       const s = this.bodies.take(grid, CREATURE_KEY);
-      s.position.set(p.x + 0.5, p.y);
+      s.position.set(p.x + 0.5 + this.jitter(c, tick), p.y);
       s.scale.x = c.dir < 0 ? -1 : 1;
       s.alpha = creatureAlpha(c);
       this.drawMarks(c, p.x + 0.5, p.y - MARK_HEIGHT);
@@ -111,6 +113,12 @@ export class CreatureLayer {
     }
     this.drawn = this.bodies.end();
     this.marks.end();
+  }
+
+  /** A Popper trembles during its last second and a half (§1.11), unless motion is reduced. */
+  private jitter(c: Creature, tick: number): number {
+    if (this.reducedMotion || c.popTimer <= 0 || c.popTimer > POPPER_SHAKE_TICKS) return 0;
+    return (tick >> 1) & 1 ? 0.5 : -0.5;
   }
 
   private drawHighlight(h: Highlight, x: number, y: number, tick: number): void {
