@@ -120,6 +120,7 @@ async function boot(): Promise<void> {
       menu: game.menu,
       settings: game.settings,
       linkCode: game.linkCode,
+      purchases: game.purchaseState,
       actions: game,
     }),
     ui,

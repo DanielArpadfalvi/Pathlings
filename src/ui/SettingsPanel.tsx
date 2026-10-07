@@ -1,6 +1,8 @@
 import { useState } from 'preact/hooks';
 import type { SettingsActions } from '../app/gameApp';
 import { type Settings, TOUCH_RADII } from '../app/settings';
+import type { PurchaseView } from '../app/gameApp';
+import type { PurchaseOutcome } from '../platform/purchases';
 import { type TranslationKey, t } from '../i18n';
 
 function Toggle({
@@ -97,13 +99,16 @@ function Volume({
 /** Settings (§1.10, T6.2): every change is saved at once and takes effect immediately. */
 export function SettingsPanel({
   settings: s,
+  purchase,
   actions,
   onClose,
 }: {
   settings: Settings;
-  actions: SettingsActions;
+  purchase: PurchaseView;
+  actions: SettingsActions & { buy(id: 'supporter'): Promise<PurchaseOutcome> };
   onClose: () => void;
 }) {
+  const [support, setSupport] = useState<PurchaseOutcome | 'busy' | null>(null);
   const [tutorialReset, setTutorialReset] = useState(false);
   const [restore, setRestore] = useState<'idle' | 'busy' | 'owned' | 'none'>('idle');
   const set = (patch: Partial<Settings>): void => actions.setSettings(patch);
@@ -204,6 +209,32 @@ export function SettingsPanel({
           render={(v) => t(`settings.lang.${v}` as TranslationKey)}
           onChange={(v) => set({ language: v })}
         />
+
+        <h3>{t('supporter.title')}</h3>
+        <p class="editor-hint">{t('supporter.text')}</p>
+        {purchase.supporter ? (
+          <p data-testid="supporter-owned">{t('supporter.thanks')}</p>
+        ) : purchase.available ? (
+          <button
+            type="button"
+            class="text-button"
+            data-testid="buy-supporter"
+            disabled={support === 'busy'}
+            onClick={() => {
+              setSupport('busy');
+              void actions.buy('supporter').then(setSupport);
+            }}
+          >
+            {t('supporter.buy', { price: purchase.supporterPrice })}
+          </button>
+        ) : (
+          <p class="editor-hint">{t('offer.appOnly')}</p>
+        )}
+        {support === 'cancelled' || support === 'failed' || support === 'offline' ? (
+          <p class="editor-hint" role="status">
+            {t(`offer.${support}`)}
+          </p>
+        ) : null}
 
         <div class="end-buttons">
           <button

@@ -48,7 +48,7 @@ describe('i18n usage', () => {
       lines.forEach((line, i) => {
         const where = `${name}:${i + 1}: ${line.trim()}`;
         // Text between tags on one line: >Some words<
-        if (/>\s*[A-Za-zÀ-ž]{2,}[^<>{}]*</.test(line)) offenders.push(where);
+        if (/(?<![=-])>\s*[A-Za-zÀ-ž]{2,}[^<>{}]*</.test(line)) offenders.push(where);
         // A line holding only words (JSX text spanning lines).
         if (
           /^\s+[A-Za-zÀ-ž][A-Za-zÀ-ž ’'.!?-]*[A-Za-zÀ-ž.!?]$/.test(line) &&

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'preact/hooks';
 import type { EditorView } from '../app/editorScreen';
 import type { EditorActions, GameActions, MenuActions, SettingsActions } from '../app/gameApp';
 import type { Settings } from '../app/settings';
+import type { PurchaseView } from '../app/gameApp';
+import type { EntitlementId, PurchaseOutcome } from '../platform/purchases';
 import { SettingsPanel } from './SettingsPanel';
 import type { MenuView } from '../app/menu';
 import { MenuPages, OfferSheet } from './Menu';
@@ -22,10 +24,15 @@ export interface AppProps {
   menu: Store<MenuView>;
   settings: Store<Settings>;
   linkCode: Store<string | null>;
+  purchases: Store<PurchaseView>;
   actions: GameActions &
     EditorActions &
     MenuActions &
-    SettingsActions & { uiBack: (() => boolean) | null; clearLink(): void };
+    SettingsActions & {
+      uiBack: (() => boolean) | null;
+      clearLink(): void;
+      buy(id: EntitlementId): Promise<PurchaseOutcome>;
+    };
 }
 
 /** Pixel arrows: ← →, ←, or →. */
@@ -69,6 +76,7 @@ export function App({
   menu: menuStore,
   settings: settingsStore,
   linkCode: linkStore,
+  purchases: purchaseStore,
   actions,
 }: AppProps) {
   const [, setLanguage] = useState(getLanguage());
@@ -81,6 +89,7 @@ export function App({
   const myLevels = useStore(myStore);
   const menu = useStore(menuStore);
   const settings = useStore(settingsStore);
+  const purchase = useStore(purchaseStore);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const linkCode = useStore(linkStore);
   const [linkedCode, setLinkedCode] = useState<string | null>(null);
@@ -112,14 +121,27 @@ export function App({
     document.documentElement.lang = getLanguage();
   }, [settings]);
   const settingsSheet = settingsOpen ? (
-    <SettingsPanel settings={settings} actions={actions} onClose={() => setSettingsOpen(false)} />
+    <SettingsPanel
+      settings={settings}
+      purchase={purchase}
+      actions={actions}
+      onClose={() => setSettingsOpen(false)}
+    />
   ) : null;
 
   if (hud.mode === 'title' && menu.page !== 'main') {
     return (
       <>
         <MenuPages menu={menu} actions={actions} />
-        {menu.offer && <OfferSheet price={menu.price} onClose={() => actions.showOffer(false)} />}
+        {menu.offer && (
+          <OfferSheet
+            price={menu.price}
+            available={purchase.available}
+            onBuy={() => actions.buy('full_game')}
+            onRestore={() => actions.restorePurchases()}
+            onClose={() => actions.showOffer(false)}
+          />
+        )}
       </>
     );
   }
@@ -194,7 +216,15 @@ export function App({
         >
           {t('settings.title')}
         </button>
-        {menu.offer && <OfferSheet price={menu.price} onClose={() => actions.showOffer(false)} />}
+        {menu.offer && (
+          <OfferSheet
+            price={menu.price}
+            available={purchase.available}
+            onBuy={() => actions.buy('full_game')}
+            onRestore={() => actions.restorePurchases()}
+            onClose={() => actions.showOffer(false)}
+          />
+        )}
         {settingsSheet}
         {myOpen && (
           <MyLevelsPanel levels={myLevels} actions={actions} onClose={() => setMyOpen(false)} />

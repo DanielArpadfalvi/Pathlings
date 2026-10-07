@@ -37,6 +37,8 @@ export interface PlayScreenOptions {
   touchRadius?: number;
   /** Reduced motion; default: the system preference. */
   reducedMotion?: boolean;
+  /** Supporter cosmetic: golden leaf caps. */
+  goldenCaps?: boolean;
 }
 
 /** Outcome of a release on a creature, for feedback (sound / haptics from M3 on). */
@@ -83,6 +85,7 @@ export class PlayScreen {
     const sim = this.session.sim;
     this.renderer = new WorldRenderer(sim, {
       reducedMotion: options.reducedMotion ?? prefersReducedMotion(),
+      goldenCaps: options.goldenCaps ?? false,
     });
     this.session.onStep((s, events) => this.renderer.onStep(s, events));
     if (options.seek) this.session.seek(options.seek);

@@ -76,7 +76,10 @@ export class CreatureLayer {
   /** Creatures drawn in the latest frame. */
   drawn = 0;
 
-  constructor(private readonly reducedMotion = false) {
+  constructor(
+    private readonly reducedMotion = false,
+    private readonly palette: Record<string, number> = CREATURE_KEY,
+  ) {
     const bodyLayer = new Container();
     const markLayer = new Container();
     this.container.addChild(this.outline, bodyLayer, markLayer, this.arrow);
@@ -100,7 +103,7 @@ export class CreatureLayer {
       const frames = CREATURE_FRAMES[pf.pose];
       const grid = frames[pf.frame % frames.length] as PixelGrid;
       const p = history.position(c, alpha);
-      const s = this.bodies.take(grid, CREATURE_KEY);
+      const s = this.bodies.take(grid, this.palette);
       s.position.set(p.x + 0.5 + this.jitter(c, tick), p.y);
       s.scale.x = c.dir < 0 ? -1 : 1;
       s.alpha = creatureAlpha(c);

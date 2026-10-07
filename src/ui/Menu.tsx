@@ -1,4 +1,6 @@
+import { useState } from 'preact/hooks';
 import type { MenuActions } from '../app/gameApp';
+import type { PurchaseOutcome } from '../platform/purchases';
 import type { LevelCard, MenuView, WorldCard } from '../app/menu';
 import { t } from '../i18n';
 
@@ -99,16 +101,37 @@ function LevelButton({ l, actions }: { l: LevelCard; actions: MenuActions }) {
   );
 }
 
-/** The full-game offer (T8 connects the purchase). Never shown mid-level. */
+/** The full-game offer (§2, T8.2): buy or restore; never shown mid-level. */
 export function OfferSheet({
   price,
+  available,
   onBuy,
+  onRestore,
   onClose,
 }: {
   price: string;
-  onBuy?: () => void;
+  /** Purchases work on this platform (not in the plain web build). */
+  available: boolean;
+  onBuy: () => Promise<PurchaseOutcome>;
+  onRestore: () => Promise<boolean>;
   onClose: () => void;
 }) {
+  const [state, setState] = useState<PurchaseOutcome | 'busy' | 'restored' | 'nothing' | null>(
+    null,
+  );
+  const busy = state === 'busy';
+  const message =
+    state === 'cancelled'
+      ? t('offer.cancelled')
+      : state === 'pending'
+        ? t('offer.pending')
+        : state === 'offline'
+          ? t('offer.offline')
+          : state === 'failed'
+            ? t('offer.failed')
+            : state === 'nothing'
+              ? t('settings.nothingToRestore')
+              : null;
   return (
     <div class="sheet-backdrop">
       <div
@@ -120,13 +143,23 @@ export function OfferSheet({
       >
         <h2>{t('offer.title')}</h2>
         <p>{t('offer.text')}</p>
+        {!available && <p class="editor-hint">{t('offer.appOnly')}</p>}
+        {message && (
+          <p class="editor-hint" role="status" data-testid="offer-message">
+            {message}
+          </p>
+        )}
         <div class="end-buttons">
-          {onBuy && (
+          {available && (
             <button
               type="button"
               class="text-button primary"
               data-testid="offer-buy"
-              onClick={onBuy}
+              disabled={busy}
+              onClick={() => {
+                setState('busy');
+                void onBuy().then(setState);
+              }}
             >
               {t('offer.buy', { price })}
             </button>
@@ -135,6 +168,20 @@ export function OfferSheet({
             {t('offer.later')}
           </button>
         </div>
+        {available && (
+          <button
+            type="button"
+            class="link-button"
+            data-testid="offer-restore"
+            disabled={busy}
+            onClick={() => {
+              setState('busy');
+              void onRestore().then((ok) => setState(ok ? 'restored' : 'nothing'));
+            }}
+          >
+            {t('settings.restore')}
+          </button>
+        )}
       </div>
     </div>
   );

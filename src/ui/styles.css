@@ -1013,3 +1013,12 @@ textarea:focus-visible {
   margin-left: auto;
   margin-right: auto;
 }
+
+.link-button {
+  align-self: center;
+  min-height: 48px;
+  border: none;
+  background: none;
+  color: var(--dim);
+  text-decoration: underline;
+}

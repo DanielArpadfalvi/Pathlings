@@ -21,6 +21,14 @@ export const CREATURE_KEY: ColorKey = {
   p: 0xe0b072, // plank
 };
 
+/** Supporter cosmetic (§2): the same Pathling with a golden leaf cap. */
+export const SUPPORTER_KEY: ColorKey = {
+  ...CREATURE_KEY,
+  g: 0xfff1a8,
+  l: 0xf2c53d,
+  L: 0xb8862a,
+};
+
 // Heads: rows 0–5 (leaf cap, round head). Side view looks right.
 const HEAD_SIDE = ['...lg..', '..llLl.', '.sssss.', 'Sssses.', 'Ssssss.', '.SSss..'];
 const HEAD_FRONT = ['...lg..', '..llLl.', '.sssss.', '.seses.', '.sssss.', '..SSS..'];

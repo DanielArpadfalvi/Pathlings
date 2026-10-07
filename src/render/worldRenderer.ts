@@ -3,6 +3,7 @@ import type { Sim, SimEvent } from '../core/world';
 import type { CameraState } from './camera';
 import { trapArmed } from '../core/objects';
 import { CreatureLayer, type Highlight } from './creatureLayer';
+import { CREATURE_KEY, SUPPORTER_KEY } from './creatureArt';
 import { EffectsLayer } from './effects';
 import { PositionHistory } from './interp';
 import { ObjectLayer } from './objectLayer';
@@ -25,6 +26,8 @@ function mixRgb(a: number, b: number, t: number): number {
 export interface WorldRendererOptions {
   /** No screen shake or creature jitter (accessibility, §1.10). */
   reducedMotion?: boolean;
+  /** Supporter cosmetic: golden leaf caps. */
+  goldenCaps?: boolean;
 }
 
 /** Longest real-time step fed to effects (a stalled tab must not explode particles). */
@@ -64,7 +67,10 @@ export class WorldRenderer {
     options: WorldRendererOptions = {},
   ) {
     this.palette = PALETTES[sim.level.theme] ?? PALETTES.glade;
-    this.creatures = new CreatureLayer(options.reducedMotion ?? false);
+    this.creatures = new CreatureLayer(
+      options.reducedMotion ?? false,
+      options.goldenCaps ? SUPPORTER_KEY : CREATURE_KEY,
+    );
     this.effects = new EffectsLayer(this.palette, options.reducedMotion ?? false);
     this.terrain = new TerrainLayer(sim.terrain, this.palette);
     this.objects = new ObjectLayer(sim.objects, this.palette);

@@ -10,7 +10,8 @@ import { DEFAULT_SETTINGS, type Settings, sanitizeSettings } from './settings';
  * Versions:
  * - v1 (before T6.3): no record; scattered keys `pathlings.help.v1` (fails / help per level) and
  *   `pathlings.tutorialSkipped.v1`.
- * - v2: `pathlings.save` = `{ version: 2, levels, settings, tutorialSkipped }`.
+ * - v2: `pathlings.save` = `{ version: 2, levels, settings, tutorialSkipped, offerSeen }`
+ *   (`offerSeen` was added later; absent = false).
  *
  * Loading never throws: corrupt or unknown data falls back to safe defaults field by field. A save
  * written by a newer build is read as far as it is understood (and rewritten as the current
@@ -42,6 +43,8 @@ export interface SaveData {
   levels: Record<string, LevelProgress>;
   settings: Settings;
   tutorialSkipped: boolean;
+  /** The full-game offer was shown after world 2 level 10 (it appears on its own only once). */
+  offerSeen: boolean;
 }
 
 export const EMPTY_PROGRESS: LevelProgress = {
@@ -54,7 +57,13 @@ export const EMPTY_PROGRESS: LevelProgress = {
 };
 
 export function defaultSave(): SaveData {
-  return { version: SAVE_VERSION, levels: {}, settings: DEFAULT_SETTINGS, tutorialSkipped: false };
+  return {
+    version: SAVE_VERSION,
+    levels: {},
+    settings: DEFAULT_SETTINGS,
+    tutorialSkipped: false,
+    offerSeen: false,
+  };
 }
 
 function count(v: unknown, max = 1_000_000): number {
@@ -124,6 +133,7 @@ export function loadSave(store: KeyValueStore): { save: SaveData; migrated: bool
       levels: sanitizeLevels(r.levels),
       settings: sanitizeSettings(r.settings),
       tutorialSkipped: r.tutorialSkipped === true,
+      offerSeen: r.offerSeen === true,
     },
     migrated: version < SAVE_VERSION,
   };
@@ -172,6 +182,15 @@ export class SaveManager {
 
   setTutorialSkipped(skipped: boolean): void {
     this.data = { ...this.data, tutorialSkipped: skipped };
+    this.write();
+  }
+
+  get offerSeen(): boolean {
+    return this.data.offerSeen;
+  }
+
+  setOfferSeen(): void {
+    this.data = { ...this.data, offerSeen: true };
     this.write();
   }
 

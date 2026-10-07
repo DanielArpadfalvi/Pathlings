@@ -35,7 +35,18 @@ import { WebAudioEngine } from '../audio/synth';
 import { type AudioSettings, DEFAULT_AUDIO, sanitizeAudio } from '../audio/volume';
 import { getHaptics } from '../platform/haptics';
 import { getLifecycle } from '../platform/lifecycle';
+import {
+  type EntitlementId,
+  type PurchaseOutcome,
+  type Purchases,
+  createPurchases,
+  createUnavailableBackend,
+  getPurchases,
+  hasPurchases,
+} from '../platform/purchases';
+import { isFreeLevel } from './progression';
 import { codeFromUrl } from './deepLink';
+import { supporterAuthor } from './supporter';
 import { type DailyLevel, dailyLevel, modifierText, utcDate } from './daily';
 import type { DailyInfo, HelpInfo } from './hud';
 import { HelpTracker } from './help';
@@ -51,6 +62,8 @@ const ATTRACT_RESTART_MS = 2000;
 export const REWIND_SPEED = 4;
 /** A retry after this many ticks counts as a failed attempt (hint / solution unlock). */
 export const RETRY_COUNTS_AFTER_TICKS = 5 * 60;
+/** The full-game offer appears by itself once, after this level is won (§2). */
+export const PAYWALL_AFTER = 'w2-10';
 
 /** UI → game commands (buttons, keyboard). */
 export interface GameActions {
@@ -168,9 +181,24 @@ export class GameApp implements GameActions, EditorActions, MenuActions, Setting
   /** The daily level being played (null: any other level). */
   private daily: DailyLevel | null = null;
   readonly save = new SaveManager(getStore());
-  /** Full-game entitlement and its price (T8 wires the store). */
-  fullGame = false;
-  price = '$2.99';
+  /** In-app purchases (installed by the platform layer before the game starts). */
+  readonly purchases: Purchases = hasPurchases()
+    ? getPurchases()
+    : createPurchases(createUnavailableBackend(), getStore());
+  /** Show the full-game offer when the player next lands in the menu (after W2-10, once). */
+  private offerPending = false;
+
+  get fullGame(): boolean {
+    return this.purchases.owns('full_game');
+  }
+
+  get supporter(): boolean {
+    return this.purchases.owns('supporter');
+  }
+
+  get price(): string {
+    return this.purchases.price('full_game');
+  }
   readonly settings: Store<Settings>;
   /** Pause menu open (the game was paused for it; `resumeAfterMenu`: it was running). */
   private pauseMenu = false;
@@ -246,6 +274,12 @@ export class GameApp implements GameActions, EditorActions, MenuActions, Setting
     life.onResume(() => this.audio.resume());
     life.onBack(() => this.back());
     life.onOpenUrl((url) => this.openLink(url));
+    this.purchases.onChange(() => {
+      this.publishMenu();
+      this.publishHud();
+      this.purchaseState.set(this.purchaseView());
+    });
+    void this.purchases.init();
     this.publishHud();
   }
 
@@ -264,6 +298,26 @@ export class GameApp implements GameActions, EditorActions, MenuActions, Setting
 
   clearLink(): void {
     this.linkCode.set(null);
+  }
+
+  /** Entitlements and prices for the UI (offer sheet, settings). */
+  readonly purchaseState = new Store<PurchaseView>(this.purchaseView());
+
+  private purchaseView(): PurchaseView {
+    return {
+      available: this.purchases.available,
+      fullGame: this.fullGame,
+      supporter: this.supporter,
+      fullGamePrice: this.purchases.price('full_game'),
+      supporterPrice: this.purchases.price('supporter'),
+    };
+  }
+
+  /** Buys an entitlement (from the offer sheet or Settings; never mid-level). */
+  async buy(id: EntitlementId): Promise<PurchaseOutcome> {
+    const r = await this.purchases.buy(id);
+    if (r === 'purchased') this.showOffer(false);
+    return r;
   }
 
   /** UI layer's own back handler (closes its open sheet); returns whether it did. */
@@ -339,6 +393,7 @@ export class GameApp implements GameActions, EditorActions, MenuActions, Setting
       filter: fromParams ? p.filter : 'both',
       touchRadius: this.save.settings.touchRadius,
       reducedMotion: this.reducedMotion(),
+      goldenCaps: this.supporter,
     });
     screen.autoPause = p.autoPause || this.save.settings.autoPause;
     if (!this.watching) screen.session.speed = this.save.settings.defaultSpeed;
@@ -453,7 +508,11 @@ export class GameApp implements GameActions, EditorActions, MenuActions, Setting
     );
     const nextLevel = this.levels[this.index + 1];
     if (hud.end && nextLevel && this.worldOf(nextLevel.id)) {
-      hud.end = { ...hud.end, hasNext: hud.end.hasNext && this.canPlayLevel(nextLevel.id) };
+      const paid = !this.fullGame && !isFreeLevel(nextLevel.id);
+      hud.end = {
+        ...hud.end,
+        hasNext: hud.end.hasNext && (this.canPlayLevel(nextLevel.id) || paid),
+      };
     }
     this.hud.set({
       ...hud,
@@ -510,6 +569,7 @@ export class GameApp implements GameActions, EditorActions, MenuActions, Setting
     const sim = this.ps.session.sim;
     if (sim.saved >= sim.level.required) {
       this.help.recordWin(key, rateRun(sim.level, sim.saved, sim.assignments).count, sim.saved);
+      if (key === PAYWALL_AFTER && !this.fullGame && !this.save.offerSeen) this.offerPending = true;
     } else this.help.recordFail(key);
   }
 
@@ -592,6 +652,11 @@ export class GameApp implements GameActions, EditorActions, MenuActions, Setting
     this.menuPage = page;
     this.menuWorld = world;
     this.offerOpen = false;
+    if (this.offerPending) {
+      this.offerPending = false;
+      this.save.setOfferSeen();
+      this.offerOpen = true;
+    }
     if (this.mode !== 'title') {
       this.daily = null;
       this.watching = false;
@@ -679,7 +744,17 @@ export class GameApp implements GameActions, EditorActions, MenuActions, Setting
   next(): void {
     if (this.mode !== 'play') return;
     const nextLevel = this.levels[this.index + 1];
-    if (nextLevel && this.worldOf(nextLevel.id) && !this.canPlayLevel(nextLevel.id)) return;
+    const world = nextLevel ? this.worldOf(nextLevel.id) : null;
+    if (nextLevel && world && !this.canPlayLevel(nextLevel.id)) {
+      // The next level needs the full game: offer it in the level select, never mid-level.
+      if (!this.fullGame && !isFreeLevel(nextLevel.id)) {
+        this.offerPending = false;
+        this.save.setOfferSeen();
+        this.toMenu('levels', world);
+        this.showOffer(true);
+      }
+      return;
+    }
     if (this.index + 1 < this.levels.length) {
       this.watching = false;
       this.index++;
@@ -804,7 +879,11 @@ export class GameApp implements GameActions, EditorActions, MenuActions, Setting
     if (!this.testing || !this.screen || !this.editorDoc) return null;
     const sim = this.screen.session.sim;
     if (!sim.ended || sim.saved < sim.level.required) return null;
-    const level: LevelDef = { ...this.editorDoc.level, solution: exportSolution(sim) };
+    const level: LevelDef = {
+      ...this.editorDoc.level,
+      author: supporterAuthor(this.editorDoc.level.author, this.supporter),
+      solution: exportSolution(sim),
+    };
     // Publishing = solving: the code only exists when its own replay verifies.
     if (!verifyLevel(level).verified) return null;
     const code = encodeLevel(level);
@@ -935,8 +1014,9 @@ export class GameApp implements GameActions, EditorActions, MenuActions, Setting
     this.save.setTutorialSkipped(false);
   }
 
-  restorePurchases(): Promise<boolean> {
-    return Promise.resolve(this.fullGame);
+  async restorePurchases(): Promise<boolean> {
+    const owned = await this.purchases.restore();
+    return owned !== null && owned.length > 0;
   }
 
   setPauseMenu(open: boolean): void {
@@ -1005,4 +1085,12 @@ function dailyInfo(d: DailyLevel): DailyInfo {
     modifier: modifierText(d.modifier),
     title: titleKey ? t(titleKey) : d.base.title,
   };
+}
+
+export interface PurchaseView {
+  available: boolean;
+  fullGame: boolean;
+  supporter: boolean;
+  fullGamePrice: string;
+  supporterPrice: string;
 }
