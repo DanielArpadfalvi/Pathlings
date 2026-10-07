@@ -1,0 +1,105 @@
+{
+  "v": 1,
+  "id": "w2-04",
+  "title": "Lava Moat",
+  "author": "",
+  "theme": "deep",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 0,
+      "y": 400,
+      "w": 320,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 200,
+      "y": 400,
+      "w": 14,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 390,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 274,
+      "y": 388
+    },
+    {
+      "type": "lava",
+      "x": 200,
+      "y": 450,
+      "w": 14,
+      "h": 30
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 1,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 200,
+  "hints": [],
+  "titleKey": "level.w2-04.title",
+  "difficulty": 4,
+  "hintKeys": ["level.w2-04.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 509,
+        "creature": 0,
+        "skill": "mason"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 4171974447
+  },
+  "plan": [
+    {
+      "assign": "mason",
+      "creature": 0,
+      "when": {
+        "xGte": 196,
+        "state": "walk"
+      }
+    }
+  ]
+}

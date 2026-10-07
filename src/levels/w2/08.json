@@ -1,0 +1,129 @@
+{
+  "v": 1,
+  "id": "w2-08",
+  "title": "Wrong Side",
+  "author": "",
+  "theme": "deep",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 380,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 4,
+      "x": 180,
+      "y": 340,
+      "w": 16,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 220,
+      "y": 420,
+      "w": 16,
+      "h": 20
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 370,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 274,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 1
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w2-08.title",
+  "difficulty": 5,
+  "hintKeys": ["level.w2-08.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 281,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 897,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 581437773
+  },
+  "plan": [
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 120,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 212,
+        "yGte": 440,
+        "state": "walk"
+      }
+    }
+  ]
+}

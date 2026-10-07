@@ -4,7 +4,15 @@
  * Run: `npx tsx scripts/trace-level.ts w1-09 [creatureId…]`.
  */
 import { STATE_NAMES } from '../src/core/creature';
-import { assign, canAssign, createSim, drainEvents, popAll, setReleaseInterval, step } from '../src/core/sim';
+import {
+  assign,
+  canAssign,
+  createSim,
+  drainEvents,
+  popAll,
+  setReleaseInterval,
+  step,
+} from '../src/core/sim';
 import type { PlanStep } from '../src/levels/plan';
 import { findLevelFiles } from './levelFiles';
 
@@ -43,7 +51,8 @@ while (!sim.ended) {
   }
   step(sim);
   for (const ev of drainEvents(sim)) {
-    if (ev.type === 'died') console.log(`t${ev.tick} #${ev.id} died (${ev.cause}) at (${ev.x},${ev.y})`);
+    if (ev.type === 'died')
+      console.log(`t${ev.tick} #${ev.id} died (${ev.cause}) at (${ev.x},${ev.y})`);
   }
   if (sim.tick % 60 === 0) {
     for (const cid of ids) {
@@ -55,4 +64,6 @@ while (!sim.ended) {
     }
   }
 }
-console.log(`end t${sim.tick}: saved ${sim.saved}/${level.creatures}, dead ${sim.dead}, unfired from step ${next}`);
+console.log(
+  `end t${sim.tick}: saved ${sim.saved}/${level.creatures}, dead ${sim.dead}, unfired from step ${next}`,
+);

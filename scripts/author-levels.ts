@@ -12,6 +12,7 @@ import { compilePlan } from '../src/levels/plan';
 import type { WorldId } from '../src/levels/validate';
 import { type LevelSpec, toLevel } from './author/build';
 import { W1 } from './author/w1';
+import { W2 } from './author/w2';
 import { LEVELS_DIR, writeLevelFile } from './levelFiles';
 
 interface WorldSource {
@@ -20,7 +21,10 @@ interface WorldSource {
   levels: LevelSpec[];
 }
 
-const SOURCES: WorldSource[] = [{ id: 'w1', theme: 'glade', levels: W1 }];
+const SOURCES: WorldSource[] = [
+  { id: 'w1', theme: 'glade', levels: W1 },
+  { id: 'w2', theme: 'deep', levels: W2 },
+];
 
 const only = new Set(process.argv.slice(2));
 const en: Record<string, string> = {};

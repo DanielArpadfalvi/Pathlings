@@ -1,0 +1,167 @@
+{
+  "v": 1,
+  "id": "w2-05",
+  "title": "The Shaft",
+  "author": "",
+  "theme": "deep",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 200,
+      "w": 320,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 260,
+      "w": 320,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 0,
+      "y": 320,
+      "w": 320,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 380,
+      "w": 320,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 60,
+      "y": 190,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 264,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 4,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 4
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w2-05.title",
+  "difficulty": 4,
+  "hintKeys": ["level.w2-05.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 161,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 551,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 941,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 1571,
+        "creature": 0,
+        "skill": "delver"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 3304925162
+  },
+  "plan": [
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 100,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 140,
+        "yGte": 260,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 180,
+        "yGte": 320,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 220,
+        "yGte": 380,
+        "state": "walk"
+      }
+    }
+  ]
+}

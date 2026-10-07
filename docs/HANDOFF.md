@@ -11,7 +11,7 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 ✅ perf |
 | M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
-| M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · következik T5.3 Kristálymély |
+| M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · következik T5.4 Óraműhely |
 | M6–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
@@ -119,7 +119,7 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - A „Játék” gomb a W1-et indítja; `?level=w1-07` közvetlenül (a világ sorrendjében, „következő” működik).
 
 ## Következő lépések sorrendben
-1. M5: T5.3–T5.5 világok (60 pálya) → T5.6 bónusz + napi → T5.7 tippek; utána M6–M9.
+1. M5: T5.4–T5.5 világok (40 pálya) → T5.6 bónusz + napi → T5.7 tippek; utána M6–M9.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.

@@ -1,0 +1,147 @@
+{
+  "v": 1,
+  "id": "w2-17",
+  "title": "Narrow Ledges",
+  "author": "",
+  "theme": "deep",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 160,
+      "y": 430,
+      "w": 160,
+      "h": 10
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 240,
+      "y": 420,
+      "w": 80,
+      "h": 10
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 100,
+      "y": 440,
+      "w": 40,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 170,
+      "y": 420,
+      "dir": -1
+    },
+    {
+      "type": "exit",
+      "x": 284,
+      "y": 408
+    },
+    {
+      "type": "lava",
+      "x": 100,
+      "y": 452,
+      "w": 40,
+      "h": 28
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 9,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 1,
+    "mason": 2,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w2-17.title",
+  "difficulty": 7,
+  "hintKeys": ["level.w2-17.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 71,
+        "creature": 0,
+        "skill": "warden"
+      },
+      {
+        "kind": "assign",
+        "tick": 290,
+        "creature": 1,
+        "skill": "mason"
+      },
+      {
+        "kind": "popAll",
+        "tick": 2800
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2799571927
+  },
+  "plan": [
+    {
+      "assign": "warden",
+      "creature": 0,
+      "when": {
+        "xLte": 160,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "mason",
+      "creature": 1,
+      "when": {
+        "xGte": 218,
+        "yLte": 430,
+        "dir": 1,
+        "state": "walk"
+      }
+    },
+    {
+      "popAll": true,
+      "when": {
+        "tick": 2800
+      }
+    }
+  ]
+}
