@@ -37,11 +37,21 @@ function clock(seconds: number): string {
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 }
 
-function TopBar({ hud }: { hud: HudState }) {
+function TopBar({ hud, actions }: { hud: HudState; actions: HudActions }) {
   const low = hud.timeLeftSeconds <= 30;
   return (
     <>
       <div class="hud-numbers">
+        <button
+          type="button"
+          class="hud-exit"
+          data-testid="exit"
+          aria-label={hud.testPlay ? t('end.edit') : t('hud.menu')}
+          title={hud.testPlay ? t('end.edit') : t('hud.menu')}
+          onClick={() => actions.exitToMenu()}
+        >
+          ‹
+        </button>
         <span class="hud-item" title={t('hud.out')} data-testid="hud-out">
           <span class="hud-label">{t('hud.out')}</span> {hud.out}
         </span>
@@ -360,7 +370,7 @@ export function PlayHud({
   return (
     <>
       <div class="hud-top" ref={top} data-testid="hud">
-        <TopBar hud={hud} />
+        <TopBar hud={hud} actions={actions} />
       </div>
       <div class="hud-bottom" ref={bottom}>
         <div class="floating-row">{floating}</div>

@@ -117,6 +117,3 @@ export const TUTORIAL: Readonly<Record<string, readonly TutorialStep[]>> = {
     },
   ],
 };
-
-/** Storage key: the player chose to skip the tutorial. */
-export const TUTORIAL_SKIPPED_KEY = 'pathlings.tutorialSkipped.v1';

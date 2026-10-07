@@ -103,7 +103,13 @@ async function boot(): Promise<void> {
   if (params.debug) exposeDebug(game);
 
   render(
-    h(App, { hud: game.hud, editor: game.editorView, myLevels: game.myLevelsList, actions: game }),
+    h(App, {
+      hud: game.hud,
+      editor: game.editorView,
+      myLevels: game.myLevelsList,
+      menu: game.menu,
+      actions: game,
+    }),
     ui,
   );
   root.dataset.ready = 'true';

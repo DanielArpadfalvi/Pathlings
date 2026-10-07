@@ -6,7 +6,11 @@ import { ATTRACT_LEVEL_ID } from '../game/launchParams';
 import type { DirectionFilter } from '../input/selection';
 import { FIXTURE_LEVELS, findTestLevel } from '../levels/test';
 import { BUILTIN_LEVELS, builtInLevel } from '../levels/catalog';
-import { TUTORIAL, TUTORIAL_SKIPPED_KEY } from '../levels/tutorial';
+import { TUTORIAL } from '../levels/tutorial';
+import { SaveManager } from './save';
+import { type MenuPage, type MenuView, buildMenu } from './menu';
+import { canPlay } from './progression';
+import type { WorldId } from '../levels/validate';
 import { TutorialDirector } from './tutorial';
 import { type HudState, TITLE_HUD, hudFor } from './hud';
 import { PlayScreen } from './playScreen';
@@ -16,6 +20,7 @@ import type { EditorDoc, LevelProps } from '../editor/doc';
 import { LevelCodeError, encodeLevel } from '../core/code/levelCode';
 import { type VerifyStatus, loadLevelCode, verifyLevel } from '../core/code/verify';
 import { exportSolution } from '../core/replay';
+import { rateRun } from '../core/stars';
 import { getClipboard } from '../platform/clipboard';
 import { getSharer, type ShareOutcome } from '../platform/share';
 import { getStore } from '../platform/storage';
@@ -49,6 +54,8 @@ export interface GameActions {
   playDaily(): void;
   /** Replay the level's reference solution (once unlocked by failed attempts). */
   watchSolution(): void;
+  /** Leave the level for the menu (its world's level select for campaign levels). */
+  exitToMenu(): void;
   selectSkill(skill: SkillId): void;
   togglePause(): void;
   cycleSpeed(): void;
@@ -66,6 +73,16 @@ export interface GameActions {
   /** Tutorial: "Got it" / skip the whole tutorial. */
   tutorialOk(): void;
   skipTutorial(): void;
+}
+
+/** UI → menu commands (main menu, world map, level select). */
+export interface MenuActions {
+  openWorlds(): void;
+  openWorld(world: WorldId): void;
+  menuBack(): void;
+  playLevel(id: string): void;
+  /** Show / hide the full-game offer (tapping a paid level). */
+  showOffer(open: boolean): void;
 }
 
 /** UI → editor commands. */
@@ -107,7 +124,7 @@ export type CodeLoadResult =
  * The running game: title (attract demo) or one level of the prototype sequence (the five
  * hand-made test levels), the HUD store the DOM overlay renders, and the commands it sends.
  */
-export class GameApp implements GameActions, EditorActions {
+export class GameApp implements GameActions, EditorActions, MenuActions {
   readonly hud = new Store<HudState>(TITLE_HUD);
   readonly editorView = new Store<EditorView | null>(null);
   private screen: PlayScreen | null;
@@ -135,7 +152,17 @@ export class GameApp implements GameActions, EditorActions {
   private rewindAcc = 0;
   /** The daily level being played (null: any other level). */
   private daily: DailyLevel | null = null;
-  readonly help = new HelpTracker(getStore());
+  readonly save = new SaveManager(getStore());
+  /** Full-game entitlement and its price (T8 wires the store). */
+  fullGame = false;
+  price = '$2.99';
+  private menuPage: MenuPage = 'main';
+  private menuWorld: WorldId | null = null;
+  private offerOpen = false;
+  readonly menu = new Store<MenuView>(
+    buildMenu('main', null, BUILTIN_LEVELS, this.save, this.fullGame, this.price),
+  );
+  readonly help = new HelpTracker(this.save);
   /** The current screen replays the reference solution (no player input). */
   private watching = false;
   /** The current attempt's outcome was counted (win / fail). */
@@ -242,7 +269,7 @@ export class GameApp implements GameActions, EditorActions {
     this.tutorial = null;
     if (!screen) return;
     const steps = TUTORIAL[screen.session.level.id];
-    if (this.mode === 'play' && steps && getStore().get(TUTORIAL_SKIPPED_KEY) !== '1') {
+    if (this.mode === 'play' && steps && !this.save.tutorialSkipped) {
       this.tutorial = new TutorialDirector(steps, screen);
     }
     if (this.mode === 'title') {
@@ -340,6 +367,10 @@ export class GameApp implements GameActions, EditorActions {
       showEnd && !this.rewinding,
       this.rewinding,
     );
+    const nextLevel = this.levels[this.index + 1];
+    if (hud.end && nextLevel && this.worldOf(nextLevel.id)) {
+      hud.end = { ...hud.end, hasNext: hud.end.hasNext && this.canPlayLevel(nextLevel.id) };
+    }
     this.hud.set({
       ...hud,
       testPlay: this.testing,
@@ -392,8 +423,9 @@ export class GameApp implements GameActions, EditorActions {
     if (!key || this.watching || this.outcomeCounted) return;
     this.outcomeCounted = true;
     const sim = this.ps.session.sim;
-    if (sim.saved >= sim.level.required) this.help.recordWin(key);
-    else this.help.recordFail(key);
+    if (sim.saved >= sim.level.required) {
+      this.help.recordWin(key, rateRun(sim.level, sim.saved, sim.assignments).count, sim.saved);
+    } else this.help.recordFail(key);
   }
 
   watchSolution(): void {
@@ -416,14 +448,105 @@ export class GameApp implements GameActions, EditorActions {
     this.replaceScreen();
   }
 
+  /** "Play": a first-time player goes straight into level 1, everyone else to the world map. */
   play(): void {
+    const started = Object.keys(this.save.snapshot.levels).some((id) => this.save.level(id).solved);
+    const first = BUILTIN_LEVELS.w1[0];
+    if (started || !first) this.openWorlds();
+    else this.playLevel(first.id);
+  }
+
+  private worldOf(id: string): WorldId | null {
+    for (const [w, list] of Object.entries(BUILTIN_LEVELS) as [WorldId, readonly LevelDef[]][]) {
+      if (list.some((l) => l.id === id)) return w;
+    }
+    return null;
+  }
+
+  private canPlayLevel(id: string): boolean {
+    return canPlay(id, {
+      levels: BUILTIN_LEVELS,
+      solved: (x) => this.save.level(x).solved,
+      fullGame: this.fullGame,
+    });
+  }
+
+  playLevel(id: string): void {
+    const world = this.worldOf(id);
+    if (!world) return;
+    if (!this.canPlayLevel(id)) {
+      this.showOffer(true);
+      return;
+    }
+    const list = BUILTIN_LEVELS[world];
     this.daily = null;
     this.watching = false;
     this.testing = false;
     this.mode = 'play';
-    this.levels = BUILTIN_LEVELS.w1.length > 0 ? BUILTIN_LEVELS.w1 : FIXTURE_LEVELS;
-    this.index = 0;
+    this.levels = list;
+    this.index = list.findIndex((l) => l.id === id);
+    this.menuWorld = world;
     this.replaceScreen();
+  }
+
+  private publishMenu(): void {
+    this.menu.set(
+      buildMenu(
+        this.menuPage,
+        this.menuWorld,
+        BUILTIN_LEVELS,
+        this.save,
+        this.fullGame,
+        this.price,
+        this.offerOpen,
+      ),
+    );
+  }
+
+  private toMenu(page: MenuPage, world: WorldId | null): void {
+    this.menuPage = page;
+    this.menuWorld = world;
+    this.offerOpen = false;
+    if (this.mode !== 'title') {
+      this.daily = null;
+      this.watching = false;
+      this.testing = false;
+      this.mode = 'title';
+      this.replaceScreen();
+    }
+    this.publishMenu();
+    this.publishHud();
+  }
+
+  openWorlds(): void {
+    this.toMenu('worlds', null);
+  }
+
+  openWorld(world: WorldId): void {
+    this.toMenu('levels', world);
+  }
+
+  menuBack(): void {
+    if (this.menuPage === 'levels') this.toMenu('worlds', null);
+    else this.toMenu('main', null);
+  }
+
+  showOffer(open: boolean): void {
+    this.offerOpen = open;
+    this.publishMenu();
+  }
+
+  exitToMenu(): void {
+    if (this.mode !== 'play') return;
+    if (this.testing) {
+      this.backToEditor();
+      return;
+    }
+    const sim = this.ps.session.sim;
+    if (!sim.ended && sim.tick >= RETRY_COUNTS_AFTER_TICKS) this.countOutcome();
+    const level = this.ps.session.level;
+    const world = this.daily ? null : this.worldOf(level.id);
+    this.toMenu(world ? 'levels' : 'main', world);
   }
 
   selectSkill(skill: SkillId): void {
@@ -470,6 +593,8 @@ export class GameApp implements GameActions, EditorActions {
 
   next(): void {
     if (this.mode !== 'play') return;
+    const nextLevel = this.levels[this.index + 1];
+    if (nextLevel && this.worldOf(nextLevel.id) && !this.canPlayLevel(nextLevel.id)) return;
     if (this.index + 1 < this.levels.length) {
       this.watching = false;
       this.index++;
@@ -682,7 +807,7 @@ export class GameApp implements GameActions, EditorActions {
   }
 
   skipTutorial(): void {
-    getStore().set(TUTORIAL_SKIPPED_KEY, '1');
+    this.save.setTutorialSkipped(true);
     this.tutorial?.stop();
     this.tutorial = null;
     this.publishHud();

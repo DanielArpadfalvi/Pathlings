@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { EditorView } from '../app/editorScreen';
-import type { EditorActions, GameActions } from '../app/gameApp';
+import type { EditorActions, GameActions, MenuActions } from '../app/gameApp';
+import type { MenuView } from '../app/menu';
+import { MenuPages, OfferSheet } from './Menu';
 import type { HudState } from '../app/hud';
 import type { Store } from '../app/store';
 import { getLanguage, onLanguageChange, t } from '../i18n';
@@ -15,7 +17,8 @@ export interface AppProps {
   hud: Store<HudState>;
   editor: Store<EditorView | null>;
   myLevels: Store<MyLevel[]>;
-  actions: GameActions & EditorActions;
+  menu: Store<MenuView>;
+  actions: GameActions & EditorActions & MenuActions;
 }
 
 /** Pixel arrows: ← →, ←, or →. */
@@ -52,7 +55,13 @@ function useStore<T>(store: Store<T>): T {
 }
 
 /** Root of the DOM overlay above the Pixi canvas: title card or the play HUD. */
-export function App({ hud: store, editor: editorStore, myLevels: myStore, actions }: AppProps) {
+export function App({
+  hud: store,
+  editor: editorStore,
+  myLevels: myStore,
+  menu: menuStore,
+  actions,
+}: AppProps) {
   const [, setLanguage] = useState(getLanguage());
   useEffect(() => onLanguageChange(setLanguage), []);
   const hud = useStore(store);
@@ -61,6 +70,16 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
   const [myOpen, setMyOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const myLevels = useStore(myStore);
+  const menu = useStore(menuStore);
+
+  if (hud.mode === 'title' && menu.page !== 'main') {
+    return (
+      <>
+        <MenuPages menu={menu} actions={actions} />
+        {menu.offer && <OfferSheet price={menu.price} onClose={() => actions.showOffer(false)} />}
+      </>
+    );
+  }
 
   if (hud.mode === 'title') {
     return (
@@ -114,6 +133,7 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
           {t('title.myLevels')}
         </button>
         {codeOpen && <CodePanel actions={actions} onClose={() => setCodeOpen(false)} />}
+        {menu.offer && <OfferSheet price={menu.price} onClose={() => actions.showOffer(false)} />}
         {myOpen && (
           <MyLevelsPanel levels={myLevels} actions={actions} onClose={() => setMyOpen(false)} />
         )}

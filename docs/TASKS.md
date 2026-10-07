@@ -45,9 +45,9 @@ Plan / numbers: `docs/PLAN.md` (Hungarian). Section refs like (§1.1) point ther
 - [x] **T5.7 Hints & solution viewer** – 2 hints per level unlocked after 3 fails, solution replay after 5 fails, "solved with help" mark. AC: unit tests for unlock counters; e2e opens the solution replay.
 
 ## M6 – Meta & UI
-- [ ] **T6.1 Main menu, world map, level select** – 3-open-levels progression rule, world gate at 17/20, locked levels show lock + price from the first minute (§2). AC: unit tests for unlock rules; e2e navigates menu → world → level → back.
+- [x] **T6.1 Main menu, world map, level select** – 3-open-levels progression rule, world gate at 17/20, locked levels show lock + price from the first minute (§2). AC: unit tests for unlock rules; e2e navigates menu → world → level → back.
 - [ ] **T6.2 Settings & pause** – volumes, haptics, speed default, auto-pause, touch radius 20/28/36 pt, left-handed layout, high contrast, reduced motion, larger text, language, restart tutorial, restore purchases. AC: each setting persists and has a visible effect (e2e screenshot per toggle).
-- [ ] **T6.3 Save system** – `platform` storage, versioned schema + migrations, stars, fail counters, my-levels, settings. AC: migration tests from v1 fixtures; corrupted save ⇒ safe defaults, no crash.
+- [x] **T6.3 Save system** – `platform` storage, versioned schema + migrations, stars, fail counters, my-levels, settings. AC: migration tests from v1 fixtures; corrupted save ⇒ safe defaults, no crash.
 - [ ] **T6.4 i18n EN/HU + accessibility audit** – all strings via `src/i18n`, skill icons + shapes (no color-only info). AC: test fails on missing keys in either language; reviewer agent accessibility checklist has no "major".
 
 ## M7 – Mobile shell

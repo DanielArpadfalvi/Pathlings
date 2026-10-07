@@ -728,3 +728,153 @@ button {
   background: rgba(60, 40, 100, 0.85);
   color: #e3d4ff;
 }
+
+/* --- Menu: world map and level select ---------------------------------------------------- */
+
+.menu-page {
+  position: absolute;
+  inset: 0;
+  padding: calc(var(--safe-top) + 12px) 16px calc(var(--safe-bottom) + 16px);
+  overflow-y: auto;
+  background: rgba(11, 16, 32, 0.78);
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menu-header h2 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.menu-back {
+  font-size: 28px;
+}
+
+.menu-sub {
+  margin: 8px 0;
+  color: var(--dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.world-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.world-card {
+  min-height: 84px;
+  padding: 12px 16px;
+  border: 2px solid rgba(244, 241, 232, 0.3);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  background: rgba(30, 40, 66, 0.92);
+}
+
+.world-card.world-w1 {
+  border-left: 8px solid #6fbf4a;
+}
+.world-card.world-w2 {
+  border-left: 8px solid #7fb4e6;
+}
+.world-card.world-w3 {
+  border-left: 8px solid #d9a441;
+}
+.world-card.world-w4 {
+  border-left: 8px solid #e7ecf5;
+}
+.world-card.world-bonus {
+  border-left: 8px solid #c58be8;
+}
+
+.world-card.locked {
+  opacity: 0.6;
+}
+
+.world-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.world-meta,
+.world-paid {
+  color: var(--dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.level-card {
+  position: relative;
+  aspect-ratio: 1;
+  min-height: 56px;
+  border: 2px solid rgba(244, 241, 232, 0.3);
+  border-radius: 14px;
+  background: rgba(30, 40, 66, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.level-card.solved {
+  border-color: var(--accent);
+}
+
+.level-card.locked,
+.level-card.paid {
+  color: var(--dim);
+}
+
+.level-card.paid {
+  border-style: dashed;
+}
+
+.level-number {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.level-stars .star {
+  color: rgba(244, 241, 232, 0.25);
+}
+
+.level-stars .star.on {
+  color: #ffd34d;
+}
+
+.level-help {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.hud-exit {
+  min-width: 40px;
+  min-height: 40px;
+  border: none;
+  background: none;
+  font-size: 26px;
+  line-height: 1;
+}

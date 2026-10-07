@@ -20,10 +20,13 @@ test.describe('hints and solution viewer', () => {
     await page.getByTestId('help-close').click();
 
     // One real fail was counted; jump the counter to 3 more (the unit tests cover each step).
-    const stored = await page.evaluate(() => localStorage.getItem('pathlings.help.v1'));
-    expect(JSON.parse(stored!)['bonus-01'].fails).toBe(1);
+    const stored = await page.evaluate(() => localStorage.getItem('pathlings.save'));
+    expect(JSON.parse(stored!).levels['bonus-01'].fails).toBe(1);
     await page.evaluate(() =>
-      localStorage.setItem('pathlings.help.v1', JSON.stringify({ 'bonus-01': { fails: 4 } })),
+      localStorage.setItem(
+        'pathlings.save',
+        JSON.stringify({ version: 2, levels: { 'bonus-01': { fails: 4 } } }),
+      ),
     );
     await loseOnce(page);
     await page.getByTestId('end-help').click();
