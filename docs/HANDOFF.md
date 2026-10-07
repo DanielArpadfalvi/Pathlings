@@ -11,7 +11,8 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 ✅ perf |
 | M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
-| M5–M10 | nincs elkezdve |
+| M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · következik T5.2 Mohaliget (20) + tutorial |
+| M6–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
 
@@ -104,8 +105,14 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - UI: „Saját pályák” panel (fülek, kedvenc, játék, megosztás, szerkesztés, törlés megerősítéssel), beillesztés-felismerés a kódmezőben, „Új pálya kezdése” a tulajdonság-lapon. Debug: `__pathlings.testCode(id)`.
 - E2E-tipp: a HUD frame-enként publikál – akció után `expect.poll`-lal olvasd.
 
+## Pálya-pipeline (T5.1)
+- Beépített pályák: `src/levels/<w1|w2|w3|w4|bonus>/NN.json` (`LevelDef` + `titleKey`/`hintKeys` + `difficulty` + `solution`, opcionálisan `plan`). Az app a `src/levels/catalog.ts`-ből (`import.meta.glob`) tölti, a `plan`-t eldobja.
+- Szövegek: `src/i18n/levels.en.ts` / `levels.hu.ts` (`level.<id>.title|hint1|hint2`), a szótárakba fésülve.
+- `src/levels/plan.ts` – `compilePlan`: feltételes lépések (`assign` + `when: {tick,xGte,xLte,yGte,yLte,state,dir}`, `popAll`, `release`) → pontos napló + hash. `npm run levels:solve [id…]` újraírja a JSON-ok `solution`-jét.
+- `src/levels/validate.ts` – `checkBuiltIn`: id = útvonal, érvényes, téma és nehézségi tartomány világonként (w1 1–6, w2 3–8, w3 5–9, w4 7–10, bonus 1–10), szövegek minden nyelven, a megoldás lefut, hash egyezik, **a referencia mindhárom csillagot megszerzi**. `npm run validate-levels` (a `check` része) – CI-kapu.
+
 ## Következő lépések sorrendben
-2. M5: T5.1 pálya-pipeline (`src/levels/<world>/NN.json`, `scripts/validate-levels` a `check`-ben) → T5.2–T5.5 világok (80 pálya) → T5.6 bónusz + napi → T5.7 tippek; utána M6–M9.
+1. M5: T5.2–T5.5 világok (80 pálya) → T5.6 bónusz + napi → T5.7 tippek; utána M6–M9.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.

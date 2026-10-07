@@ -36,7 +36,7 @@ Plan / numbers: `docs/PLAN.md` (Hungarian). Section refs like (§1.1) point ther
 - [x] **T4.5 Sharing** – copy/paste via `platform` clipboard, system share sheet (text), "Play code" screen with paste detection, my-levels collection (saved/received, favourites, delete). AC: e2e with clipboard mock; received levels persist across reload.
 
 ## M5 – Content
-- [ ] **T5.1 Level pipeline** – `src/levels/<world>/NN.json`, `scripts/validate-levels` (runs every reference solution, checks hash, stars thresholds, difficulty tag, title i18n keys) wired into `npm run check`. AC: CI fails if any built-in level is unsolvable or a solution drifts.
+- [x] **T5.1 Level pipeline** – `src/levels/<world>/NN.json`, `scripts/validate-levels` (runs every reference solution, checks hash, stars thresholds, difficulty tag, title i18n keys) wired into `npm run check`. AC: CI fails if any built-in level is unsolvable or a solution drifts.
 - [ ] **T5.2 World 1 – Mossy Glade (20) + tutorial** – first 8 levels introduce one skill each with contextual bubbles, ghost hand, auto-pause; controls introduced over levels 1–3; skippable. AC: all 20 validated; e2e completes tutorial level 1 by following the hints only.
 - [ ] **T5.3 World 2 – Crystal Deep (20)** – rock, metal, one-way, lava, vertical shafts. AC: validated; difficulty tags 3–8.
 - [ ] **T5.4 World 3 – Clockworks (20)** – traps, teleporters, bounce pads, multi entrance/exit. AC: validated; difficulty tags 5–9.

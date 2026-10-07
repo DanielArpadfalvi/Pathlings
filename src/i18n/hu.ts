@@ -1,6 +1,8 @@
 import type { TranslationKey } from './en';
+import { levelsHu } from './levels.hu';
 
 export const hu: Record<TranslationKey, string> = {
+  ...levelsHu,
   'app.title': 'Pathlings',
   'app.tagline': 'Vezesd haza őket!',
   'app.loading': 'Betöltés…',

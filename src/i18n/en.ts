@@ -1,5 +1,7 @@
+import { levelsEn } from './levels.en';
+
 /** English source dictionary; every other language must provide exactly these keys. */
-export const en = {
+const ui = {
   'app.title': 'Pathlings',
   'app.tagline': 'Guide them home.',
   'app.loading': 'Loading…',
@@ -129,5 +131,8 @@ export const en = {
   'object.teleport': 'Teleporter',
   'object.bounce': 'Bounce pad',
 } as const;
+
+/** UI strings plus the titles and hints of the built-in levels (`levels.en.ts`). */
+export const en = { ...ui, ...levelsEn };
 
 export type TranslationKey = keyof typeof en;

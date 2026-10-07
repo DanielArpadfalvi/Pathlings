@@ -20,5 +20,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "tests/unit", "tests/fixtures"]
+  "include": ["src", "tests/unit", "tests/fixtures", "scripts"]
 }
