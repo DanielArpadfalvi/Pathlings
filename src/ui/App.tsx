@@ -6,12 +6,14 @@ import type { Store } from '../app/store';
 import { getLanguage, onLanguageChange, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
 import { EditorHud } from './EditorHud';
-import { CodePanel } from './Panels';
+import { CodePanel, MyLevelsPanel } from './Panels';
+import type { MyLevel } from '../app/myLevels';
 import { NEXT_FILTER, PlayHud } from './PlayHud';
 
 export interface AppProps {
   hud: Store<HudState>;
   editor: Store<EditorView | null>;
+  myLevels: Store<MyLevel[]>;
   actions: GameActions & EditorActions;
 }
 
@@ -49,12 +51,14 @@ function useStore<T>(store: Store<T>): T {
 }
 
 /** Root of the DOM overlay above the Pixi canvas: title card or the play HUD. */
-export function App({ hud: store, editor: editorStore, actions }: AppProps) {
+export function App({ hud: store, editor: editorStore, myLevels: myStore, actions }: AppProps) {
   const [, setLanguage] = useState(getLanguage());
   useEffect(() => onLanguageChange(setLanguage), []);
   const hud = useStore(store);
   const editorView = useStore(editorStore);
   const [codeOpen, setCodeOpen] = useState(false);
+  const [myOpen, setMyOpen] = useState(false);
+  const myLevels = useStore(myStore);
 
   if (hud.mode === 'title') {
     return (
@@ -85,7 +89,18 @@ export function App({ hud: store, editor: editorStore, actions }: AppProps) {
         >
           {t('title.code')}
         </button>
+        <button
+          type="button"
+          class="text-button editor-button"
+          data-testid="open-my-levels"
+          onClick={() => setMyOpen(true)}
+        >
+          {t('title.myLevels')}
+        </button>
         {codeOpen && <CodePanel actions={actions} onClose={() => setCodeOpen(false)} />}
+        {myOpen && (
+          <MyLevelsPanel levels={myLevels} actions={actions} onClose={() => setMyOpen(false)} />
+        )}
       </div>
     );
   }

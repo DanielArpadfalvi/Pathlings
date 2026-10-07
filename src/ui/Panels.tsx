@@ -5,6 +5,8 @@ import type { ThemeId } from '../core/level';
 import { LEVEL_SIZE_PRESETS, SKILLS, THEMES, TICKS_PER_SECOND } from '../core/level';
 import type { LevelProps } from '../editor/doc';
 import { format, t } from '../i18n';
+import type { MyLevel } from '../app/myLevels';
+import { looksLikeCode } from '../core/code/levelCode';
 import { getClipboard } from '../platform/clipboard';
 import { SkillIcon } from './icons';
 
@@ -232,6 +234,17 @@ export function PropertySheet({
         ))}
         <button
           type="button"
+          class="text-button"
+          data-testid="prop-new"
+          onClick={() => {
+            actions.newLevel();
+            onClose();
+          }}
+        >
+          {t('editor.newLevel')}
+        </button>
+        <button
+          type="button"
           class="text-button primary sheet-done"
           data-testid="prop-done"
           onClick={onClose}
@@ -318,7 +331,8 @@ export function CodePanel({
           onInput={(e) => {
             const v = (e.target as HTMLTextAreaElement).value;
             setText(v);
-            setResult(null);
+            // Paste detection: a complete-looking code loads right away.
+            setResult(looksLikeCode(v) ? actions.loadCode(v) : null);
           }}
         />
         <div class="end-buttons">
@@ -375,6 +389,157 @@ export function CodePanel({
           type="button"
           class="text-button sheet-done"
           data-testid="code-close"
+          onClick={onClose}
+        >
+          {t('code.close')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+type MyLevelActions = Pick<
+  EditorActions,
+  'toggleFavourite' | 'removeLevel' | 'playMyLevel' | 'editMyLevel' | 'shareLevel'
+>;
+
+function MyLevelRow({ level, actions }: { level: MyLevel; actions: MyLevelActions }) {
+  const [confirm, setConfirm] = useState(false);
+  const [note, setNote] = useState('');
+  return (
+    <li class="my-level" data-testid={`my-level-${level.id}`}>
+      <div class="my-level-head">
+        <button
+          type="button"
+          class={`star-button ${level.favourite ? 'on' : ''}`}
+          data-testid="my-favourite"
+          aria-pressed={level.favourite}
+          aria-label={t('my.favourite')}
+          onClick={() => actions.toggleFavourite(level.id)}
+        >
+          {level.favourite ? '★' : '☆'}
+        </button>
+        <div class="my-level-title">
+          <strong>{level.title}</strong>
+          {level.author && <span> {format(t('code.by'), { author: level.author })}</span>}
+          <div class={level.verified ? 'hud-good' : 'hud-warn'}>
+            {level.verified ? t('code.verified') : t('code.unverified')}
+          </div>
+        </div>
+      </div>
+      <div class="end-buttons left">
+        <button
+          type="button"
+          class="option wide"
+          data-testid="my-play"
+          onClick={() => actions.playMyLevel(level.id)}
+        >
+          {t('my.play')}
+        </button>
+        <button
+          type="button"
+          class="option wide"
+          data-testid="my-share"
+          onClick={() => {
+            void actions.shareLevel(level.id).then((r) => {
+              setNote(r === 'shared' ? t('my.shared') : r === 'copied' ? t('my.copied') : '');
+            });
+          }}
+        >
+          {t('my.share')}
+        </button>
+        {level.source === 'mine' && (
+          <button
+            type="button"
+            class="option wide"
+            data-testid="my-edit"
+            onClick={() => actions.editMyLevel(level.id)}
+          >
+            {t('my.edit')}
+          </button>
+        )}
+        {confirm ? (
+          <button
+            type="button"
+            class="option wide danger"
+            data-testid="my-delete-confirm"
+            onClick={() => actions.removeLevel(level.id)}
+          >
+            {t('my.confirmDelete')}
+          </button>
+        ) : (
+          <button
+            type="button"
+            class="option wide"
+            data-testid="my-delete"
+            onClick={() => setConfirm(true)}
+          >
+            {t('my.delete')}
+          </button>
+        )}
+      </div>
+      {note && (
+        <p class="editor-hint" role="status" data-testid="my-note">
+          {note}
+        </p>
+      )}
+    </li>
+  );
+}
+
+/** Saved and received level codes: favourite, play, share, edit (own), delete. */
+export function MyLevelsPanel({
+  levels,
+  actions,
+  onClose,
+}: {
+  levels: readonly MyLevel[];
+  actions: MyLevelActions;
+  onClose: () => void;
+}) {
+  const [tab, setTab] = useState<'mine' | 'received'>(
+    levels.some((l) => l.source === 'mine') || levels.length === 0 ? 'mine' : 'received',
+  );
+  const shown = levels.filter((l) => l.source === tab);
+  return (
+    <div class="sheet-backdrop">
+      <div
+        class="sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('title.myLevels')}
+        data-testid="my-levels"
+      >
+        <h2>{t('title.myLevels')}</h2>
+        <div class="editor-row" role="tablist">
+          {(['mine', 'received'] as const).map((k) => (
+            <button
+              type="button"
+              key={k}
+              role="tab"
+              aria-selected={tab === k}
+              class={`option wide ${tab === k ? 'selected' : ''}`}
+              data-testid={`my-tab-${k}`}
+              onClick={() => setTab(k)}
+            >
+              {t(k === 'mine' ? 'my.mine' : 'my.received')} (
+              {levels.filter((l) => l.source === k).length})
+            </button>
+          ))}
+        </div>
+        {shown.length === 0 ? (
+          <p class="editor-hint">{t('my.empty')}</p>
+        ) : (
+          <ul class="my-list">
+            {shown.map((l) => (
+              <MyLevelRow key={l.id} level={l} actions={actions} />
+            ))}
+          </ul>
+        )}
+        <button
+          type="button"
+          class="text-button sheet-done"
+          data-testid="my-close"
           onClick={onClose}
         >
           {t('code.close')}

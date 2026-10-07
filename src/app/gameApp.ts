@@ -14,6 +14,9 @@ import { LevelCodeError, encodeLevel } from '../core/code/levelCode';
 import { type VerifyStatus, loadLevelCode, verifyLevel } from '../core/code/verify';
 import { exportSolution } from '../core/replay';
 import { getClipboard } from '../platform/clipboard';
+import { getSharer, type ShareOutcome } from '../platform/share';
+import { getStore } from '../platform/storage';
+import { type MyLevel, MyLevels, clearDraft, loadDraft, saveDraft } from './myLevels';
 import { Store } from './store';
 import { FeedbackDirector } from '../audio/feedback';
 import { WebAudioEngine } from '../audio/synth';
@@ -70,6 +73,13 @@ export interface EditorActions {
   /** Decodes and verifies a pasted code; on success it can be played with `playLoaded`. */
   loadCode(text: string): CodeLoadResult;
   playLoaded(): void;
+  /** Start a fresh level in the editor (drops the autosaved draft). */
+  newLevel(): void;
+  toggleFavourite(id: string): void;
+  removeLevel(id: string): void;
+  playMyLevel(id: string): void;
+  editMyLevel(id: string): void;
+  shareLevel(id: string): Promise<ShareOutcome>;
 }
 
 export type CodeLoadResult =
@@ -90,6 +100,8 @@ export class GameApp implements GameActions, EditorActions {
   /** The current play screen is a test play of the editor draft. */
   private testing = false;
   private loaded: LevelDef | null = null;
+  readonly myLevels = new MyLevels(getStore(), () => Date.now());
+  readonly myLevelsList = new Store<MyLevel[]>(this.myLevels.list());
   private mode: 'title' | 'play' | 'editor';
   private levels: readonly LevelDef[] = FIXTURE_LEVELS;
   private index = 0;
@@ -264,6 +276,7 @@ export class GameApp implements GameActions, EditorActions {
 
   private publishHud(): void {
     if (this.editor) {
+      saveDraft(getStore(), this.editor.doc.level);
       this.hud.set({ ...TITLE_HUD, mode: 'editor' });
       this.editorView.set(this.editor.view);
       return;
@@ -358,13 +371,58 @@ export class GameApp implements GameActions, EditorActions {
 
   // --- EditorActions ----------------------------------------------------------------------------
 
-  openEditor(): void {
+  openEditor(level?: LevelDef): void {
     this.screen?.destroy();
     this.screen = null;
+    this.editor?.destroy();
     this.feedback = null;
+    this.testing = false;
     this.mode = 'editor';
+    this.editor = this.createEditor(level ?? loadDraft(getStore()) ?? undefined);
+    this.publishHud();
+  }
+
+  newLevel(): void {
+    if (!this.editor) return;
+    clearDraft(getStore());
+    this.editor.destroy();
     this.editor = this.createEditor();
     this.publishHud();
+  }
+
+  private refreshMyLevels(): void {
+    this.myLevelsList.set(this.myLevels.list());
+  }
+
+  toggleFavourite(id: string): void {
+    this.myLevels.toggleFavourite(id);
+    this.refreshMyLevels();
+  }
+
+  removeLevel(id: string): void {
+    this.myLevels.remove(id);
+    this.refreshMyLevels();
+  }
+
+  playMyLevel(id: string): void {
+    const level = this.myLevels.level(id);
+    if (!level) return;
+    this.loaded = level;
+    this.playLoaded();
+  }
+
+  editMyLevel(id: string): void {
+    const level = this.myLevels.level(id);
+    if (!level) return;
+    const draft = { ...level };
+    delete draft.solution;
+    this.openEditor(draft);
+  }
+
+  shareLevel(id: string): Promise<ShareOutcome> {
+    const e = this.myLevels.get(id);
+    if (!e) return Promise.resolve('failed');
+    return getSharer().share(e.code, e.title);
   }
 
   exitEditor(): void {
@@ -412,7 +470,10 @@ export class GameApp implements GameActions, EditorActions {
     const level: LevelDef = { ...this.editorDoc.level, solution: exportSolution(sim) };
     // Publishing = solving: the code only exists when its own replay verifies.
     if (!verifyLevel(level).verified) return null;
-    return encodeLevel(level);
+    const code = encodeLevel(level);
+    this.myLevels.add(code, 'mine');
+    this.refreshMyLevels();
+    return code;
   }
 
   copyText(text: string): Promise<boolean> {
@@ -423,6 +484,8 @@ export class GameApp implements GameActions, EditorActions {
     try {
       const { level, verify } = loadLevelCode(text);
       this.loaded = level;
+      this.myLevels.add(text, 'received');
+      this.refreshMyLevels();
       return {
         ok: true,
         title: level.title,

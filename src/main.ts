@@ -4,6 +4,8 @@ import { createStage } from './render/stage';
 import { GameApp } from './app/gameApp';
 import { parseLaunchParams } from './game/launchParams';
 import { App } from './ui/App';
+import { encodeLevel } from './core/code/levelCode';
+import { findTestLevel } from './levels/test';
 import { getLanguage } from './i18n';
 
 /** Read-only diagnostics for e2e tests (`?debug=1`). */
@@ -58,6 +60,11 @@ function exposeDebug(game: GameApp): void {
       get nuked() {
         return game.current.session.sim.nuked;
       },
+      /** Test hook: the level code of a built-in test level. */
+      testCode(id: string) {
+        const level = findTestLevel(id);
+        return level ? encodeLevel(level) : null;
+      },
       /** Test hook: simulate exactly `n` ticks now (the game should be paused). */
       step(n: number) {
         for (let i = 0; i < n; i++) game.current.session.stepOnce();
@@ -95,7 +102,10 @@ async function boot(): Promise<void> {
   const game = new GameApp(app, params);
   if (params.debug) exposeDebug(game);
 
-  render(h(App, { hud: game.hud, editor: game.editorView, actions: game }), ui);
+  render(
+    h(App, { hud: game.hud, editor: game.editorView, myLevels: game.myLevelsList, actions: game }),
+    ui,
+  );
   root.dataset.ready = 'true';
 }
 

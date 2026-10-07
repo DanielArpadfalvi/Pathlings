@@ -10,7 +10,7 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | M1 Mag-motor (`src/core`) | ✅ T1.1–T1.7 – terep, raszterizáló, pálya-definíció+validátor, lények, 8 képesség, objektumok, sim loop, események, replay, rewind, state hash |
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 ✅ perf |
-| M4 Szerkesztő + pályakód | 🔄 T4.1 ✅ pályakód · T4.2 ✅ ellenőrzés · T4.3 ✅ szerkesztő-mag · T4.4 ✅ szerkesztő UI + közzététel · következik T4.5 megosztás |
+| M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
 | M5–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
@@ -97,9 +97,15 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - `src/platform/clipboard.ts` – vágólap a platform mögött (web: Clipboard API + textarea-fallback; natív a T7.1-ben).
 - Címkártya: Játék / Pályaszerkesztő / Kód lejátszása.
 
+## Megosztás + saját pályák (T4.5)
+- `src/platform/storage.ts` (kulcs-érték; web: localStorage + memória-fallback, soha nem dob), `src/platform/share.ts` (Web Share API, különben vágólapra másol; natív a T7.1-ben).
+- `src/app/myLevels.ts` – `MyLevels`: kódok + metaadat (`mine`/`received`, kedvenc, ellenőrzött), id = a kód CRC32-je (nincs duplikátum; újra közzétett kapott kód → saját), sérült tárhely → üres lista. Szerkesztő-vázlat automatikus mentése (`saveDraft`/`loadDraft`/`clearDraft`).
+- `GameApp`: közzétételkor „saját”, betöltéskor „kapott” bejegyzés; `toggleFavourite`, `removeLevel`, `playMyLevel`, `editMyLevel`, `shareLevel`, `newLevel`; a szerkesztő a mentett vázlattal nyílik.
+- UI: „Saját pályák” panel (fülek, kedvenc, játék, megosztás, szerkesztés, törlés megerősítéssel), beillesztés-felismerés a kódmezőben, „Új pálya kezdése” a tulajdonság-lapon. Debug: `__pathlings.testCode(id)`.
+- E2E-tipp: a HUD frame-enként publikál – akció után `expect.poll`-lal olvasd.
+
 ## Következő lépések sorrendben
-1. M3: T3.4 perf.
-2. M4: T4.5 megosztás (share sheet, saját pályák gyűjtemény); M5 (tartalom + `scripts/validate-levels`), M6–M9.
+2. M5: T5.1 pálya-pipeline (`src/levels/<world>/NN.json`, `scripts/validate-levels` a `check`-ben) → T5.2–T5.5 világok (80 pálya) → T5.6 bónusz + napi → T5.7 tippek; utána M6–M9.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.

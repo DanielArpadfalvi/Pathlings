@@ -511,6 +511,52 @@ button {
   color: var(--accent);
 }
 
+.my-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.my-level {
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(14, 20, 40, 0.8);
+  border: 1px solid rgba(244, 241, 232, 0.12);
+}
+
+.my-level-head {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.my-level-title {
+  flex: 1;
+  font-size: 14px;
+}
+
+.star-button {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border: none;
+  background: none;
+  font-size: 26px;
+  color: rgba(244, 241, 232, 0.5);
+}
+
+.star-button.on {
+  color: #ffd34a;
+}
+
+.end-buttons.left {
+  justify-content: flex-start;
+}
+
 /* --- End screen ---------------------------------------------------------------------------- */
 
 .end-backdrop {

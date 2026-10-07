@@ -44,6 +44,26 @@ async function pointerOnCreature(page: Page, id: number, types: string[]): Promi
   );
 }
 
+/** Wait until the HUD has reported its insets and the camera framing is stable. */
+async function waitForLayout(page: Page): Promise<void> {
+  await expect(page.getByTestId('hud')).toBeVisible();
+  const cam = () =>
+    page.evaluate(() =>
+      JSON.stringify(
+        (window as unknown as { __pathlings: { camera: unknown } }).__pathlings.camera,
+      ),
+    );
+  let prev = await cam();
+  await expect
+    .poll(async () => {
+      const now = await cam();
+      const same = now === prev;
+      prev = now;
+      return same;
+    })
+    .toBe(true);
+}
+
 async function setSpeed(page: Page, speed: string): Promise<void> {
   for (let i = 0; i < 4; i++) {
     if ((await page.getByTestId('speed').getAttribute('data-speed')) === speed) return;
@@ -59,11 +79,13 @@ test.describe('rewind', () => {
     // Tunnel: one Burrower; given at tick 100 it is wasted (the wall is still too far).
     await page.goto('/?level=test-tunnel&seek=100&pause=1&debug=1');
     await expect(page.locator('#app')).toHaveAttribute('data-ready', 'true');
+    await waitForLayout(page);
     await page.getByTestId('skill-burrower').click();
     await pointerOnCreature(page, 0, ['pointerdown', 'pointerup']);
     let d = await info(page);
     expect(d.logLength).toBe(1);
-    expect(d.hud.skills?.burrower).toBe(0);
+    // The HUD is published once per frame: poll it.
+    await expect.poll(async () => (await info(page)).hud.skills?.burrower).toBe(0);
 
     // Let the mistake play out for a while.
     await page.getByTestId('pause').click();
@@ -85,8 +107,8 @@ test.describe('rewind', () => {
     d = await info(page);
     expect(from - d.tick).toBeGreaterThanOrEqual(300);
     expect(d.logLength).toBe(0);
-    expect(d.hud.skills?.burrower).toBe(1);
-    expect(d.hud.paused).toBe(true);
+    await expect.poll(async () => (await info(page)).hud.skills?.burrower).toBe(1);
+    await expect.poll(async () => (await info(page)).hud.paused).toBe(true);
 
     // Fix it: step precisely into the winning window (ticks 131–160), assign, finish fast.
     await page.evaluate((n) => {
