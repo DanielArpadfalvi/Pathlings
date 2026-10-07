@@ -200,3 +200,37 @@ describe('Camera start framing', () => {
     expect(c.cy).toBe(480);
   });
 });
+
+describe('Camera UI insets', () => {
+  it('frames the strip between the HUD and the controls', () => {
+    const c = cam(160, 240);
+    c.setInsets(40, 200);
+    expect(c.screenCenter).toEqual({ x: 195, y: 40 + (844 - 240) / 2 });
+    // The whole level fits the visible 604-px strip; it is centred in it, not in the screen.
+    c.set({ cx: 0, cy: 0, scale: c.fitScale });
+    const top = c.toScreen({ x: 80, y: 0 }).y;
+    const bottom = c.toScreen({ x: 80, y: 240 }).y;
+    expect(top).toBeGreaterThanOrEqual(40 - 1e-6);
+    expect(bottom).toBeLessThanOrEqual(844 - 200 + 1e-6);
+  });
+
+  it('uses the visible height for the whole-level scale and the bounds', () => {
+    const c = cam(160, 960); // a tall shaft: height-limited
+    const full = c.fitScale;
+    c.setInsets(40, 200);
+    expect(c.fitScale).toBeLessThan(full);
+    expect(c.fitScale).toBeCloseTo(604 / 960);
+    c.set({ cx: 80, cy: 5000, scale: 2 });
+    expect(c.toWorld({ x: 0, y: 844 - 200 }).y).toBeCloseTo(960);
+  });
+
+  it('keeps toWorld / toScreen inverse with insets', () => {
+    const c = cam();
+    c.setInsets(30, 150);
+    c.set({ cx: 300, cy: 400, scale: 2.2 });
+    const p = { x: 77, y: 333 };
+    const back = c.toScreen(c.toWorld(p));
+    expect(back.x).toBeCloseTo(p.x);
+    expect(back.y).toBeCloseTo(p.y);
+  });
+});

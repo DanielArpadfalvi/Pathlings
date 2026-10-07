@@ -1,22 +1,14 @@
 import { useEffect, useState } from 'preact/hooks';
+import type { GameActions } from '../app/gameApp';
+import type { HudState } from '../app/hud';
+import type { Store } from '../app/store';
 import { getLanguage, onLanguageChange, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
-
-const NEXT_FILTER: Record<DirectionFilter, DirectionFilter> = {
-  both: 'left',
-  left: 'right',
-  right: 'both',
-};
+import { NEXT_FILTER, PlayHud } from './PlayHud';
 
 export interface AppProps {
-  /** Title card over the attract-mode demo (hidden when a level is opened directly). */
-  showTitle: boolean;
-  /** Shows the "whole level" camera button when set. */
-  onWholeLevel?: () => void;
-  /** Initial direction filter (§1.7 point 4). */
-  filter?: DirectionFilter;
-  /** Shows the direction-filter toggle when set. */
-  onFilterChange?: (f: DirectionFilter) => void;
+  hud: Store<HudState>;
+  actions: GameActions;
 }
 
 /** Pixel arrows: ← →, ←, or →. */
@@ -43,49 +35,62 @@ function WholeLevelIcon() {
   );
 }
 
-/** Root of the DOM overlay above the Pixi canvas. */
-export function App({ showTitle, onWholeLevel, filter = 'both', onFilterChange }: AppProps) {
-  const [, setLanguage] = useState(getLanguage());
-  const [dirFilter, setDirFilter] = useState<DirectionFilter>(filter);
-  useEffect(() => onLanguageChange(setLanguage), []);
+function useStore<T>(store: Store<T>): T {
+  const [value, setValue] = useState(store.get());
+  useEffect(() => {
+    setValue(store.get());
+    return store.subscribe(setValue);
+  }, [store]);
+  return value;
+}
 
-  return (
+/** Root of the DOM overlay above the Pixi canvas: title card or the play HUD. */
+export function App({ hud: store, actions }: AppProps) {
+  const [, setLanguage] = useState(getLanguage());
+  useEffect(() => onLanguageChange(setLanguage), []);
+  const hud = useStore(store);
+
+  if (hud.mode === 'title') {
+    return (
+      <div class="title-card" data-testid="title-card">
+        <h1 class="title">{t('app.title')}</h1>
+        <p class="tagline">{t('app.tagline')}</p>
+        <button
+          type="button"
+          class="text-button primary play-button"
+          data-testid="play"
+          onClick={() => actions.play()}
+        >
+          {t('title.play')}
+        </button>
+      </div>
+    );
+  }
+
+  const floating = (
     <>
-      {showTitle && (
-        <div class="title-card" data-testid="title-card">
-          <h1 class="title">{t('app.title')}</h1>
-          <p class="tagline">{t('app.tagline')}</p>
-        </div>
-      )}
-      {onWholeLevel && (
-        <button
-          type="button"
-          class="icon-button whole-level"
-          data-testid="whole-level"
-          aria-label={t('camera.wholeLevel')}
-          title={t('camera.wholeLevel')}
-          onClick={onWholeLevel}
-        >
-          <WholeLevelIcon />
-        </button>
-      )}
-      {onFilterChange && (
-        <button
-          type="button"
-          class="icon-button direction-filter"
-          data-testid="direction-filter"
-          data-filter={dirFilter}
-          aria-label={t(`filter.${dirFilter}`)}
-          title={t(`filter.${dirFilter}`)}
-          onClick={() => {
-            const next = NEXT_FILTER[dirFilter];
-            setDirFilter(next);
-            onFilterChange(next);
-          }}
-        >
-          <FilterIcon filter={dirFilter} />
-        </button>
-      )}
+      <button
+        type="button"
+        class="icon-button"
+        data-testid="direction-filter"
+        data-filter={hud.filter}
+        aria-label={t(`filter.${hud.filter}`)}
+        title={t(`filter.${hud.filter}`)}
+        onClick={() => actions.setFilter(NEXT_FILTER[hud.filter])}
+      >
+        <FilterIcon filter={hud.filter} />
+      </button>
+      <button
+        type="button"
+        class="icon-button"
+        data-testid="whole-level"
+        aria-label={t('camera.wholeLevel')}
+        title={t('camera.wholeLevel')}
+        onClick={() => actions.toggleWholeLevel()}
+      >
+        <WholeLevelIcon />
+      </button>
     </>
   );
+  return <PlayHud hud={hud} actions={actions} floating={floating} />;
 }

@@ -1,0 +1,289 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
+import type { SkillId } from '../core/level';
+import { SKILLS } from '../core/level';
+import type { GameActions } from '../app/gameApp';
+import type { HudState } from '../app/hud';
+import { format, t } from '../i18n';
+import type { DirectionFilter } from '../input/selection';
+import {
+  FastIcon,
+  MinusIcon,
+  NextIcon,
+  PauseIcon,
+  PlayIcon,
+  PlusIcon,
+  PopAllIcon,
+  RetryIcon,
+  SkillIcon,
+  StarIcon,
+} from './icons';
+
+/** Pop-all needs a 0.6 s hold, then a confirming tap within this window (§1.1). */
+export const POP_ALL_HOLD_MS = 600;
+export const POP_ALL_CONFIRM_MS = 2500;
+
+const NEXT_FILTER: Record<DirectionFilter, DirectionFilter> = {
+  both: 'left',
+  left: 'right',
+  right: 'both',
+};
+
+function clock(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s < 10 ? '0' : ''}${s}`;
+}
+
+function TopBar({ hud }: { hud: HudState }) {
+  const low = hud.timeLeftSeconds <= 30;
+  return (
+    <div class="hud-numbers">
+      <span class="hud-item" title={t('hud.out')} data-testid="hud-out">
+        <span class="hud-label">{t('hud.out')}</span> {hud.out}
+      </span>
+      <span
+        class={`hud-item ${hud.saved >= hud.required ? 'hud-good' : ''}`}
+        title={t('hud.saved')}
+        data-testid="hud-saved"
+      >
+        <span class="hud-label">{t('hud.saved')}</span> {hud.saved}/{hud.required}
+      </span>
+      <span
+        class={`hud-item ${low ? 'hud-warn' : ''}`}
+        title={t('hud.time')}
+        data-testid="hud-time"
+      >
+        {clock(hud.timeLeftSeconds)}
+      </span>
+    </div>
+  );
+}
+
+function SkillBar({ hud, actions }: { hud: HudState; actions: GameActions }) {
+  return (
+    <div class="skill-bar" role="toolbar">
+      {SKILLS.map((skill: SkillId) => {
+        const stock = hud.skills?.[skill] ?? 0;
+        const selected = hud.selected === skill;
+        return (
+          <button
+            type="button"
+            key={skill}
+            class={`skill-button ${selected ? 'selected' : ''}`}
+            data-testid={`skill-${skill}`}
+            aria-pressed={selected}
+            aria-label={`${t(`skill.${skill}`)} (${stock})`}
+            title={t(`skill.${skill}`)}
+            disabled={stock <= 0}
+            onClick={() => actions.selectSkill(skill)}
+          >
+            <SkillIcon skill={skill} size={22} />
+            <span class="skill-stock">{stock}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function PopAllButton({ hud, actions }: { hud: HudState; actions: GameActions }) {
+  const [state, setState] = useState<'idle' | 'holding' | 'armed'>('idle');
+  const timer = useRef<number | undefined>(undefined);
+  const clear = (): void => {
+    if (timer.current !== undefined) window.clearTimeout(timer.current);
+    timer.current = undefined;
+  };
+  useEffect(() => clear, []);
+
+  const down = (): void => {
+    if (hud.nuked) return;
+    if (state === 'armed') {
+      clear();
+      setState('idle');
+      actions.popAll();
+      return;
+    }
+    setState('holding');
+    clear();
+    timer.current = window.setTimeout(() => {
+      setState('armed');
+      timer.current = window.setTimeout(() => setState('idle'), POP_ALL_CONFIRM_MS);
+    }, POP_ALL_HOLD_MS);
+  };
+  const up = (): void => {
+    if (state === 'holding') {
+      clear();
+      setState('idle');
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      class={`control-button pop-all ${state}`}
+      data-testid="pop-all"
+      data-state={state}
+      disabled={hud.nuked}
+      aria-label={state === 'armed' ? t('control.popAllConfirm') : t('control.popAll')}
+      title={t('control.popAll')}
+      onPointerDown={down}
+      onPointerUp={up}
+      onPointerLeave={up}
+      onPointerCancel={up}
+    >
+      <PopAllIcon />
+    </button>
+  );
+}
+
+function ControlBar({ hud, actions }: { hud: HudState; actions: GameActions }) {
+  return (
+    <div class="control-bar">
+      <button
+        type="button"
+        class={`control-button ${hud.paused ? 'active' : ''}`}
+        data-testid="pause"
+        aria-pressed={hud.paused}
+        aria-label={hud.paused ? t('control.resume') : t('control.pause')}
+        onClick={() => actions.togglePause()}
+      >
+        {hud.paused ? <PlayIcon /> : <PauseIcon />}
+      </button>
+      <button
+        type="button"
+        class={`control-button ${hud.speed !== 1 ? 'active' : ''}`}
+        data-testid="speed"
+        data-speed={hud.speed}
+        aria-label={format(t('control.speed'), { speed: hud.speed })}
+        onClick={() => actions.cycleSpeed()}
+      >
+        <FastIcon />
+        <span class="control-label">{hud.speed}×</span>
+      </button>
+      <div class="release" role="group" aria-label={t('control.releaseRate')}>
+        <button
+          type="button"
+          class="control-button narrow"
+          data-testid="release-slower"
+          aria-label={t('control.releaseSlower')}
+          disabled={!hud.canSlower}
+          onClick={() => actions.release(-1)}
+        >
+          <MinusIcon />
+        </button>
+        <span class="release-value" data-testid="release-value">
+          {hud.releaseFactor.toFixed(1)}
+        </span>
+        <button
+          type="button"
+          class="control-button narrow"
+          data-testid="release-faster"
+          aria-label={t('control.releaseFaster')}
+          disabled={!hud.canFaster}
+          onClick={() => actions.release(1)}
+        >
+          <PlusIcon />
+        </button>
+      </div>
+      <PopAllButton hud={hud} actions={actions} />
+    </div>
+  );
+}
+
+function EndScreen({ hud, actions }: { hud: HudState; actions: GameActions }) {
+  const end = hud.end;
+  if (!end) return null;
+  const heading = end.won ? t('end.won') : end.reason === 'time' ? t('end.timeUp') : t('end.lost');
+  return (
+    <div class="end-backdrop">
+      <div
+        class="end-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="end-title"
+        data-testid="end-screen"
+        data-won={end.won}
+      >
+        <h2 id="end-title" class={end.won ? 'end-won' : 'end-lost'}>
+          {heading}
+        </h2>
+        <div class="end-stars" aria-label={format(t('end.stars'), { count: end.stars })}>
+          {[1, 2, 3].map((n) => (
+            <StarIcon key={n} filled={n <= end.stars} />
+          ))}
+        </div>
+        <p class="end-saved">
+          {format(t('end.saved'), { saved: end.saved, total: end.total, required: end.required })}
+        </p>
+        <div class="end-buttons">
+          <button
+            type="button"
+            class="text-button"
+            data-testid="retry"
+            onClick={() => actions.retry()}
+          >
+            <RetryIcon /> {t('end.retry')}
+          </button>
+          {end.hasNext && (
+            <button
+              type="button"
+              class="text-button primary"
+              data-testid="next"
+              onClick={() => actions.next()}
+            >
+              {t('end.next')} <NextIcon />
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Whole play overlay: HUD numbers on top, skill + control bars at the bottom, end screen. */
+export function PlayHud({
+  hud,
+  actions,
+  floating,
+}: {
+  hud: HudState;
+  actions: GameActions;
+  floating: preact.ComponentChildren;
+}) {
+  const top = useRef<HTMLDivElement>(null);
+  const bottom = useRef<HTMLDivElement>(null);
+
+  // Tell the camera which screen strips the UI covers, so it frames the level between them.
+  useLayoutEffect(() => {
+    const report = (): void => {
+      const tr = top.current?.getBoundingClientRect();
+      const br = bottom.current?.getBoundingClientRect();
+      actions.setInsets(tr ? tr.bottom : 0, br ? window.innerHeight - br.top : 0);
+    };
+    report();
+    const ro = new ResizeObserver(report);
+    if (top.current) ro.observe(top.current);
+    if (bottom.current) ro.observe(bottom.current);
+    window.addEventListener('resize', report);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', report);
+    };
+  }, [actions]);
+
+  return (
+    <>
+      <div class="hud-top" ref={top} data-testid="hud">
+        <TopBar hud={hud} />
+      </div>
+      <div class="hud-bottom" ref={bottom}>
+        <div class="floating-row">{floating}</div>
+        <SkillBar hud={hud} actions={actions} />
+        <ControlBar hud={hud} actions={actions} />
+      </div>
+      <EndScreen hud={hud} actions={actions} />
+    </>
+  );
+}
+
+export { NEXT_FILTER };

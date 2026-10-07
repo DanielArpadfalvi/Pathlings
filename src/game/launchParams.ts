@@ -4,7 +4,7 @@
  * - `autoplay=1`  replay the level's reference solution (always on in attract mode);
  * - `seek=<tick>` fast-forward to that tick on start;
  * - `pause=1`     start paused (with `seek`: a frozen frame for screenshots);
- * - `skill=<id>`  preselect a skill for tapping (until the skill bar of T2.4 exists);
+ * - `skill=<id>`  preselect a skill (e2e / testing; players use the skill bar);
  * - `filter=left|right` start with that direction filter;
  * - `debug=1`     expose read-only render stats as `window.__pathlings`.
  */
