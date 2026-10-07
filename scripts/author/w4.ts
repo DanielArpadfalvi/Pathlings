@@ -88,7 +88,7 @@ export const W4: LevelSpec[] = [
   },
   {
     index: 3,
-    title: ['Cliff Climber', 'Sziklamászó'],
+    title: ['Cliff Hanger', 'Sziklamászó'],
     hints: [
       [
         'Up the cliff, then float down – every Pathling needs both.',

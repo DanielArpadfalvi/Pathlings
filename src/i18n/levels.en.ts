@@ -192,7 +192,7 @@ export const levelsEn = {
   'level.w4-02.hint1': 'A long way down, and the clouds give way. Leaves for everyone.',
   'level.w4-02.title': 'Sky Dive',
   'level.w4-03.hint1': 'Up the cliff, then float down – every Pathling needs both.',
-  'level.w4-03.title': 'Cliff Climber',
+  'level.w4-03.title': 'Cliff Hanger',
   'level.w4-04.hint1': 'Behind the wall the floor gives way – right above the exit.',
   'level.w4-04.title': 'Trapdoor',
   'level.w4-05.hint1': 'Not enough leaves for everyone. Count carefully.',

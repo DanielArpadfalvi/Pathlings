@@ -18,7 +18,8 @@
     "validate-levels": "tsx scripts/validate-levels.ts",
     "levels:solve": "tsx scripts/solve-levels.ts",
     "levels:author": "tsx scripts/author-levels.ts",
-    "assets": "tsx scripts/make-assets.ts"
+    "assets": "tsx scripts/make-assets.ts",
+    "store:frames": "tsx scripts/store-frames.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
