@@ -205,6 +205,7 @@ button {
 
 .control-bar > .control-button {
   flex: 1;
+  min-width: 44px;
 }
 
 .control-button.active {
@@ -226,11 +227,11 @@ button {
 
 .release .control-button {
   flex: 1;
-  min-width: 48px;
+  min-width: 44px;
 }
 
 .release-value {
-  min-width: 2em;
+  min-width: 1.6em;
   text-align: center;
   font-weight: 700;
   font-variant-numeric: tabular-nums;

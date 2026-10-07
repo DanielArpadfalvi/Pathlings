@@ -15,7 +15,8 @@ const range = (w: string, from: number, to: number): string[] =>
 
 test.describe('menu', () => {
   test('menu → world → level → back', async ({ page }, testInfo) => {
-    test.setTimeout(60_000);
+    // Long UI flow: each click waits for stable frames (slow under software GL on CI).
+    test.setTimeout(150_000);
     await seed(page, ['w1-01']);
     await page.goto('/');
     await page.getByTestId('play').click();
@@ -45,6 +46,7 @@ test.describe('menu', () => {
   });
 
   test('paid levels show a lock with the price and open the offer', async ({ page }) => {
+    test.setTimeout(120_000);
     await seed(page, [...range('w1', 1, 20), ...range('w2', 1, 10)]);
     await page.goto('/');
     await page.getByTestId('play').click();
