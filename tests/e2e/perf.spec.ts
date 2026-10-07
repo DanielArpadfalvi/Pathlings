@@ -59,7 +59,8 @@ test.describe('performance', () => {
     );
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
     testInfo.annotations.push({ type: 'perf', description: JSON.stringify(result) });
-    console.log('PERF', JSON.stringify(result));
+    // A workflow command: shows up as an annotation on the CI run (readable without log access).
+    console.log(`::notice title=FPS probe::${JSON.stringify(result)}`);
     expect(result.creatures).toBeGreaterThanOrEqual(80);
     expect(result.fps).toBeGreaterThanOrEqual(55);
   });

@@ -15,3 +15,4 @@ export * from './stamps';
 export * from './terrain';
 export * from './version';
 export * from './world';
+export * from './code/levelCode';

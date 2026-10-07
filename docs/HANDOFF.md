@@ -9,8 +9,9 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | M0 Alapozás (Vite+TS+Pixi+Preact, lint, Vitest, Playwright smoke, CI) | ✅ T0.1, T0.2 |
 | M1 Mag-motor (`src/core`) | ✅ T1.1–T1.7 – terep, raszterizáló, pálya-definíció+validátor, lények, 8 képesség, objektumok, sim loop, események, replay, rewind, state hash |
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
-| M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · következik T3.4 perf |
-| M4–M10 | nincs elkezdve |
+| M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 perf-mérő kész, CI-n még ellenőrizendő |
+| M4 Szerkesztő + pályakód | 🔄 T4.1 ✅ pályakód · következik T4.2 ellenőrzés |
+| M5–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
 
@@ -72,9 +73,18 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - `src/platform/haptics.ts` – `Haptics` interfész, web: Vibration API; natív Capacitor implementáció a T7.1-ben `setHaptics`-szel.
 - `src/audio/feedback.ts` – SFX + haptika (könnyű: kiosztás, közepes: hazaérés, erős: halál, dupla: elutasítás).
 
+## Teljesítmény (T3.4)
+- `src/levels/test/perf.ts` (640×960, 100 lény zárt arénában), `tests/e2e/perf.spec.ts`: egész pálya, 4× sebesség, CDP 4× CPU-lassítás, 20 s átlag ≥ 55 FPS; csak CI-n vagy `PERF=1`-gyel fut. Lokálisan ~60 FPS. Az eredményt `::notice::` annotációként írja ki (GitHub API-val olvasható: `/check-runs/<job>/annotations`).
+- `tests/unit/core/tickBudget.test.ts`: átlagos core tick 100 lénnyel < 0,5 ms.
+- CI-állapot hitelesítés nélkül: `curl https://api.github.com/repos/DanielArpadfalvi/Pathlings/actions/runs?per_page=5` (a logokhoz token kell).
+
+## Pályakód (T4.1)
+- `src/core/code/` – `bytes.ts` (varint/zigzag, saját UTF-8, szigorú base64url), `crc32.ts`, `levelCode.ts`: `PL1-` + base64url(deflate-raw 9 (payload) ‖ CRC32(tömörített)); a payload: magic, formátum- és `SIM_VERSION`, fejléc, készlet, szövegek, delta-kódolt op- és objektumlista, megoldás (delta tick, `creature*16+skill`, 8 = pop all), végén saját CRC32. `encodeLevel` (validál, 4 KB limit), `decodeLevel` (szóköz-tűrő, kisbetűs előtag is; újabb motor → `newerVersion`), `compressedSize` (szerkesztő mérője), `looksLikeCode`.
+- Kódban nincs `id`, `titleKey`, `hintKeys` (közösségi pályák). Teszt: 200 generált pálya oda-vissza, minden egybájtos/egykarakteres sérülés elutasítva.
+
 ## Következő lépések sorrendben
 1. M3: T3.4 perf.
-2. M4 (pályakód + szerkesztő), M5 (tartalom + `scripts/validate-levels`), M6–M9.
+2. M4: T4.2 ellenőrzés betöltéskor → T4.3 szerkesztő-mag → T4.4 szerkesztő UI → T4.5 megosztás; M5 (tartalom + `scripts/validate-levels`), M6–M9.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.
