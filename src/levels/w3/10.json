@@ -1,0 +1,128 @@
+{
+  "v": 1,
+  "id": "w3-10",
+  "title": "Portal Pit",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 150,
+      "y": 440,
+      "w": 20,
+      "h": 20
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 150,
+      "y": 440,
+      "w": 20,
+      "h": 6
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 180,
+      "y": 440,
+      "w": 60,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "teleport",
+      "x": 156,
+      "y": 448,
+      "tx": 260,
+      "ty": 440
+    },
+    {
+      "type": "water",
+      "x": 180,
+      "y": 452,
+      "w": 60,
+      "h": 28
+    },
+    {
+      "type": "exit",
+      "x": 284,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 9,
+  "master": 10,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 1,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 1
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w3-10.title",
+  "difficulty": 7,
+  "hintKeys": ["level.w3-10.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 395,
+        "creature": 0,
+        "skill": "delver"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 1920658712
+  },
+  "plan": [
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 158,
+        "state": "walk"
+      }
+    }
+  ]
+}

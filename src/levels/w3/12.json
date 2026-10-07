@@ -1,0 +1,140 @@
+{
+  "v": 1,
+  "id": "w3-12",
+  "title": "Catapult",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 70,
+      "y": 360,
+      "w": 16,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 112,
+      "y": 440,
+      "w": 8,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 220,
+      "y": 380,
+      "w": 16,
+      "h": 60
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 30,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "bounce",
+      "x": 100,
+      "y": 436
+    },
+    {
+      "type": "lava",
+      "x": 112,
+      "y": 450,
+      "w": 8,
+      "h": 30
+    },
+    {
+      "type": "exit",
+      "x": 279,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 9,
+  "master": 10,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 2,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w3-12.title",
+  "difficulty": 8,
+  "hintKeys": ["level.w3-12.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 137,
+        "creature": 0,
+        "skill": "burrower"
+      },
+      {
+        "kind": "assign",
+        "tick": 632,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 3305168324
+  },
+  "plan": [
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 62,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 212,
+        "state": "walk"
+      }
+    }
+  ]
+}

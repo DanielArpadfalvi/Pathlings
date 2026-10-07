@@ -1,0 +1,137 @@
+{
+  "v": 1,
+  "id": "w3-09",
+  "title": "Clock Tower",
+  "author": "",
+  "theme": "clockworks",
+  "w": 480,
+  "h": 720,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 680,
+      "w": 480,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 150,
+      "y": 650,
+      "w": 324,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 270,
+      "y": 620,
+      "w": 204,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 390,
+      "y": 590,
+      "w": 84,
+      "h": 30
+    },
+    {
+      "op": "stamp",
+      "id": "gear",
+      "m": 3,
+      "x": 60,
+      "y": 600
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 474,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 670,
+      "dir": 1
+    },
+    {
+      "type": "bounce",
+      "x": 130,
+      "y": 676
+    },
+    {
+      "type": "bounce",
+      "x": 250,
+      "y": 646
+    },
+    {
+      "type": "bounce",
+      "x": 370,
+      "y": 616
+    },
+    {
+      "type": "trap",
+      "x": 410,
+      "y": 580
+    },
+    {
+      "type": "exit",
+      "x": 444,
+      "y": 578
+    }
+  ],
+  "creatures": 15,
+  "required": 13,
+  "master": 13,
+  "frugal": 0,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w3-09.title",
+  "difficulty": 7,
+  "hintKeys": ["level.w3-09.hint1"],
+  "solution": {
+    "log": [],
+    "releaseChanges": [
+      {
+        "tick": 0,
+        "interval": 15
+      }
+    ],
+    "finalHash": 635972103
+  },
+  "plan": [
+    {
+      "release": 15,
+      "when": {
+        "tick": 0
+      }
+    }
+  ]
+}

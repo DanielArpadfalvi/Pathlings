@@ -1,0 +1,141 @@
+{
+  "v": 1,
+  "id": "w3-15",
+  "title": "Pinball",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 124,
+      "y": 410,
+      "w": 196,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 216,
+      "y": 380,
+      "w": 104,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 224,
+      "y": 330,
+      "w": 12,
+      "h": 50
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "bounce",
+      "x": 104,
+      "y": 436
+    },
+    {
+      "type": "bounce",
+      "x": 196,
+      "y": 406
+    },
+    {
+      "type": "trap",
+      "x": 248,
+      "y": 370
+    },
+    {
+      "type": "exit",
+      "x": 289,
+      "y": 368
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 8,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w3-15.title",
+  "difficulty": 8,
+  "hintKeys": ["level.w3-15.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 549,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [
+      {
+        "tick": 0,
+        "interval": 15
+      }
+    ],
+    "finalHash": 2501336682
+  },
+  "plan": [
+    {
+      "release": 15,
+      "when": {
+        "tick": 0
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 216,
+        "yLte": 380,
+        "state": "walk"
+      }
+    }
+  ]
+}

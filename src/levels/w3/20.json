@@ -1,0 +1,157 @@
+{
+  "v": 1,
+  "id": "w3-20",
+  "title": "Grand Clock",
+  "author": "",
+  "theme": "clockworks",
+  "w": 480,
+  "h": 720,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 680,
+      "w": 480,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 140,
+      "y": 600,
+      "w": 16,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 380,
+      "w": 480,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 290,
+      "y": 350,
+      "w": 184,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 230,
+      "w": 480,
+      "h": 20
+    },
+    {
+      "op": "stamp",
+      "id": "gear",
+      "m": 3,
+      "x": 220,
+      "y": 640
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 474,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 670,
+      "dir": 1
+    },
+    {
+      "type": "teleport",
+      "x": 240,
+      "y": 668,
+      "tx": 40,
+      "ty": 380
+    },
+    {
+      "type": "bounce",
+      "x": 270,
+      "y": 376
+    },
+    {
+      "type": "trap",
+      "x": 330,
+      "y": 340
+    },
+    {
+      "type": "exit",
+      "x": 424,
+      "y": 338
+    }
+  ],
+  "creatures": 15,
+  "required": 13,
+  "master": 13,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w3-20.title",
+  "difficulty": 9,
+  "hintKeys": ["level.w3-20.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 317,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [
+      {
+        "tick": 0,
+        "interval": 15
+      }
+    ],
+    "finalHash": 874987527
+  },
+  "plan": [
+    {
+      "release": 15,
+      "when": {
+        "tick": 0
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 132,
+        "state": "walk"
+      }
+    }
+  ]
+}

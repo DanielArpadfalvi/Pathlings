@@ -1,0 +1,182 @@
+{
+  "v": 1,
+  "id": "w3-17",
+  "title": "Vertical Express",
+  "author": "",
+  "theme": "clockworks",
+  "w": 480,
+  "h": 720,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 650,
+      "w": 480,
+      "h": 70
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 120,
+      "y": 360,
+      "w": 8,
+      "h": 290
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 128,
+      "y": 400,
+      "w": 346,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 128,
+      "y": 460,
+      "w": 346,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 128,
+      "y": 520,
+      "w": 346,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 128,
+      "y": 580,
+      "w": 346,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 474,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 640,
+      "dir": 1
+    },
+    {
+      "type": "teleport",
+      "x": 90,
+      "y": 638,
+      "tx": 160,
+      "ty": 400
+    },
+    {
+      "type": "exit",
+      "x": 434,
+      "y": 638
+    }
+  ],
+  "creatures": 15,
+  "required": 13,
+  "master": 15,
+  "frugal": 4,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 1,
+    "delver": 3
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w3-17.title",
+  "difficulty": 9,
+  "hintKeys": ["level.w3-17.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 312,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 702,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 1092,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 1482,
+        "creature": 0,
+        "skill": "sloper"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2640221591
+  },
+  "plan": [
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 200,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 240,
+        "yGte": 460,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 280,
+        "yGte": 520,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "sloper",
+      "creature": 0,
+      "when": {
+        "xGte": 320,
+        "yGte": 580,
+        "state": "walk"
+      }
+    }
+  ]
+}

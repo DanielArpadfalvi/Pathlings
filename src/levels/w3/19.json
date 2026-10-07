@@ -1,0 +1,167 @@
+{
+  "v": 1,
+  "id": "w3-19",
+  "title": "Machine Room",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 116,
+      "y": 425,
+      "w": 4,
+      "h": 15
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 260,
+      "w": 200,
+      "h": 10
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 196,
+      "y": 230,
+      "w": 4,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 6,
+      "y": 440,
+      "w": 40,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 80,
+      "y": 430,
+      "dir": -1
+    },
+    {
+      "type": "bounce",
+      "x": 100,
+      "y": 436
+    },
+    {
+      "type": "teleport",
+      "x": 260,
+      "y": 428,
+      "tx": 180,
+      "ty": 260
+    },
+    {
+      "type": "lava",
+      "x": 6,
+      "y": 452,
+      "w": 40,
+      "h": 28
+    },
+    {
+      "type": "trap",
+      "x": 120,
+      "y": 250
+    },
+    {
+      "type": "exit",
+      "x": 34,
+      "y": 248
+    }
+  ],
+  "creatures": 10,
+  "required": 7,
+  "master": 7,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 1,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w3-19.title",
+  "difficulty": 9,
+  "hintKeys": ["level.w3-19.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 101,
+        "creature": 0,
+        "skill": "warden"
+      },
+      {
+        "kind": "popAll",
+        "tick": 3000
+      }
+    ],
+    "releaseChanges": [
+      {
+        "tick": 200,
+        "interval": 15
+      }
+    ],
+    "finalHash": 4188545393
+  },
+  "plan": [
+    {
+      "assign": "warden",
+      "creature": 0,
+      "when": {
+        "xLte": 60,
+        "state": "walk"
+      }
+    },
+    {
+      "release": 15,
+      "when": {
+        "tick": 200
+      }
+    },
+    {
+      "popAll": true,
+      "when": {
+        "tick": 3000
+      }
+    }
+  ]
+}

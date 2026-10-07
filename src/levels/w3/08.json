@@ -1,0 +1,124 @@
+{
+  "v": 1,
+  "id": "w3-08",
+  "title": "Three Exits",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 380,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 60,
+      "y": 330,
+      "w": 8,
+      "h": 50
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 250,
+      "y": 340,
+      "w": 16,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 160,
+      "y": 370,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 24,
+      "y": 368
+    },
+    {
+      "type": "exit",
+      "x": 284,
+      "y": 368
+    },
+    {
+      "type": "exit",
+      "x": 154,
+      "y": 428
+    }
+  ],
+  "creatures": 12,
+  "required": 10,
+  "master": 12,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 1
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w3-08.title",
+  "difficulty": 6,
+  "hintKeys": ["level.w3-08.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 131,
+        "creature": 0,
+        "skill": "delver"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2473063976
+  },
+  "plan": [
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 190,
+        "state": "walk"
+      }
+    }
+  ]
+}

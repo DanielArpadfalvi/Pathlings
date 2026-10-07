@@ -1,0 +1,113 @@
+{
+  "v": 1,
+  "id": "w3-02",
+  "title": "Portal",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 140,
+      "y": 360,
+      "w": 16,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 200,
+      "w": 130,
+      "h": 16
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "teleport",
+      "x": 170,
+      "y": 428,
+      "tx": 30,
+      "ty": 200
+    },
+    {
+      "type": "exit",
+      "x": 94,
+      "y": 188
+    }
+  ],
+  "creatures": 10,
+  "required": 9,
+  "master": 10,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w3-02.title",
+  "difficulty": 5,
+  "hintKeys": ["level.w3-02.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 317,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 1968120300
+  },
+  "plan": [
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 132,
+        "state": "walk"
+      }
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "v": 1,
+  "id": "w3-07",
+  "title": "Bounce House",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 124,
+      "y": 410,
+      "w": 196,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 216,
+      "y": 380,
+      "w": 104,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "bounce",
+      "x": 104,
+      "y": 436
+    },
+    {
+      "type": "bounce",
+      "x": 196,
+      "y": 406
+    },
+    {
+      "type": "trap",
+      "x": 240,
+      "y": 370
+    },
+    {
+      "type": "exit",
+      "x": 279,
+      "y": 368
+    }
+  ],
+  "creatures": 10,
+  "required": 9,
+  "master": 9,
+  "frugal": 0,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w3-07.title",
+  "difficulty": 6,
+  "hintKeys": ["level.w3-07.hint1"],
+  "solution": {
+    "log": [],
+    "releaseChanges": [
+      {
+        "tick": 0,
+        "interval": 15
+      }
+    ],
+    "finalHash": 2968110868
+  },
+  "plan": [
+    {
+      "release": 15,
+      "when": {
+        "tick": 0
+      }
+    }
+  ]
+}

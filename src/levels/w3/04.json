@@ -1,0 +1,104 @@
+{
+  "v": 1,
+  "id": "w3-04",
+  "title": "Two Doors",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 380,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 60,
+      "y": 370,
+      "dir": 1
+    },
+    {
+      "type": "entrance",
+      "x": 260,
+      "y": 370,
+      "dir": -1
+    },
+    {
+      "type": "exit",
+      "x": 154,
+      "y": 428
+    }
+  ],
+  "creatures": 16,
+  "required": 14,
+  "master": 16,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 1
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w3-04.title",
+  "difficulty": 5,
+  "hintKeys": ["level.w3-04.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 281,
+        "creature": 0,
+        "skill": "delver"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 304184435
+  },
+  "plan": [
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 140,
+        "state": "walk"
+      }
+    }
+  ]
+}

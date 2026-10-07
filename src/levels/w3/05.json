@@ -1,0 +1,114 @@
+{
+  "v": 1,
+  "id": "w3-05",
+  "title": "Grinder",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 120,
+      "y": 360,
+      "w": 16,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "trap",
+      "x": 220,
+      "y": 430
+    },
+    {
+      "type": "exit",
+      "x": 279,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 8,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w3-05.title",
+  "difficulty": 6,
+  "hintKeys": ["level.w3-05.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 257,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [
+      {
+        "tick": 0,
+        "interval": 15
+      }
+    ],
+    "finalHash": 581107429
+  },
+  "plan": [
+    {
+      "release": 15,
+      "when": {
+        "tick": 0
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 112,
+        "state": "walk"
+      }
+    }
+  ]
+}

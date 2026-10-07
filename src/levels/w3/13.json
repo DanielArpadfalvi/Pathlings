@@ -1,0 +1,136 @@
+{
+  "v": 1,
+  "id": "w3-13",
+  "title": "Gatekeeper",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 120,
+      "y": 440,
+      "w": 40,
+      "h": 6
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 70,
+      "y": 400,
+      "w": 6,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 100,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "trap",
+      "x": 220,
+      "y": 430
+    },
+    {
+      "type": "exit",
+      "x": 279,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 7,
+  "master": 7,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 1,
+    "warden": 1,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 90,
+  "hints": [],
+  "titleKey": "level.w3-13.title",
+  "difficulty": 8,
+  "hintKeys": ["level.w3-13.hint1", "level.w3-13.hint2"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 161,
+        "creature": 0,
+        "skill": "warden"
+      },
+      {
+        "kind": "assign",
+        "tick": 300,
+        "creature": 0,
+        "skill": "popper"
+      }
+    ],
+    "releaseChanges": [
+      {
+        "tick": 161,
+        "interval": 23
+      }
+    ],
+    "finalHash": 3973693181
+  },
+  "plan": [
+    {
+      "assign": "warden",
+      "creature": 0,
+      "when": {
+        "xGte": 140,
+        "state": "walk"
+      }
+    },
+    {
+      "release": 23,
+      "when": {
+        "tick": 0
+      }
+    },
+    {
+      "assign": "popper",
+      "creature": 0,
+      "when": {
+        "tick": 300,
+        "state": "warden"
+      }
+    }
+  ]
+}
