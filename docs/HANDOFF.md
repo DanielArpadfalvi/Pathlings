@@ -8,10 +8,10 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | Terv (`docs/PLAN.md`, `docs/TASKS.md`) | ✅ |
 | M0 Alapozás (Vite+TS+Pixi+Preact, lint, Vitest, Playwright smoke, CI) | ✅ T0.1, T0.2 |
 | M1 Mag-motor (`src/core`) | ✅ T1.1–T1.7 – terep, raszterizáló, pálya-definíció+validátor, lények, 8 képesség, objektumok, sim loop, események, replay, rewind, state hash |
-| M2 Játszható prototípus | 🔄 T2.1 ✅ renderer · T2.2 ✅ kamera · T2.3 ✅ okos kijelölés · következik T2.4 HUD |
+| M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
 | M3–M10 | nincs elkezdve |
 
-Ellenőrzés (T2.3 után): `npm run check` 384/384 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 16/16 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
+Ellenőrzés (T2.4 után): `npm run check` 392/392 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 24/24 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
 
 ## Renderer / játékhurok (T2.1)
 - `src/game/clock.ts` (fix 60 Hz akkumulátor + alpha), `src/game/session.ts` (`GameSession`: a sim egyetlen léptetője a magon kívül; tickenként `drainEvents` → listenerek).
@@ -46,10 +46,15 @@ Ellenőrzés (T2.3 után): `npm run check` 384/384 unit teszt zöld, `npm run bu
 - Perf-tartalék lassú CI runneren kb. 2,3×.
 - Üzleti modell (PLAN.md §2): 30 pálya + napi pálya + szerkesztő + kódok ingyen, „Teljes játék” $2,99, opcionális Supporter $2,99 (kozmetikum).
 
+## HUD + vezérlés (T2.4)
+- `src/app/gameApp.ts` – `GameApp`: címképernyő (attract demó + „Játék”) vagy a prototípus-pályasor (az 5 fixture), HUD-store (`src/app/store.ts`, `src/app/hud.ts` – sima adat), `GameActions` (képesség, szünet, sebesség 1→2→4→0,5, ütem ±, mind pukkan, újra/következő, szűrő, teljes pálya, insetek), web-billentyűk (1–8, szóköz, +/−, f, r).
+- `src/ui/PlayHud.tsx` – felső HUD (kint, haza/szükséges, idő), 2×4 képesség-gomb (kódból rajzolt SVG ikon + készlet, ≥ 48 pt), vezérlősor, mind pukkan: 0,6 s nyomás → „armed” 2,5 s-ig → megerősítő koppintás, pálya-vége kártya csillagokkal. A HUD magasságát `ResizeObserver` jelenti → `Camera.setInsets` (a kamera a két UI-sáv közti részt keretezi; `screenCenter`).
+- `src/core/stars.ts` – `rateRun` (★/★★/★★★); szimulációt nem érint.
+- `GameSession.popAll`, `changeRelease(±1)` (egy nyomás = a tartomány 1/8-a).
+
 ## Következő lépések sorrendben
-1. **T2.4 HUD + controls** (a képességsáv váltja le a `?skill=` paramétert; az irányszűrő- és teljes-pálya gomb kerüljön a vezérlősorba) + 5 kézi tesztpálya, e2e végigjátszással (a `src/levels/test` megoldásaival).
-2. M2 végén `game-reviewer` kör (screenshotok 360×640 / 412×915).
-3. M3 (effektek, rewind UI, hang/haptika, perf) → M4 (pályakód + szerkesztő).
+1. M3: T3.1 animációk/effektek → T3.2 rewind UI → T3.3 hang/haptika → T3.4 perf.
+2. M4 (pályakód + szerkesztő), M5 (tartalom + `scripts/validate-levels`), M6–M9.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.
