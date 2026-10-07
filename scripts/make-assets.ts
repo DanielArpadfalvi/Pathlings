@@ -287,3 +287,7 @@ for (const name of ['splash-2732x2732.png', 'splash-2732x2732-1.png', 'splash-27
 console.log('Web');
 save('public/icon-512.png', scene(512, { background: true }), true);
 save('public/favicon-64.png', scene(64, { background: true }), true);
+
+console.log('Store');
+// Google Play feature graphic (1024 × 500, opaque).
+save('docs/store/feature-graphic.png', splash(1024, 500), true);

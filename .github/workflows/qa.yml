@@ -1,0 +1,22 @@
+name: QA
+
+# Full QA pass (T9.4): replays all 110 built-in levels through the real page. Too slow for every
+# push; runs on release tags and on demand.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  levels:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: QA=1 npx playwright test tests/e2e/qa-levels.spec.ts

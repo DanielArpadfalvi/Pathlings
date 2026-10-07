@@ -13,7 +13,10 @@ Utolsó frissítés: 2026-10-07. A Pathlingset a **lokális, Pathlings-könyvtá
 | M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
 | M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · T5.4 ✅ Óraműhely (20) · T5.5 ✅ Felhőszirt (20) · T5.6 ✅ bónusz (30) + napi pálya · T5.7 ✅ tippek + megoldás |
 | M6 Meta + UI | ✅ T6.1 menü/világtérkép/pályaválasztó · T6.2 beállítások + szünetmenü · T6.3 mentés · T6.4 i18n + a11y |
-| M7–M10 | nincs elkezdve |
+| M7 Mobil héj | ✅ T7.1 Capacitor 8 · T7.2 ikon/splash kódból · T7.3 natív CI (android.yml, ios.yml zöld) · T7.4 deep link |
+| M8 Monetizáció | ✅ T8.1 Purchases (RevenueCat + mock) · T8.2 kapuk, ajánlat, támogató |
+| M9 Kiadás-előkészítés | ✅ T9.1 store-szövegek + screenshotok · T9.2 adatvédelem · T9.3 aláírt kiadási folyamat · T9.4 QA, 1.0.0 |
+| M10 | opcionális 1.1-ötletek, nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
 
@@ -139,8 +142,28 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - **i18n + a11y (T6.4):** `tests/unit/i18nUsage.test.ts` (nincs beégetett UI-szöveg, placeholder-egyezés, dinamikus kulcsok), `docs/ACCESSIBILITY.md` ellenőrzőlista.
 - E2E-tipp: ebben a konténerben minden kattintás ~2,5 s (szoftveres GL, stabil frame-ekre vár) – a hosszú UI-folyamatok tesztjeinek saját időkeretük van.
 
-## Következő lépések sorrendben
-1. M7: T7.1 Capacitor → T7.2 ikon/splash → T7.3 natív CI → T7.4 deep link; utána M8 (vásárlás + kapuk), M9.
+## Mobil héj (M7)
+- `capacitor.config.ts` (app id a `src/config.ts`-ből), `android/`, `ios/` (SPM, CocoaPods nincs). Álló tájolás, iPad teljes képernyő, `pathlings://l/…` séma. A natív és a `src/config.ts` app id egyezését unit teszt őrzi.
+- `src/platform/capacitor.ts` – natív tár (Preferences, induláskor előtöltve, háttérben ír; első natív indításkor átveszi a WebView localStorage-ét), haptika, vágólap, megosztás, életciklus. `src/platform/install.ts` a játék előtt telepíti (web: alapértelmezések).
+- `src/platform/lifecycle.ts` – háttérbe kerülés → szünetmenü + némítás; Android vissza / Escape → legfelső lap bezárása, szünet, kilépés; linkek (`/l#PL1-…`, `public/l/index.html` átirányít) → „Kód lejátszása” előtöltve.
+- `npm run assets` (`scripts/make-assets.ts`) rajzolja az ikonokat, splash-eket, a webes ikont és a Play feature graphicot.
+- CI: `android.yml` (debug APK + release AAB), `ios.yml` (szimulátor + aláíratlan eszköz-build) – mindkettő zöld.
+
+## Monetizáció (M8)
+- `src/platform/purchases.ts` – `Purchases` (`full_game`, `supporter`), offline-biztos jogosultság-cache (`pathlings.entitlements.v1`; init csak bővít, csak a sikeres restore hiteles), mock backend (`?iap=mock|owned|cancel`), webes „nem elérhető” backend. `src/platform/revenuecat.ts` – RevenueCat, kulcs: `VITE_REVENUECAT_IOS_KEY` / `VITE_REVENUECAT_ANDROID_KEY` (repó-változók, `src/env.d.ts`).
+- Kapuk a `progression.ts`-ben; ajánlat-lap (vásárlás, visszaállítás, hibaüzenetek); W2-10 után egyszer magától (`save.offerSeen`), a fizetős „Következő” a pályaválasztóba visz az ajánlattal; játék közben soha. Támogató: Beállítások, arany levélsapka (`SUPPORTER_KEY`), ❦ a szerzőnév után (`src/app/supporter.ts`).
+
+## Kiadás-előkészítés (M9)
+- Store: `docs/store/listing.json` (EN/HU, limitek + tiltott szavak tesztelve), `npm run store:frames` → `docs/store/screenshots/<nyelv>/<eszköz>/` (6 jelenet, 4 méret).
+- Adatvédelem: `docs/site/privacy.html`, `docs/store-privacy-answers.md`, függőség-audit teszt. **Tulajdonosi döntés:** a RevenueCat miatt a „Data Not Collected” helyett „Purchase History – nem összekapcsolt” címke jár, hacsak nem cseréljük eszközön belüli ellenőrzésre (csak a `revenuecat.ts` változna).
+- Kiadás: `.github/workflows/release.yml` (tag `v*`: aláírt AAB → Play internal, archívum → TestFlight; titkok nélkül aláíratlan), `docs/RELEASE.md`, `docs/APP-STORE-CHECKLIST.md`, `docs/PLAY-STORE-CHECKLIST.md`. Verzió: `package.json` 1.0.0 → Android build.gradle olvassa, iOS: `npm run version:sync`.
+- QA: `docs/QA-1.0.md`; `QA=1 npx playwright test qa-levels` (mind a 110 pálya a valódi UI-n), `qa.yml`; M4-es kódok kompatibilitása (`tests/fixtures/levelCodes-m4.json`); érintési pontosság 320/430 pt széles kijelzőn.
+
+## Következő lépések
+1. A `claude/sweet-planck-9pz7t8` ág → `main` merge (PR), hogy a natív workflow-k a fő ágon is fussanak.
+2. Tulajdonosi teendők a két checklist szerint (fiókok, termékek, RevenueCat, titkok), majd `v1.0.0` tag.
+3. A RevenueCat / „Data Not Collected” döntés.
+4. Opcionális M10 (1.1).
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.
