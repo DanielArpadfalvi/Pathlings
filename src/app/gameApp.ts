@@ -143,7 +143,16 @@ export class GameApp implements GameActions {
     this.publish();
   }
 
+  /** Exponential moving average of the JS time per frame (ms), for the perf probe. */
+  frameMs = 0;
+
   private frame(dtMs: number): void {
+    const t0 = performance.now();
+    this.frameBody(dtMs);
+    this.frameMs = this.frameMs * 0.95 + (performance.now() - t0) * 0.05;
+  }
+
+  private frameBody(dtMs: number): void {
     this.now += dtMs;
     if (this.rewinding) {
       this.rewindAcc += (Math.min(dtMs, 100) * REWIND_SPEED * 60) / 1000;

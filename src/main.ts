@@ -28,6 +28,9 @@ function exposeDebug(game: GameApp): void {
       get press() {
         return game.current.press;
       },
+      get frameMs() {
+        return game.frameMs;
+      },
       get hud() {
         return game.hud.get();
       },
