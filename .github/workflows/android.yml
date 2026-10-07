@@ -1,0 +1,42 @@
+name: Android
+
+# Native Android build (T7.3): debug APK + release AAB. Unsigned unless the signing secrets
+# exist (T9.3 adds signing). Native builds only run here – the dev container cannot reach
+# dl.google.com.
+on:
+  push:
+    branches: [main, 'claude/**']
+  workflow_dispatch:
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync android
+      - name: Gradle build
+        working-directory: android
+        run: ./gradlew --no-daemon assembleDebug bundleRelease
+      - uses: actions/upload-artifact@v5
+        with:
+          name: pathlings-android
+          path: |
+            android/app/build/outputs/apk/debug/*.apk
+            android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error

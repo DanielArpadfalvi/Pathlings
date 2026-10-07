@@ -1,0 +1,47 @@
+name: iOS
+
+# Native iOS build (T7.3) on a macOS runner: simulator build plus an unsigned device build.
+# Signing and TestFlight upload come with T9.3 once the owner's secrets exist.
+on:
+  push:
+    branches: [main, 'claude/**']
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Select the newest Xcode
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
+          echo "Using $XCODE"
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync ios
+      - name: Simulator build
+        run: >
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug
+          -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath build/sim CODE_SIGNING_ALLOWED=NO build
+      - name: Unsigned device build
+        run: >
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release
+          -sdk iphoneos -destination 'generic/platform=iOS'
+          -derivedDataPath build/device CODE_SIGNING_ALLOWED=NO build
+      - uses: actions/upload-artifact@v5
+        with:
+          name: pathlings-ios-unsigned
+          path: build/device/Build/Products/Release-iphoneos/App.app
+          if-no-files-found: error
