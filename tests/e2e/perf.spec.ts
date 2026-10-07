@@ -4,15 +4,20 @@ import { expect, test, type Page } from '@playwright/test';
  * T3.4 performance probe: 100 creatures on the 640 × 960 stress level, whole level in view, game
  * at 4×. Measures 10 s unthrottled, then 20 s with the CPU throttled 4× (CDP), and reports FPS
  * and the game's own JS time per frame as a CI notice annotation. Runs on CI or with PERF=1.
- * The ≥ 55 FPS gate is enforced with PERF_ENFORCE=1 (software-GL CI runners are measured first).
+ * Enforced everywhere: main-thread time per frame (game + Pixi render pass) < 8 ms under 4×
+ * throttling. The ≥ 55 FPS gate needs a GPU and is enforced with PERF_ENFORCE=1.
  */
 const RUN = !!process.env.CI || process.env.PERF === '1';
 const ENFORCE = process.env.PERF_ENFORCE === '1';
+/** Main-thread ms per frame allowed under 4× throttling (half of a 16.7 ms frame). */
+const MAIN_THREAD_BUDGET_MS = 8;
 
 interface Sample {
   fps: number;
   worstMs: number;
+  /** Game JS per frame (sim + scene updates) and Pixi's render pass on the main thread, ms. */
   jsMs: number;
+  renderMs: number;
   creatures: number;
 }
 
@@ -22,7 +27,7 @@ async function measure(page: Page, ms: number): Promise<Sample> {
       new Promise<Sample>((resolve) => {
         const d = (
           window as unknown as {
-            __pathlings: { stats: { creaturesDrawn: number }; frameMs: number };
+            __pathlings: { stats: { creaturesDrawn: number }; frameMs: number; renderMs: number };
           }
         ).__pathlings;
         const start = performance.now();
@@ -39,6 +44,7 @@ async function measure(page: Page, ms: number): Promise<Sample> {
               fps: Math.round(((frames * 1000) / (now - start)) * 10) / 10,
               worstMs: Math.round(worst),
               jsMs: Math.round(d.frameMs * 100) / 100,
+              renderMs: Math.round(d.renderMs * 100) / 100,
               creatures: d.stats.creaturesDrawn,
             });
         };
@@ -82,6 +88,10 @@ test.describe('performance', () => {
     // A workflow command: shows up as an annotation on the CI run (readable without log access).
     console.log(`::notice title=FPS probe::${report}`);
     expect(throttled.creatures).toBeGreaterThanOrEqual(80);
+    // Everywhere: the main-thread work of a frame (game + Pixi) stays well inside a 60 Hz frame
+    // even with the CPU throttled 4×. GPU-less CI runners rasterize WebGL in software, which caps
+    // their FPS regardless of our code; the FPS gate itself needs a real GPU (PERF_ENFORCE=1).
+    expect(throttled.jsMs + throttled.renderMs).toBeLessThan(MAIN_THREAD_BUDGET_MS);
     if (ENFORCE) expect(throttled.fps).toBeGreaterThanOrEqual(55);
   });
 });

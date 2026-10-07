@@ -1,4 +1,4 @@
-import type { Application } from 'pixi.js';
+import { type Application, UPDATE_PRIORITY } from 'pixi.js';
 import type { LevelDef, SkillId } from '../core/level';
 import { SKILLS } from '../core/level';
 import type { LaunchParams } from '../game/launchParams';
@@ -104,6 +104,15 @@ export class GameApp implements GameActions, EditorActions {
       this.editor?.resize(w, h);
     });
     app.ticker.add((t) => this.frame(t.deltaMS));
+    // Main-thread cost of Pixi's own render pass (scene traversal + GL submission), for the
+    // perf probe: the ticker renders at LOW priority, so time it from just before to just after.
+    let renderStart = 0;
+    app.ticker.add(() => (renderStart = performance.now()), undefined, UPDATE_PRIORITY.LOW + 1);
+    app.ticker.add(
+      () => (this.renderMs = this.renderMs * 0.95 + (performance.now() - renderStart) * 0.05),
+      undefined,
+      UPDATE_PRIORITY.LOW - 1,
+    );
     window.addEventListener('keydown', this.onKey);
     window.addEventListener('keyup', this.onKeyUp);
     window.addEventListener('pointerdown', this.unlockAudio, true);
@@ -191,8 +200,9 @@ export class GameApp implements GameActions, EditorActions {
     this.publish();
   }
 
-  /** Exponential moving average of the JS time per frame (ms), for the perf probe. */
+  /** Exponential moving averages (ms) of the game's JS per frame and of Pixi's render pass. */
   frameMs = 0;
+  renderMs = 0;
 
   private frame(dtMs: number): void {
     const t0 = performance.now();

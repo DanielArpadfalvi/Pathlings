@@ -49,6 +49,9 @@ function exposeDebug(game: GameApp): void {
       get frameMs() {
         return game.frameMs;
       },
+      get renderMs() {
+        return game.renderMs;
+      },
       get hud() {
         return game.hud.get();
       },

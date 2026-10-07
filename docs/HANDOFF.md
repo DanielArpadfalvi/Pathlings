@@ -9,7 +9,7 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | M0 Alapozás (Vite+TS+Pixi+Preact, lint, Vitest, Playwright smoke, CI) | ✅ T0.1, T0.2 |
 | M1 Mag-motor (`src/core`) | ✅ T1.1–T1.7 – terep, raszterizáló, pálya-definíció+validátor, lények, 8 képesség, objektumok, sim loop, események, replay, rewind, state hash |
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
-| M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 perf-mérő kész, CI-n még ellenőrizendő |
+| M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 ✅ perf |
 | M4 Szerkesztő + pályakód | 🔄 T4.1 ✅ pályakód · T4.2 ✅ ellenőrzés · T4.3 ✅ szerkesztő-mag · következik T4.4 szerkesztő UI |
 | M5–M10 | nincs elkezdve |
 
@@ -74,7 +74,7 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - `src/audio/feedback.ts` – SFX + haptika (könnyű: kiosztás, közepes: hazaérés, erős: halál, dupla: elutasítás).
 
 ## Teljesítmény (T3.4)
-- `src/levels/test/perf.ts` (640×960, 100 lény zárt arénában), `tests/e2e/perf.spec.ts`: egész pálya, 4× sebesség, CDP 4× CPU-lassítás, 20 s átlag ≥ 55 FPS; csak CI-n vagy `PERF=1`-gyel fut. Lokálisan ~60 FPS. Az eredményt `::notice::` annotációként írja ki (GitHub API-val olvasható: `/check-runs/<job>/annotations`).
+- `src/levels/test/perf.ts` (640×960, 100 lény zárt arénában), `tests/e2e/perf.spec.ts`: egész pálya, 4× sebesség, CDP 4× CPU-lassítás, 20 s átlag ≥ 55 FPS; csak CI-n vagy `PERF=1`-gyel fut. Lokálisan ~60 FPS; a CI GPU nélküli runnerén a szoftveres GL miatt 16–21 FPS még lassítás nélkül is, ezért ott a fő szál frame-költsége (játék-JS + Pixi render, 4× lassítva) < 8 ms a kapu; a 55 FPS-es kapu `PERF_ENFORCE=1`-gyel (GPU-s gépen). Az eredményt `::notice::` annotációként írja ki (GitHub API-val olvasható: `/check-runs/<job>/annotations`).
 - `tests/unit/core/tickBudget.test.ts`: átlagos core tick 100 lénnyel < 0,5 ms.
 - CI-állapot hitelesítés nélkül: `curl https://api.github.com/repos/DanielArpadfalvi/Pathlings/actions/runs?per_page=5` (a logokhoz token kell).
 
