@@ -1,0 +1,339 @@
+{
+  "v": 1,
+  "id": "w4-14",
+  "title": "Sky Bridge",
+  "author": "",
+  "theme": "skyreach",
+  "w": 480,
+  "h": 720,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 680,
+      "w": 480,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 6,
+      "y": 400,
+      "w": 160,
+      "h": 280
+    },
+    {
+      "op": "rect",
+      "m": 6,
+      "x": 166,
+      "y": 400,
+      "w": 20,
+      "h": 1
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 186,
+      "y": 400,
+      "w": 288,
+      "h": 280
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 280,
+      "y": 360,
+      "w": 16,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 380,
+      "y": 340,
+      "w": 94,
+      "h": 60
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 474,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 60,
+      "y": 390,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 424,
+      "y": 328
+    }
+  ],
+  "creatures": 15,
+  "required": 12,
+  "master": 13,
+  "frugal": 17,
+  "skills": {
+    "scaler": 15,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 1,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 120,
+  "hints": [],
+  "titleKey": "level.w4-14.title",
+  "difficulty": 9,
+  "hintKeys": ["level.w4-14.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 350,
+        "creature": 0,
+        "skill": "mason"
+      },
+      {
+        "kind": "assign",
+        "tick": 1001,
+        "creature": 0,
+        "skill": "burrower"
+      },
+      {
+        "kind": "assign",
+        "tick": 1089,
+        "creature": 0,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1089,
+        "creature": 1,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1089,
+        "creature": 2,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1089,
+        "creature": 3,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1089,
+        "creature": 4,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1089,
+        "creature": 5,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1089,
+        "creature": 6,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1089,
+        "creature": 7,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1089,
+        "creature": 8,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1121,
+        "creature": 9,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1241,
+        "creature": 10,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1361,
+        "creature": 11,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1481,
+        "creature": 12,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1601,
+        "creature": 13,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1721,
+        "creature": 14,
+        "skill": "scaler"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 1793982737
+  },
+  "plan": [
+    {
+      "assign": "mason",
+      "creature": 0,
+      "when": {
+        "xGte": 163,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 272,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 0,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 1,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 2,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 3,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 4,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 5,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 6,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 7,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 8,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 9,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 10,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 11,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 12,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 13,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 14,
+      "when": {
+        "state": "walk"
+      }
+    }
+  ]
+}

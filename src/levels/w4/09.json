@@ -1,0 +1,237 @@
+{
+  "v": 1,
+  "id": "w4-09",
+  "title": "Eagle's Nest",
+  "author": "",
+  "theme": "skyreach",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 120,
+      "y": 300,
+      "w": 194,
+      "h": 140
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 220,
+      "y": 270,
+      "w": 12,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 274,
+      "y": 288
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 11,
+  "skills": {
+    "scaler": 10,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 50,
+  "hints": [],
+  "titleKey": "level.w4-09.title",
+  "difficulty": 9,
+  "hintKeys": ["level.w4-09.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 41,
+        "creature": 0,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 91,
+        "creature": 1,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 141,
+        "creature": 2,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 191,
+        "creature": 3,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 241,
+        "creature": 4,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 291,
+        "creature": 5,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 341,
+        "creature": 6,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 391,
+        "creature": 7,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 441,
+        "creature": 8,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 491,
+        "creature": 9,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 1117,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2309610755
+  },
+  "plan": [
+    {
+      "assign": "scaler",
+      "creature": 0,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 1,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 2,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 3,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 4,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 5,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 6,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 7,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 8,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 9,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 212,
+        "yLte": 300,
+        "state": "walk"
+      }
+    }
+  ]
+}

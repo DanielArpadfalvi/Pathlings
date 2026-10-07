@@ -1,0 +1,533 @@
+import {
+  CRUMBLE,
+  type LevelSpec,
+  METAL,
+  ROCK,
+  SOIL,
+  cut,
+  each,
+  entrance,
+  exitOn,
+  lava,
+  range,
+  rect,
+  sideWalls,
+  stamp,
+  water,
+} from './build';
+
+/**
+ * World 4 – Skyreach (§1.3): crumble (each cell a walker stands on falls away 1 s later – a
+ * one-row crumble bridge carries only the first few), huge drops, Scaler + Glider all-rounders
+ * and long multi-skill routes on tall maps. Difficulty 7–10.
+ */
+
+const W = 320;
+const walls = sideWalls(W, 0, 480);
+const BIG = { w: 480, h: 720 };
+const bigWalls = sideWalls(480, 0, 720);
+const HUGE = { w: 640, h: 960 };
+const hugeWalls = sideWalls(640, 0, 960);
+
+function both(ids: readonly number[]) {
+  return ids.flatMap((i) => [
+    { assign: 'scaler' as const, creature: i, when: { state: 'walk' as const } },
+    { assign: 'glider' as const, creature: i, when: { state: 'walk' as const } },
+  ]);
+}
+
+export const W4: LevelSpec[] = [
+  {
+    index: 1,
+    title: ['Crumbling Bridge', 'Omladozó híd'],
+    hints: [
+      [
+        'The crumble bridge only carries the first ones. Build a real one over it.',
+        'Az omladozó híd csak az elsőket bírja el. Építs fölé egy igazit.',
+      ],
+    ],
+    difficulty: 7,
+    ops: [
+      rect(SOIL, 0, 460, W, 20),
+      rect(SOIL, 0, 380, 150, 20),
+      rect(CRUMBLE, 150, 380, 20, 1),
+      rect(SOIL, 170, 380, W - 170, 20),
+      ...walls,
+    ],
+    objects: [entrance(40, 370), exitOn(280, 380), water(6, 470, 308, 10)],
+    creatures: 10,
+    required: 8,
+    skills: { mason: 1 },
+    minReleaseTicks: 120,
+    plan: each('mason', [0], { xGte: 144 }),
+  },
+  {
+    index: 2,
+    title: ['Sky Dive', 'Ejtőernyő'],
+    hints: [
+      [
+        'A long way down, and the clouds give way. Leaves for everyone.',
+        'Hosszú az út lefelé, és a felhők beszakadnak. Levelet mindenkinek.',
+      ],
+    ],
+    difficulty: 7,
+    ...BIG,
+    ops: [
+      rect(SOIL, 0, 680, 480, 40),
+      rect(SOIL, 0, 200, 160, 12),
+      stamp('cloud', SOIL, 60, 196),
+      rect(CRUMBLE, 100, 420, 280, 1),
+      ...bigWalls,
+    ],
+    objects: [entrance(50, 190), exitOn(420, 680)],
+    creatures: 15,
+    required: 12,
+    skills: { glider: 15 },
+    minReleaseTicks: 45,
+    plan: each('glider', range(15)),
+  },
+  {
+    index: 3,
+    title: ['Cliff Climber', 'Sziklamászó'],
+    hints: [
+      [
+        'Up the cliff, then float down – every Pathling needs both.',
+        'Fel a sziklára, aztán le vitorlázva – minden Pathlingnek mindkettő kell.',
+      ],
+    ],
+    difficulty: 7,
+    ops: [
+      rect(SOIL, 0, 440, W, 40),
+      rect(ROCK, 150, 300, 24, 140),
+      rect(CRUMBLE, 150, 300, 24, 1),
+      ...walls,
+    ],
+    objects: [entrance(40, 430), exitOn(280, 440)],
+    creatures: 10,
+    required: 7,
+    skills: { scaler: 10, glider: 10 },
+    minReleaseTicks: 50,
+    plan: both(range(10)),
+  },
+  {
+    index: 4,
+    title: ['Trapdoor', 'Csapóajtó'],
+    hints: [
+      [
+        'Behind the wall the floor gives way – right above the exit.',
+        'A fal mögött beszakad a padló – pont a kijárat fölött.',
+      ],
+    ],
+    difficulty: 8,
+    ops: [
+      rect(SOIL, 0, 440, W, 40),
+      rect(SOIL, 0, 380, 220, 4),
+      rect(CRUMBLE, 220, 380, 30, 1),
+      rect(SOIL, 250, 380, W - 250, 4),
+      rect(SOIL, 180, 340, 16, 40),
+      rect(METAL, 200, 384, 6, 56),
+      ...walls,
+    ],
+    objects: [entrance(40, 370), exitOn(280, 440), lava(6, 452, 194, 28)],
+    creatures: 10,
+    required: 8,
+    skills: { burrower: 1 },
+    plan: each('burrower', [0], { xGte: 172 }),
+  },
+  {
+    index: 5,
+    title: ['Last Leaves', 'Az utolsó levelek'],
+    hints: [
+      [
+        'Not enough leaves for everyone. Count carefully.',
+        'Nem jut levél mindenkinek. Számolj pontosan.',
+      ],
+    ],
+    difficulty: 8,
+    ops: [rect(SOIL, 0, 440, W, 40), rect(SOIL, 0, 220, 120, 16), ...walls],
+    objects: [entrance(40, 210), exitOn(270, 440)],
+    creatures: 10,
+    required: 7,
+    skills: { glider: 7 },
+    minReleaseTicks: 50,
+    plan: each('glider', range(7)),
+  },
+  {
+    index: 6,
+    title: ['Cloud Walk', 'Felhőséta'],
+    hints: [
+      [
+        'Float down to the cloud bank, then dig through it.',
+        'Vitorlázz le a felhőpadig, aztán áss át rajta.',
+      ],
+    ],
+    difficulty: 8,
+    ...BIG,
+    ops: [
+      rect(SOIL, 0, 680, 480, 40),
+      rect(SOIL, 0, 220, 140, 12),
+      rect(SOIL, 140, 560, 334, 40),
+      stamp('cloud', SOIL, 300, 556),
+      ...bigWalls,
+    ],
+    objects: [entrance(50, 210), exitOn(420, 680), water(6, 690, 130, 30)],
+    creatures: 15,
+    required: 12,
+    skills: { glider: 15, delver: 1 },
+    minReleaseTicks: 45,
+    plan: [...each('glider', range(15)), ...each('delver', [0], { xGte: 200, yGte: 560 })],
+  },
+  {
+    index: 7,
+    title: ['Chimney', 'Kémény'],
+    hints: [
+      ['Climb the chimney and step out at the top.', 'Mássz fel a kéményen, és lépj ki a tetején.'],
+    ],
+    difficulty: 8,
+    ops: [
+      rect(SOIL, 0, 440, W, 40),
+      rect(ROCK, 140, 260, 12, 180),
+      rect(SOIL, 152, 260, W - 152, 12),
+      ...walls,
+    ],
+    objects: [entrance(40, 430), exitOn(260, 260)],
+    creatures: 10,
+    required: 8,
+    skills: { scaler: 10 },
+    minReleaseTicks: 50,
+    plan: each('scaler', range(10)),
+  },
+  {
+    index: 8,
+    title: ['High Wire', 'Kötéltánc'],
+    hints: [
+      [
+        'Two towers and a crumbling span. Bridge it before it falls.',
+        'Két torony és egy omladozó híd. Hidald át, mielőtt leszakad.',
+      ],
+    ],
+    difficulty: 9,
+    ...BIG,
+    ops: [
+      rect(SOIL, 0, 680, 480, 40),
+      rect(ROCK, 6, 300, 200, 380),
+      rect(CRUMBLE, 206, 300, 20, 1),
+      rect(ROCK, 226, 300, 248, 380),
+      ...bigWalls,
+    ],
+    objects: [entrance(60, 290), exitOn(420, 300)],
+    creatures: 15,
+    required: 12,
+    skills: { mason: 1 },
+    minReleaseTicks: 120,
+    plan: each('mason', [0], { xGte: 200 }),
+  },
+  {
+    index: 9,
+    title: ["Eagle's Nest", 'Sasfészek'],
+    hints: [
+      [
+        'Climb up – the nest is behind a little wall at the top.',
+        'Mássz fel – a fészek egy kis fal mögött van fent.',
+      ],
+    ],
+    difficulty: 9,
+    ops: [
+      rect(SOIL, 0, 440, W, 40),
+      rect(ROCK, 120, 300, 194, 140),
+      rect(SOIL, 220, 270, 12, 30),
+      ...walls,
+    ],
+    objects: [entrance(40, 430), exitOn(280, 300)],
+    creatures: 10,
+    required: 8,
+    skills: { scaler: 10, burrower: 1 },
+    minReleaseTicks: 50,
+    plan: [...each('scaler', range(10)), ...each('burrower', [0], { xGte: 212, yLte: 300 })],
+  },
+  {
+    index: 10,
+    title: ['Thin Ice', 'Vékony jég'],
+    hints: [
+      [
+        'The floor gives way a second after they step on it. Only a tight group gets across.',
+        'A padló egy másodperccel azután szakad be, hogy rálépnek. Csak egy szoros csapat jut át.',
+      ],
+    ],
+    difficulty: 9,
+    ops: [
+      rect(SOIL, 0, 440, W, 40),
+      rect(CRUMBLE, 6, 380, 308, 1),
+      rect(SOIL, 30, 380, 20, 1),
+      cut(6, 440, 194, 40),
+      ...walls,
+    ],
+    objects: [entrance(40, 370), exitOn(280, 440), lava(6, 452, 194, 28)],
+    creatures: 10,
+    required: 4,
+    skills: {},
+    plan: [{ release: 15, when: { tick: 0 } }],
+  },
+  {
+    index: 11,
+    title: ['Updraft', 'Felszálló légáram'],
+    hints: [
+      [
+        'The pads lift them, the crumble drops them. Leaves keep them alive.',
+        'A párnák felrepítik, a morzsalék leejti őket. A levél életben tartja.',
+      ],
+    ],
+    difficulty: 9,
+    ops: [
+      rect(SOIL, 0, 440, W, 40),
+      rect(SOIL, 124, 410, W - 124, 30),
+      rect(CRUMBLE, 124, 410, 60, 1),
+      rect(ROCK, 230, 330, 84, 80),
+      ...walls,
+    ],
+    objects: [entrance(40, 430), { type: 'bounce', x: 104, y: 436 }, exitOn(280, 330)],
+    creatures: 10,
+    required: 8,
+    skills: { scaler: 10, glider: 10 },
+    minReleaseTicks: 50,
+    plan: both(range(10)),
+  },
+  {
+    index: 12,
+    title: ['Summit Path', 'Csúcsösvény'],
+    hints: [
+      [
+        'Two ledges up – one Mason is enough if you start in time.',
+        'Két párkány fel – egy Kőműves elég, ha időben kezded.',
+      ],
+    ],
+    difficulty: 9,
+    ops: [
+      rect(SOIL, 0, 440, W, 40),
+      rect(ROCK, 140, 430, W - 140, 10),
+      rect(ROCK, 210, 420, W - 210, 10),
+      rect(CRUMBLE, 100, 440, 40, 1),
+      ...walls,
+    ],
+    objects: [entrance(40, 430), exitOn(285, 420)],
+    creatures: 10,
+    required: 8,
+    skills: { mason: 2 },
+    plan: [...each('mason', [0], { xGte: 118 }), ...each('mason', [0], { xGte: 188, yLte: 430 })],
+  },
+  {
+    index: 13,
+    title: ['Free Fall', 'Szabadesés'],
+    hints: [
+      [
+        'Float down past the lava ledge, then dig into the cave.',
+        'Vitorlázz le a lávás párkány mellett, aztán áss be a barlangba.',
+      ],
+    ],
+    difficulty: 9,
+    ...BIG,
+    ops: [
+      rect(SOIL, 0, 680, 480, 40),
+      rect(SOIL, 0, 160, 120, 12),
+      rect(ROCK, 0, 600, 300, 40),
+      rect(SOIL, 300, 600, 174, 40),
+      ...bigWalls,
+    ],
+    objects: [entrance(40, 150), exitOn(420, 680), lava(6, 590, 100, 10)],
+    creatures: 15,
+    required: 12,
+    skills: { glider: 15, delver: 1 },
+    minReleaseTicks: 45,
+    plan: [...each('glider', range(15)), ...each('delver', [0], { xGte: 320, yGte: 600 })],
+  },
+  {
+    index: 14,
+    title: ['Sky Bridge', 'Égi híd'],
+    hints: [
+      [
+        'A crumbling bridge, a burrow, a climb. In that order.',
+        'Omladozó híd, fúrás, mászás. Ebben a sorrendben.',
+      ],
+    ],
+    difficulty: 9,
+    ...BIG,
+    ops: [
+      rect(SOIL, 0, 680, 480, 40),
+      rect(ROCK, 6, 400, 160, 280),
+      rect(CRUMBLE, 166, 400, 20, 1),
+      rect(ROCK, 186, 400, 288, 280),
+      rect(SOIL, 280, 360, 16, 40),
+      rect(ROCK, 380, 340, 94, 60),
+      ...bigWalls,
+    ],
+    objects: [entrance(60, 390), exitOn(430, 340)],
+    creatures: 15,
+    required: 12,
+    skills: { mason: 1, burrower: 1, scaler: 15 },
+    minReleaseTicks: 120,
+    plan: [
+      ...each('mason', [0], { xGte: 163 }),
+      ...each('burrower', [0], { xGte: 272 }),
+      ...each('scaler', range(15)),
+    ],
+  },
+  {
+    index: 15,
+    title: ['Crumble Tower', 'Omló torony'],
+    hints: [
+      [
+        'Climb the tower before its top falls away – then float down.',
+        'Mássz fel a toronyra, mielőtt a teteje leomlik – aztán vitorlázz le.',
+      ],
+    ],
+    difficulty: 10,
+    ops: [
+      rect(SOIL, 0, 440, W, 40),
+      rect(ROCK, 150, 280, 20, 160),
+      rect(CRUMBLE, 150, 270, 20, 10),
+      ...walls,
+    ],
+    objects: [entrance(40, 430), exitOn(285, 440)],
+    creatures: 10,
+    required: 7,
+    skills: { scaler: 10, glider: 10 },
+    minReleaseTicks: 50,
+    plan: both(range(10)),
+  },
+  {
+    index: 16,
+    title: ['Storm Front', 'Viharfront'],
+    hints: [
+      [
+        'They start towards the edge. Turn them first.',
+        'A szakadék felé indulnak. Előbb fordítsd vissza őket.',
+      ],
+    ],
+    difficulty: 10,
+    ops: [
+      rect(SOIL, 0, 460, W, 20),
+      rect(SOIL, 60, 380, W - 60, 20),
+      rect(SOIL, 230, 340, 16, 40),
+      ...walls,
+    ],
+    objects: [entrance(150, 370, -1), exitOn(285, 380), water(6, 450, 54, 10)],
+    creatures: 10,
+    required: 8,
+    skills: { warden: 1, burrower: 1 },
+    plan: [
+      ...each('warden', [0], { xLte: 100 }),
+      ...each('burrower', [1], { xGte: 222, dir: 1 }),
+      { popAll: true, when: { tick: 3000 } },
+    ],
+  },
+  {
+    index: 17,
+    title: ['The Long Climb', 'A hosszú mászás'],
+    hints: [
+      [
+        'Climb, cross the crumble quickly, climb again.',
+        'Mássz, kelj át gyorsan a morzsalékon, mássz újra.',
+      ],
+    ],
+    difficulty: 10,
+    ...BIG,
+    ops: [
+      rect(SOIL, 0, 680, 480, 40),
+      rect(ROCK, 140, 580, 334, 100),
+      rect(CRUMBLE, 160, 580, 80, 1),
+      rect(ROCK, 280, 480, 194, 100),
+      rect(ROCK, 400, 400, 74, 80),
+      ...bigWalls,
+    ],
+    objects: [entrance(40, 670), exitOn(440, 400)],
+    creatures: 15,
+    required: 12,
+    skills: { scaler: 15 },
+    minReleaseTicks: 45,
+    plan: each('scaler', range(15)),
+  },
+  {
+    index: 18,
+    title: ['Sky Fortress', 'Égi erőd'],
+    hints: [
+      [
+        'The gate is metal. Go over the walls, then drop inside.',
+        'A kapu fém. Menj át a falakon, aztán ugorj be.',
+      ],
+    ],
+    difficulty: 10,
+    ops: [
+      rect(SOIL, 0, 440, W, 40),
+      rect(METAL, 150, 380, 8, 60),
+      rect(METAL, 280, 380, 8, 60),
+      rect(SOIL, 158, 380, 122, 8),
+      ...walls,
+    ],
+    objects: [entrance(40, 430), exitOn(220, 440)],
+    creatures: 10,
+    required: 8,
+    skills: { scaler: 10, delver: 1 },
+    minReleaseTicks: 50,
+    plan: [...each('scaler', range(10)), ...each('delver', [0], { xGte: 200, yLte: 380 })],
+  },
+  {
+    index: 19,
+    title: ['Edge of the World', 'A világ pereme'],
+    hints: [
+      [
+        'Some need leaves, all need a path. Only seven leaves for ten.',
+        'Néhányuknak levél kell, mindegyiknek út. Csak hét levél jut tízre.',
+      ],
+    ],
+    difficulty: 10,
+    ops: [
+      rect(SOIL, 0, 440, W, 40),
+      rect(SOIL, 0, 240, 140, 14),
+      rect(SOIL, 200, 400, 16, 40),
+      ...walls,
+    ],
+    objects: [entrance(40, 230), exitOn(285, 440)],
+    creatures: 10,
+    required: 7,
+    skills: { glider: 7, burrower: 1 },
+    minReleaseTicks: 50,
+    plan: [...each('glider', range(7)), ...each('burrower', [0], { xGte: 192, yGte: 440 })],
+  },
+  {
+    index: 20,
+    title: ['Skyreach Summit', 'Felhőszirt csúcsa'],
+    hints: [
+      [
+        'The grand finale: climb, bridge, dig and float.',
+        'A nagy finálé: mászás, híd, ásás és vitorlázás.',
+      ],
+      [
+        'Every Pathling must be able to climb and float.',
+        'Minden Pathlingnek tudnia kell mászni és vitorlázni.',
+      ],
+    ],
+    difficulty: 10,
+    ...HUGE,
+    ops: [
+      rect(SOIL, 0, 900, 640, 60),
+      rect(ROCK, 200, 760, 24, 140),
+      rect(SOIL, 224, 760, 200, 12),
+      rect(CRUMBLE, 424, 760, 20, 1),
+      rect(SOIL, 444, 760, 190, 12),
+      rect(SOIL, 520, 720, 16, 40),
+      stamp('cloud', SOIL, 300, 600),
+      ...hugeWalls,
+    ],
+    objects: [entrance(60, 890), exitOn(590, 760)],
+    creatures: 20,
+    required: 15,
+    skills: { scaler: 20, glider: 20, mason: 1, burrower: 1 },
+    minReleaseTicks: 120,
+    plan: [
+      ...both([0]),
+      ...each('mason', [0], { xGte: 418, yLte: 760 }),
+      ...both(range(19, 1)),
+      ...each('burrower', [0], { xGte: 512, yLte: 760 }),
+    ],
+  },
+];

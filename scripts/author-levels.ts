@@ -14,6 +14,7 @@ import { type LevelSpec, toLevel } from './author/build';
 import { W1 } from './author/w1';
 import { W2 } from './author/w2';
 import { W3 } from './author/w3';
+import { W4 } from './author/w4';
 import { LEVELS_DIR, writeLevelFile } from './levelFiles';
 
 interface WorldSource {
@@ -26,6 +27,7 @@ const SOURCES: WorldSource[] = [
   { id: 'w1', theme: 'glade', levels: W1 },
   { id: 'w2', theme: 'deep', levels: W2 },
   { id: 'w3', theme: 'clockworks', levels: W3 },
+  { id: 'w4', theme: 'skyreach', levels: W4 },
 ];
 
 const only = new Set(process.argv.slice(2));

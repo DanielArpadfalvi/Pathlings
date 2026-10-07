@@ -1,0 +1,303 @@
+{
+  "v": 1,
+  "id": "w4-17",
+  "title": "The Long Climb",
+  "author": "",
+  "theme": "skyreach",
+  "w": 480,
+  "h": 720,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 680,
+      "w": 480,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 140,
+      "y": 580,
+      "w": 334,
+      "h": 100
+    },
+    {
+      "op": "rect",
+      "m": 6,
+      "x": 160,
+      "y": 580,
+      "w": 80,
+      "h": 1
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 280,
+      "y": 480,
+      "w": 194,
+      "h": 100
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 400,
+      "y": 400,
+      "w": 74,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 474,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 670,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 434,
+      "y": 388
+    }
+  ],
+  "creatures": 15,
+  "required": 12,
+  "master": 15,
+  "frugal": 15,
+  "skills": {
+    "scaler": 15,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 45,
+  "hints": [],
+  "titleKey": "level.w4-17.title",
+  "difficulty": 10,
+  "hintKeys": ["level.w4-17.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 41,
+        "creature": 0,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 86,
+        "creature": 1,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 131,
+        "creature": 2,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 176,
+        "creature": 3,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 221,
+        "creature": 4,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 266,
+        "creature": 5,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 311,
+        "creature": 6,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 356,
+        "creature": 7,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 401,
+        "creature": 8,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 446,
+        "creature": 9,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 491,
+        "creature": 10,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 536,
+        "creature": 11,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 581,
+        "creature": 12,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 626,
+        "creature": 13,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 671,
+        "creature": 14,
+        "skill": "scaler"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 1788021549
+  },
+  "plan": [
+    {
+      "assign": "scaler",
+      "creature": 0,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 1,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 2,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 3,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 4,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 5,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 6,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 7,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 8,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 9,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 10,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 11,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 12,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 13,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 14,
+      "when": {
+        "state": "walk"
+      }
+    }
+  ]
+}

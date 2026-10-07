@@ -1,0 +1,114 @@
+{
+  "v": 1,
+  "id": "w4-08",
+  "title": "High Wire",
+  "author": "",
+  "theme": "skyreach",
+  "w": 480,
+  "h": 720,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 680,
+      "w": 480,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 6,
+      "y": 300,
+      "w": 200,
+      "h": 380
+    },
+    {
+      "op": "rect",
+      "m": 6,
+      "x": 206,
+      "y": 300,
+      "w": 20,
+      "h": 1
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 226,
+      "y": 300,
+      "w": 248,
+      "h": 380
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 474,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 60,
+      "y": 290,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 414,
+      "y": 288
+    }
+  ],
+  "creatures": 15,
+  "required": 12,
+  "master": 14,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 1,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 120,
+  "hints": [],
+  "titleKey": "level.w4-08.title",
+  "difficulty": 9,
+  "hintKeys": ["level.w4-08.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 461,
+        "creature": 0,
+        "skill": "mason"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2862216639
+  },
+  "plan": [
+    {
+      "assign": "mason",
+      "creature": 0,
+      "when": {
+        "xGte": 200,
+        "state": "walk"
+      }
+    }
+  ]
+}

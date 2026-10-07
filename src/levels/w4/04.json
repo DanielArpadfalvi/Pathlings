@@ -1,0 +1,137 @@
+{
+  "v": 1,
+  "id": "w4-04",
+  "title": "Trapdoor",
+  "author": "",
+  "theme": "skyreach",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 380,
+      "w": 220,
+      "h": 4
+    },
+    {
+      "op": "rect",
+      "m": 6,
+      "x": 220,
+      "y": 380,
+      "w": 30,
+      "h": 1
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 250,
+      "y": 380,
+      "w": 70,
+      "h": 4
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 180,
+      "y": 340,
+      "w": 16,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 200,
+      "y": 384,
+      "w": 6,
+      "h": 56
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 370,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 274,
+      "y": 428
+    },
+    {
+      "type": "lava",
+      "x": 6,
+      "y": 452,
+      "w": 194,
+      "h": 28
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.w4-04.title",
+  "difficulty": 8,
+  "hintKeys": ["level.w4-04.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 437,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2496813224
+  },
+  "plan": [
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 172,
+        "state": "walk"
+      }
+    }
+  ]
+}

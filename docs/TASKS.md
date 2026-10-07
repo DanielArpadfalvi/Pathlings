@@ -40,7 +40,7 @@ Plan / numbers: `docs/PLAN.md` (Hungarian). Section refs like (§1.1) point ther
 - [x] **T5.2 World 1 – Mossy Glade (20) + tutorial** – first 8 levels introduce one skill each with contextual bubbles, ghost hand, auto-pause; controls introduced over levels 1–3; skippable. AC: all 20 validated; e2e completes tutorial level 1 by following the hints only.
 - [x] **T5.3 World 2 – Crystal Deep (20)** – rock, metal, one-way, lava, vertical shafts. AC: validated; difficulty tags 3–8.
 - [x] **T5.4 World 3 – Clockworks (20)** – traps, teleporters, bounce pads, multi entrance/exit. AC: validated; difficulty tags 5–9.
-- [ ] **T5.5 World 4 – Skyreach (20)** – crumble, big drops, Scaler+Glider combos. AC: validated; difficulty tags 7–10.
+- [x] **T5.5 World 4 – Skyreach (20)** – crumble, big drops, Scaler+Glider combos. AC: validated; difficulty tags 7–10.
 - [ ] **T5.6 Bonus pool (30) + Daily level** – date-seeded pick from bonus pool (seeded RNG, UTC date) + one modifier (e.g. −1 of a skill, −60 s), modifier solutions validated in CI. AC: same date ⇒ same level+modifier on every platform (unit test); all 30 × modifier combos used in the next 365 days validated.
 - [ ] **T5.7 Hints & solution viewer** – 2 hints per level unlocked after 3 fails, solution replay after 5 fails, "solved with help" mark. AC: unit tests for unlock counters; e2e opens the solution replay.
 

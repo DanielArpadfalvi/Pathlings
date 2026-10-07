@@ -1,0 +1,198 @@
+{
+  "v": 1,
+  "id": "w4-19",
+  "title": "Edge of the World",
+  "author": "",
+  "theme": "skyreach",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 240,
+      "w": 140,
+      "h": 14
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 200,
+      "y": 400,
+      "w": 16,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 230,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 279,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 7,
+  "master": 7,
+  "frugal": 8,
+  "skills": {
+    "scaler": 0,
+    "glider": 7,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 50,
+  "hints": [],
+  "titleKey": "level.w4-19.title",
+  "difficulty": 10,
+  "hintKeys": ["level.w4-19.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 41,
+        "creature": 0,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 91,
+        "creature": 1,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 141,
+        "creature": 2,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 191,
+        "creature": 3,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 241,
+        "creature": 4,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 291,
+        "creature": 5,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 341,
+        "creature": 6,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 1065,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 142023832
+  },
+  "plan": [
+    {
+      "assign": "glider",
+      "creature": 0,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 1,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 2,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 3,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 4,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 5,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 6,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 192,
+        "yGte": 440,
+        "state": "walk"
+      }
+    }
+  ]
+}

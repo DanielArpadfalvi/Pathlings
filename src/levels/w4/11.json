@@ -1,0 +1,365 @@
+{
+  "v": 1,
+  "id": "w4-11",
+  "title": "Updraft",
+  "author": "",
+  "theme": "skyreach",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 124,
+      "y": 410,
+      "w": 196,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 6,
+      "x": 124,
+      "y": 410,
+      "w": 60,
+      "h": 1
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 230,
+      "y": 330,
+      "w": 84,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "bounce",
+      "x": 104,
+      "y": 436
+    },
+    {
+      "type": "exit",
+      "x": 274,
+      "y": 318
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 20,
+  "skills": {
+    "scaler": 10,
+    "glider": 10,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 50,
+  "hints": [],
+  "titleKey": "level.w4-11.title",
+  "difficulty": 9,
+  "hintKeys": ["level.w4-11.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 41,
+        "creature": 0,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 41,
+        "creature": 0,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 91,
+        "creature": 1,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 91,
+        "creature": 1,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 141,
+        "creature": 2,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 141,
+        "creature": 2,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 191,
+        "creature": 3,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 191,
+        "creature": 3,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 241,
+        "creature": 4,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 241,
+        "creature": 4,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 291,
+        "creature": 5,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 291,
+        "creature": 5,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 341,
+        "creature": 6,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 341,
+        "creature": 6,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 391,
+        "creature": 7,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 391,
+        "creature": 7,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 441,
+        "creature": 8,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 441,
+        "creature": 8,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 491,
+        "creature": 9,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 491,
+        "creature": 9,
+        "skill": "glider"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2519661858
+  },
+  "plan": [
+    {
+      "assign": "scaler",
+      "creature": 0,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 0,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 1,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 1,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 2,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 2,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 3,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 3,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 4,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 4,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 5,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 5,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 6,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 6,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 7,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 7,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 8,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 8,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 9,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 9,
+      "when": {
+        "state": "walk"
+      }
+    }
+  ]
+}
