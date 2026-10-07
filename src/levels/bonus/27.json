@@ -1,0 +1,162 @@
+{
+  "v": 1,
+  "id": "bonus-27",
+  "title": "Left Turn",
+  "author": "",
+  "theme": "deep",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 4,
+      "x": 90,
+      "y": 360,
+      "w": 16,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 210,
+      "y": 360,
+      "w": 8,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 160,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 34,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 9,
+  "master": 10,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 2,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-27.title",
+  "difficulty": 8,
+  "hintKeys": ["level.bonus-27.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 476,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 1496055083
+  },
+  "daily": [
+    {
+      "modifier": {
+        "kind": "skillMinus",
+        "skill": "burrower"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 476,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2511532610
+      }
+    },
+    {
+      "modifier": {
+        "kind": "timeMinus",
+        "seconds": 60
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 476,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1496055083
+      }
+    },
+    {
+      "modifier": {
+        "kind": "requiredPlus"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 476,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1496055083
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xLte": 114,
+        "dir": -1,
+        "state": "walk"
+      }
+    }
+  ]
+}

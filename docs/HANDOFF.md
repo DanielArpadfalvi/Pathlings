@@ -1,6 +1,6 @@
 # Pathlings – átadási jegyzet (lokális session indulásához)
 
-Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-könyvtárban futó session** viszi (a lokális orkesztrátor-session a Craterpultot és az orchestrator repó könyvelését; ne dolgozzon egyszerre két session ugyanebben a klónban). Minden munka pusholva a `main`-re, WIP-branch nincs.
+Utolsó frissítés: 2026-10-07. A Pathlingset a **lokális, Pathlings-könyvtárban futó session** viszi (a lokális orkesztrátor-session a Craterpultot és az orchestrator repó könyvelését; ne dolgozzon egyszerre két session ugyanebben a klónban). Minden munka pusholva a `main`-re, WIP-branch nincs.
 
 ## Hol tart a projekt
 | Mérföldkő | Állapot |
@@ -11,7 +11,7 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 ✅ perf |
 | M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
-| M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · T5.4 ✅ Óraműhely (20) · T5.5 ✅ Felhőszirt (20) · következik T5.6 bónusz + napi |
+| M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · T5.4 ✅ Óraműhely (20) · T5.5 ✅ Felhőszirt (20) · T5.6 ✅ bónusz (30) + napi pálya · következik T5.7 tippek |
 | M6–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
@@ -118,8 +118,15 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - Tutorial: `src/levels/tutorial.ts` (lépések: trigger `start`/`creatureX`/`tick`, cél UI-testid vagy lény, `pause`, teljesítés `ok`/`skillSelected`/`assigned`/`timeout`), `src/app/tutorial.ts` (`TutorialDirector`), `src/ui/TutorialOverlay.tsx` (buborék, szellemkéz, célkiemelés, kihagyás – `pathlings.tutorialSkipped.v1`). Az 1–3. pálya a vezérlést is bemutatja (szünet, sebesség, kamera, visszatekerés).
 - A „Játék” gomb a W1-et indítja; `?level=w1-07` közvetlenül (a világ sorrendjében, „következő” működik).
 
+## Bónuszkészlet + napi pálya (T5.6)
+- `scripts/author/bonus.ts`: 30 pálya, mind a 4 téma (a `LevelSpec.theme` felülírja a világ témáját), nehézség 1–10. `npm run levels:author bonus`.
+- `src/core/daily.ts` (tiszta, egész aritmetika): módosítók `skillMinus` (−1 képesség), `timeMinus` (−60 s), `requiredPlus` (+1 szükséges); `candidateModifiers` (fix sorrend), `applyModifier`, `dayNumber`/`dateOfDay` (UTC naptári nap), `dailyPick(date, variantCounts)`: 30 napos blokkonként seedelt keverés (`pathlings-daily-block:<n>`) → minden bónuszpálya pontosan egyszer; a módosító `pathlings-daily:<date>` seedből. Golden értékek a `tests/unit/core/daily.test.ts`-ben – **ne változtasd** (a kiadott buildek napi pályája függ tőle).
+- A bónusz-JSON-ok `daily` tömbje: azok a módosítók, amelyekkel a referencia-terv még nyer, mindegyik saját ellenőrzött megoldással (az author script számolja). `checkDaily` (validate-levels) mindet visszajátssza; a catalog leválasztja: `DAILY_VARIANTS`.
+- App: `src/app/daily.ts` (`utcDate`, `dailyLevel`, `modifierText`), `GameApp.playDaily`, címkártya „Napi pálya” gomb (mai pálya + módosító), HUD-jelvény (`daily-badge`). URL: `?daily=YYYY-MM-DD|today`. E2E: `tests/e2e/daily.spec.ts`.
+- Több pályán szándékosan +1 készlet van, hogy a „−1 képesség” módosító választható legyen.
+
 ## Következő lépések sorrendben
-1. M5: T5.6 bónusz (30) + napi pálya → T5.7 tippek; utána M6–M9.
+1. M5: T5.7 tippek + megoldás-visszajátszás; utána M6–M9 (a napi archívum / fizetős kapu a T8.2-ben).
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.

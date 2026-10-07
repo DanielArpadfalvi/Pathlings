@@ -1,0 +1,149 @@
+{
+  "v": 1,
+  "id": "bonus-15",
+  "title": "Spring Loaded",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 124,
+      "y": 410,
+      "w": 196,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 230,
+      "y": 360,
+      "w": 16,
+      "h": 50
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "bounce",
+      "x": 104,
+      "y": 436
+    },
+    {
+      "type": "exit",
+      "x": 279,
+      "y": 398
+    }
+  ],
+  "creatures": 10,
+  "required": 9,
+  "master": 10,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-15.title",
+  "difficulty": 5,
+  "hintKeys": ["level.bonus-15.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 577,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 3169315759
+  },
+  "daily": [
+    {
+      "modifier": {
+        "kind": "timeMinus",
+        "seconds": 60
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 577,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3169315759
+      }
+    },
+    {
+      "modifier": {
+        "kind": "requiredPlus"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 577,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3169315759
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 222,
+        "yLte": 410,
+        "state": "walk"
+      }
+    }
+  ]
+}

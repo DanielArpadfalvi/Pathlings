@@ -130,6 +130,7 @@ describe('launch params', () => {
       filter: 'both',
       autoPause: false,
       editor: false,
+      daily: null,
     });
   });
 
@@ -146,7 +147,14 @@ describe('launch params', () => {
       filter: 'left',
       autoPause: true,
       editor: false,
+      daily: null,
     });
+  });
+
+  it('parses the daily date', () => {
+    expect(parseLaunchParams('?daily=2026-10-07').daily).toBe('2026-10-07');
+    expect(parseLaunchParams('?daily=today').daily).toBe('today');
+    expect(parseLaunchParams('?daily=tomorrow').daily).toBeNull();
   });
 
   it('rejects bad seek values and false flags', () => {

@@ -1,0 +1,195 @@
+{
+  "v": 1,
+  "id": "bonus-26",
+  "title": "Crossed Wires",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 6,
+      "y": 440,
+      "w": 74,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 5,
+      "x": 230,
+      "y": 360,
+      "w": 16,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 190,
+      "y": 430,
+      "dir": -1
+    },
+    {
+      "type": "exit",
+      "x": 284,
+      "y": 428
+    },
+    {
+      "type": "lava",
+      "x": 6,
+      "y": 452,
+      "w": 74,
+      "h": 28
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 9,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 1,
+    "mason": 0,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-26.title",
+  "difficulty": 8,
+  "hintKeys": ["level.bonus-26.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 251,
+        "creature": 0,
+        "skill": "warden"
+      },
+      {
+        "kind": "assign",
+        "tick": 602,
+        "creature": 1,
+        "skill": "burrower"
+      },
+      {
+        "kind": "popAll",
+        "tick": 2600
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 3574708843
+  },
+  "daily": [
+    {
+      "modifier": {
+        "kind": "timeMinus",
+        "seconds": 60
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 251,
+            "creature": 0,
+            "skill": "warden"
+          },
+          {
+            "kind": "assign",
+            "tick": 602,
+            "creature": 1,
+            "skill": "burrower"
+          },
+          {
+            "kind": "popAll",
+            "tick": 2600
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3574708843
+      }
+    },
+    {
+      "modifier": {
+        "kind": "requiredPlus"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 251,
+            "creature": 0,
+            "skill": "warden"
+          },
+          {
+            "kind": "assign",
+            "tick": 602,
+            "creature": 1,
+            "skill": "burrower"
+          },
+          {
+            "kind": "popAll",
+            "tick": 2600
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3574708843
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "warden",
+      "creature": 0,
+      "when": {
+        "xLte": 120,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 1,
+      "when": {
+        "xGte": 222,
+        "dir": 1,
+        "state": "walk"
+      }
+    },
+    {
+      "popAll": true,
+      "when": {
+        "tick": 2600
+      }
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "v": 1,
+  "id": "bonus-01",
+  "title": "Garden Gate",
+  "author": "",
+  "theme": "glade",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 180,
+      "y": 370,
+      "w": 24,
+      "h": 70
+    },
+    {
+      "op": "stamp",
+      "id": "bush",
+      "m": 1,
+      "x": 60,
+      "y": 436
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 274,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 9,
+  "master": 10,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 2,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-01.title",
+  "difficulty": 1,
+  "hintKeys": ["level.bonus-01.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 437,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2764559502
+  },
+  "daily": [
+    {
+      "modifier": {
+        "kind": "skillMinus",
+        "skill": "burrower"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 437,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3859131699
+      }
+    },
+    {
+      "modifier": {
+        "kind": "timeMinus",
+        "seconds": 60
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 437,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2764559502
+      }
+    },
+    {
+      "modifier": {
+        "kind": "requiredPlus"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 437,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2764559502
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 172,
+        "state": "walk"
+      }
+    }
+  ]
+}

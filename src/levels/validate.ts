@@ -1,3 +1,4 @@
+import { type DailyVariant, applyModifier, candidateModifiers, modifierKey } from '../core/daily';
 import type { LevelDef, ThemeId } from '../core/level';
 import { validateLevel } from '../core/level';
 import { runSolution } from '../core/replay';
@@ -7,7 +8,8 @@ import { rateRun } from '../core/stars';
  * Rules for the built-in levels (T5.1), shared by `scripts/validate-levels` (CI) and unit tests:
  * valid definition, id from the file path, world theme and difficulty range, translated title
  * and hints, and a reference solution that replays to its recorded hash and earns all three
- * stars (so every star is reachable).
+ * stars (so every star is reachable). Bonus levels also carry their daily-level variants, each
+ * replayed with the modifier applied.
  */
 
 export type WorldId = 'w1' | 'w2' | 'w3' | 'w4' | 'bonus';
@@ -105,4 +107,35 @@ export function checkBuiltIn(
     }
   }
   return { id, problems, saved, assignments, stars };
+}
+
+/**
+ * Checks the daily variants of a built-in level: bonus levels need at least one, every modifier
+ * must be a candidate of the level (no duplicates), and its solution must win the modified level
+ * and replay to its recorded hash. Other worlds must not carry any.
+ */
+export function checkDaily(
+  level: LevelDef,
+  world: WorldId,
+  variants: readonly DailyVariant[] | undefined,
+): string[] {
+  const problems: string[] = [];
+  if (world !== 'bonus') {
+    if (variants?.length) problems.push('daily variants are only allowed in the bonus pool');
+    return problems;
+  }
+  if (!variants?.length) return ['bonus level needs at least one daily variant'];
+  const allowed = new Set(candidateModifiers(level).map(modifierKey));
+  const seen = new Set<string>();
+  for (const v of variants) {
+    const key = modifierKey(v.modifier);
+    if (!allowed.has(key)) problems.push(`daily ${key}: not a valid modifier for this level`);
+    if (seen.has(key)) problems.push(`daily ${key}: duplicate`);
+    seen.add(key);
+    const r = runSolution(applyModifier(level, v.modifier), v.solution);
+    if (r.rejected > 0) problems.push(`daily ${key}: ${r.rejected} command(s) rejected`);
+    if (!r.won) problems.push(`daily ${key}: solution saves ${r.saved}/${r.required}`);
+    if (!r.hashMatches) problems.push(`daily ${key}: solution hash drifted`);
+  }
+  return problems;
 }

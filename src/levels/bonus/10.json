@@ -1,0 +1,201 @@
+{
+  "v": 1,
+  "id": "bonus-10",
+  "title": "Cloud Stairs",
+  "author": "",
+  "theme": "skyreach",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 150,
+      "y": 430,
+      "w": 170,
+      "h": 10
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 230,
+      "y": 420,
+      "w": 90,
+      "h": 10
+    },
+    {
+      "op": "stamp",
+      "id": "cloud",
+      "m": 1,
+      "x": 40,
+      "y": 200
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 284,
+      "y": 408
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 3,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-10.title",
+  "difficulty": 4,
+  "hintKeys": ["level.bonus-10.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 305,
+        "creature": 0,
+        "skill": "mason"
+      },
+      {
+        "kind": "assign",
+        "tick": 857,
+        "creature": 0,
+        "skill": "mason"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2853595576
+  },
+  "daily": [
+    {
+      "modifier": {
+        "kind": "skillMinus",
+        "skill": "mason"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 305,
+            "creature": 0,
+            "skill": "mason"
+          },
+          {
+            "kind": "assign",
+            "tick": 857,
+            "creature": 0,
+            "skill": "mason"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1462563445
+      }
+    },
+    {
+      "modifier": {
+        "kind": "timeMinus",
+        "seconds": 60
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 305,
+            "creature": 0,
+            "skill": "mason"
+          },
+          {
+            "kind": "assign",
+            "tick": 857,
+            "creature": 0,
+            "skill": "mason"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2853595576
+      }
+    },
+    {
+      "modifier": {
+        "kind": "requiredPlus"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 305,
+            "creature": 0,
+            "skill": "mason"
+          },
+          {
+            "kind": "assign",
+            "tick": 857,
+            "creature": 0,
+            "skill": "mason"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2853595576
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "mason",
+      "creature": 0,
+      "when": {
+        "xGte": 128,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "mason",
+      "creature": 0,
+      "when": {
+        "xGte": 208,
+        "yLte": 430,
+        "state": "walk"
+      }
+    }
+  ]
+}

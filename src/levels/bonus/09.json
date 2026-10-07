@@ -1,0 +1,152 @@
+{
+  "v": 1,
+  "id": "bonus-09",
+  "title": "Stone Slab",
+  "author": "",
+  "theme": "deep",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 0,
+      "y": 380,
+      "w": 320,
+      "h": 6
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 150,
+      "y": 370,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 54,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 9,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 2,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-09.title",
+  "difficulty": 3,
+  "hintKeys": ["level.bonus-09.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 41,
+        "creature": 0,
+        "skill": "popper"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 3195759446
+  },
+  "daily": [
+    {
+      "modifier": {
+        "kind": "skillMinus",
+        "skill": "popper"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 41,
+            "creature": 0,
+            "skill": "popper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2962123863
+      }
+    },
+    {
+      "modifier": {
+        "kind": "timeMinus",
+        "seconds": 60
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 41,
+            "creature": 0,
+            "skill": "popper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3195759446
+      }
+    },
+    {
+      "modifier": {
+        "kind": "requiredPlus"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 41,
+            "creature": 0,
+            "skill": "popper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3195759446
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "popper",
+      "creature": 0,
+      "when": {
+        "state": "walk"
+      }
+    }
+  ]
+}

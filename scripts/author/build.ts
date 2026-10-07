@@ -23,6 +23,8 @@ export type Text = [en: string, hu: string];
 export interface LevelSpec {
   /** 1-based index within the world. */
   index: number;
+  /** Theme override (bonus pool; worlds use their own theme). */
+  theme?: LevelDef['theme'];
   title: Text;
   hints?: Text[];
   difficulty: number;
@@ -114,7 +116,7 @@ export function toLevel(world: string, theme: LevelDef['theme'], spec: LevelSpec
     title: spec.title[0],
     titleKey: `level.${id}.title`,
     author: '',
-    theme,
+    theme: spec.theme ?? theme,
     difficulty: spec.difficulty,
     w: spec.w ?? 320,
     h: spec.h ?? 480,

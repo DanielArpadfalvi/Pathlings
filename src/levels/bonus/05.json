@@ -1,0 +1,168 @@
+{
+  "v": 1,
+  "id": "bonus-05",
+  "title": "Rabbit Hole",
+  "author": "",
+  "theme": "glade",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 350,
+      "w": 320,
+      "h": 70
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 140,
+      "y": 350,
+      "w": 80,
+      "h": 20
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 340,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 274,
+      "y": 428
+    },
+    {
+      "type": "water",
+      "x": 140,
+      "y": 352,
+      "w": 80,
+      "h": 18
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 2,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-05.title",
+  "difficulty": 2,
+  "hintKeys": ["level.bonus-05.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 161,
+        "creature": 0,
+        "skill": "sloper"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2150083295
+  },
+  "daily": [
+    {
+      "modifier": {
+        "kind": "skillMinus",
+        "skill": "sloper"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 161,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3909299206
+      }
+    },
+    {
+      "modifier": {
+        "kind": "timeMinus",
+        "seconds": 60
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 161,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2150083295
+      }
+    },
+    {
+      "modifier": {
+        "kind": "requiredPlus"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 161,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2150083295
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "sloper",
+      "creature": 0,
+      "when": {
+        "xGte": 80,
+        "state": "walk"
+      }
+    }
+  ]
+}

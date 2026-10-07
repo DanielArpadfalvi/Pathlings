@@ -1,0 +1,176 @@
+{
+  "v": 1,
+  "id": "bonus-14",
+  "title": "Brittle Path",
+  "author": "",
+  "theme": "skyreach",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 460,
+      "w": 320,
+      "h": 20
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 360,
+      "w": 170,
+      "h": 20
+    },
+    {
+      "op": "rect",
+      "m": 6,
+      "x": 170,
+      "y": 360,
+      "w": 20,
+      "h": 1
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 190,
+      "y": 360,
+      "w": 130,
+      "h": 20
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 350,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 274,
+      "y": 348
+    },
+    {
+      "type": "water",
+      "x": 6,
+      "y": 470,
+      "w": 308,
+      "h": 10
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 9,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 2,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 120,
+  "hints": [],
+  "titleKey": "level.bonus-14.title",
+  "difficulty": 5,
+  "hintKeys": ["level.bonus-14.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 413,
+        "creature": 0,
+        "skill": "mason"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 4155878712
+  },
+  "daily": [
+    {
+      "modifier": {
+        "kind": "skillMinus",
+        "skill": "mason"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 413,
+            "creature": 0,
+            "skill": "mason"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3175228329
+      }
+    },
+    {
+      "modifier": {
+        "kind": "timeMinus",
+        "seconds": 60
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 413,
+            "creature": 0,
+            "skill": "mason"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 4155878712
+      }
+    },
+    {
+      "modifier": {
+        "kind": "requiredPlus"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 413,
+            "creature": 0,
+            "skill": "mason"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 4155878712
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "mason",
+      "creature": 0,
+      "when": {
+        "xGte": 164,
+        "state": "walk"
+      }
+    }
+  ]
+}

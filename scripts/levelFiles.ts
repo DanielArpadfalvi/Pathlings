@@ -1,11 +1,12 @@
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import type { DailyVariant } from '../src/core/daily';
 import type { LevelDef } from '../src/core/level';
 import type { PlanStep } from '../src/levels/plan';
 import { WORLDS, type WorldId } from '../src/levels/validate';
 
 /** A built-in level file as stored on disk (`plan` is authoring-only). */
-export type LevelFile = LevelDef & { plan?: PlanStep[] };
+export type LevelFile = LevelDef & { plan?: PlanStep[]; daily?: DailyVariant[] };
 
 export interface FoundLevel {
   path: string;

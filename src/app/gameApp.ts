@@ -21,10 +21,13 @@ import { getSharer, type ShareOutcome } from '../platform/share';
 import { getStore } from '../platform/storage';
 import { type MyLevel, MyLevels, clearDraft, loadDraft, saveDraft } from './myLevels';
 import { Store } from './store';
+import { type TranslationKey, t } from '../i18n';
 import { FeedbackDirector } from '../audio/feedback';
 import { WebAudioEngine } from '../audio/synth';
 import { type AudioSettings, DEFAULT_AUDIO, sanitizeAudio } from '../audio/volume';
 import { getHaptics } from '../platform/haptics';
+import { type DailyLevel, dailyLevel, modifierText, utcDate } from './daily';
+import type { DailyInfo } from './hud';
 
 /** Game speeds of the speed button, in cycle order starting from 1× (§1.7). */
 export const SPEEDS = [1, 2, 4, 0.5] as const;
@@ -38,6 +41,8 @@ export const REWIND_SPEED = 4;
 /** UI → game commands (buttons, keyboard). */
 export interface GameActions {
   play(): void;
+  /** Today's daily level (bonus pool + modifier). */
+  playDaily(): void;
   selectSkill(skill: SkillId): void;
   togglePause(): void;
   cycleSpeed(): void;
@@ -122,6 +127,8 @@ export class GameApp implements GameActions, EditorActions {
   private hapticsOn = true;
   /** Fractional ticks still to rewind (rewinding is real-time driven). */
   private rewindAcc = 0;
+  /** The daily level being played (null: any other level). */
+  private daily: DailyLevel | null = null;
 
   constructor(
     private readonly app: Application,
@@ -130,10 +137,16 @@ export class GameApp implements GameActions, EditorActions {
     const direct = params.levelId
       ? (builtInLevel(params.levelId) ?? findTestLevel(params.levelId))
       : undefined;
+    const daily = params.daily ? this.dailyFor(params.daily) : null;
     if (params.editor) {
       this.mode = 'editor';
       this.screen = null;
       this.editor = this.createEditor();
+    } else if (daily) {
+      this.daily = daily;
+      this.levels = [daily.level];
+      this.mode = 'play';
+      this.screen = this.createScreen(true);
     } else if (direct) {
       // A built-in level opens inside its world's sequence ("next" works); test levels alone.
       const world = Object.values(BUILTIN_LEVELS).find((list) => list.includes(direct));
@@ -300,7 +313,8 @@ export class GameApp implements GameActions, EditorActions {
     }
     if (!this.screen) return;
     if (this.mode === 'title') {
-      this.hud.set(TITLE_HUD);
+      const today = this.dailyFor('today');
+      this.hud.set({ ...TITLE_HUD, daily: today ? dailyInfo(today) : null });
       return;
     }
     const showEnd = this.endedAt >= 0 && this.now - this.endedAt >= END_SCREEN_DELAY_MS;
@@ -311,12 +325,38 @@ export class GameApp implements GameActions, EditorActions {
       showEnd && !this.rewinding,
       this.rewinding,
     );
-    this.hud.set({ ...hud, testPlay: this.testing, tutorial: this.tutorial?.view ?? null });
+    this.hud.set({
+      ...hud,
+      testPlay: this.testing,
+      tutorial: this.tutorial?.view ?? null,
+      daily: this.daily ? dailyInfo(this.daily) : null,
+    });
   }
 
   // --- GameActions ------------------------------------------------------------------------------
 
+  private dailyCache: DailyLevel | null = null;
+
+  /** The daily level of a UTC date (`today`: the device clock's UTC date). */
+  private dailyFor(date: string): DailyLevel | null {
+    const d = date === 'today' ? utcDate(Date.now()) : date;
+    if (this.dailyCache?.date !== d) this.dailyCache = dailyLevel(d);
+    return this.dailyCache;
+  }
+
+  playDaily(): void {
+    const today = this.dailyFor(this.params.daily ?? 'today');
+    if (!today) return;
+    this.testing = false;
+    this.mode = 'play';
+    this.daily = today;
+    this.levels = [today.level];
+    this.index = 0;
+    this.replaceScreen();
+  }
+
   play(): void {
+    this.daily = null;
     this.testing = false;
     this.mode = 'play';
     this.levels = BUILTIN_LEVELS.w1.length > 0 ? BUILTIN_LEVELS.w1 : FIXTURE_LEVELS;
@@ -394,6 +434,7 @@ export class GameApp implements GameActions, EditorActions {
     this.editor?.destroy();
     this.feedback = null;
     this.testing = false;
+    this.daily = null;
     this.mode = 'editor';
     this.editor = this.createEditor(level ?? loadDraft(getStore()) ?? undefined);
     this.publishHud();
@@ -461,6 +502,7 @@ export class GameApp implements GameActions, EditorActions {
     this.editor = null;
     this.editorView.set(null);
     this.testing = true;
+    this.daily = null;
     this.mode = 'play';
     this.levels = [doc.level];
     this.index = 0;
@@ -518,6 +560,7 @@ export class GameApp implements GameActions, EditorActions {
 
   playLoaded(): void {
     if (!this.loaded) return;
+    this.daily = null;
     this.testing = false;
     this.mode = 'play';
     this.levels = [this.loaded];
@@ -630,4 +673,13 @@ export class GameApp implements GameActions, EditorActions {
     this.screen?.destroy();
     this.editor?.destroy();
   }
+}
+
+function dailyInfo(d: DailyLevel): DailyInfo {
+  const titleKey = d.base.titleKey as TranslationKey | undefined;
+  return {
+    date: d.date,
+    modifier: modifierText(d.modifier),
+    title: titleKey ? t(titleKey) : d.base.title,
+  };
 }

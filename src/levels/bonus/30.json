@@ -1,0 +1,568 @@
+{
+  "v": 1,
+  "id": "bonus-30",
+  "title": "Grand Tour",
+  "author": "",
+  "theme": "glade",
+  "w": 480,
+  "h": 720,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 680,
+      "w": 480,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 260,
+      "w": 150,
+      "h": 16
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 220,
+      "y": 680,
+      "w": 14,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 380,
+      "y": 620,
+      "w": 20,
+      "h": 60
+    },
+    {
+      "op": "stamp",
+      "id": "tree",
+      "m": 1,
+      "x": 60,
+      "y": 180
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 474,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 50,
+      "y": 250,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 434,
+      "y": 668
+    },
+    {
+      "type": "water",
+      "x": 220,
+      "y": 690,
+      "w": 14,
+      "h": 30
+    }
+  ],
+  "creatures": 15,
+  "required": 12,
+  "master": 13,
+  "frugal": 17,
+  "skills": {
+    "scaler": 0,
+    "glider": 15,
+    "popper": 0,
+    "warden": 0,
+    "mason": 1,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 120,
+  "hints": [],
+  "titleKey": "level.bonus-30.title",
+  "difficulty": 10,
+  "hintKeys": ["level.bonus-30.hint1", "level.bonus-30.hint2"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 41,
+        "creature": 0,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 161,
+        "creature": 1,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 281,
+        "creature": 2,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 401,
+        "creature": 3,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 521,
+        "creature": 4,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 641,
+        "creature": 5,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 761,
+        "creature": 6,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 881,
+        "creature": 7,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 1001,
+        "creature": 8,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 1121,
+        "creature": 9,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 1241,
+        "creature": 10,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 1361,
+        "creature": 11,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 1481,
+        "creature": 12,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 1601,
+        "creature": 13,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 1721,
+        "creature": 14,
+        "skill": "glider"
+      },
+      {
+        "kind": "assign",
+        "tick": 1767,
+        "creature": 0,
+        "skill": "mason"
+      },
+      {
+        "kind": "assign",
+        "tick": 2559,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2914870170
+  },
+  "daily": [
+    {
+      "modifier": {
+        "kind": "timeMinus",
+        "seconds": 60
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 41,
+            "creature": 0,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 161,
+            "creature": 1,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 281,
+            "creature": 2,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 401,
+            "creature": 3,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 521,
+            "creature": 4,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 641,
+            "creature": 5,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 761,
+            "creature": 6,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 881,
+            "creature": 7,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1001,
+            "creature": 8,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1121,
+            "creature": 9,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1241,
+            "creature": 10,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1361,
+            "creature": 11,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1481,
+            "creature": 12,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1601,
+            "creature": 13,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1721,
+            "creature": 14,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1767,
+            "creature": 0,
+            "skill": "mason"
+          },
+          {
+            "kind": "assign",
+            "tick": 2559,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2914870170
+      }
+    },
+    {
+      "modifier": {
+        "kind": "requiredPlus"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 41,
+            "creature": 0,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 161,
+            "creature": 1,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 281,
+            "creature": 2,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 401,
+            "creature": 3,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 521,
+            "creature": 4,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 641,
+            "creature": 5,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 761,
+            "creature": 6,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 881,
+            "creature": 7,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1001,
+            "creature": 8,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1121,
+            "creature": 9,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1241,
+            "creature": 10,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1361,
+            "creature": 11,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1481,
+            "creature": 12,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1601,
+            "creature": 13,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1721,
+            "creature": 14,
+            "skill": "glider"
+          },
+          {
+            "kind": "assign",
+            "tick": 1767,
+            "creature": 0,
+            "skill": "mason"
+          },
+          {
+            "kind": "assign",
+            "tick": 2559,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2914870170
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "glider",
+      "creature": 0,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 1,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 2,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 3,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 4,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 5,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 6,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 7,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 8,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 9,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 10,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 11,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 12,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 13,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "glider",
+      "creature": 14,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "mason",
+      "creature": 0,
+      "when": {
+        "xGte": 216,
+        "yGte": 680,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 372,
+        "yGte": 680,
+        "state": "walk"
+      }
+    }
+  ]
+}

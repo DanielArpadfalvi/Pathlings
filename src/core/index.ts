@@ -1,4 +1,5 @@
 export * from './creature';
+export * from './daily';
 export * from './hash';
 export * from './imath';
 export * from './keyframes';

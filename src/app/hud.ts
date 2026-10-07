@@ -47,7 +47,17 @@ export interface HudState {
   /** Test play of the editor draft (end screen offers Edit / Publish). */
   testPlay: boolean;
   tutorial: TutorialView | null;
+  /** Daily level: on the title card today's offer, during play the badge text. */
+  daily: DailyInfo | null;
   end: EndInfo | null;
+}
+
+export interface DailyInfo {
+  date: string;
+  /** Translated modifier text, e.g. "−1 Mason". */
+  modifier: string;
+  /** Translated title of the bonus level. */
+  title: string;
 }
 
 export const TITLE_HUD: HudState = {
@@ -74,6 +84,7 @@ export const TITLE_HUD: HudState = {
   canRewind: false,
   testPlay: false,
   tutorial: null,
+  daily: null,
   end: null,
 };
 
@@ -112,6 +123,7 @@ export function hudFor(
     canRewind: sim.tick > 0,
     testPlay: false,
     tutorial: null,
+    daily: null,
     end:
       showEnd && sim.ended
         ? {

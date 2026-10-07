@@ -7,9 +7,16 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import {
+  applyModifier,
+  candidateModifiers,
+  type DailyVariant,
+  modifierKey,
+} from '../src/core/daily';
 import type { ThemeId } from '../src/core/level';
 import { compilePlan } from '../src/levels/plan';
 import type { WorldId } from '../src/levels/validate';
+import { BONUS } from './author/bonus';
 import { type LevelSpec, toLevel } from './author/build';
 import { W1 } from './author/w1';
 import { W2 } from './author/w2';
@@ -28,6 +35,7 @@ const SOURCES: WorldSource[] = [
   { id: 'w2', theme: 'deep', levels: W2 },
   { id: 'w3', theme: 'clockworks', levels: W3 },
   { id: 'w4', theme: 'skyreach', levels: W4 },
+  { id: 'bonus', theme: 'glade', levels: BONUS },
 ];
 
 const only = new Set(process.argv.slice(2));
@@ -61,8 +69,20 @@ for (const world of SOURCES) {
     level.master = Math.max(level.required, r.saved);
     level.frugal = assigns;
     level.solution = r.solution;
+    // Daily level (bonus pool): keep every modifier the reference plan still wins with.
+    let daily: DailyVariant[] | undefined;
+    if (world.id === 'bonus') {
+      daily = [];
+      for (const modifier of candidateModifiers(level)) {
+        const m = compilePlan(applyModifier(level, modifier), spec.plan);
+        if (m.won && m.unfired.length === 0) daily.push({ modifier, solution: m.solution });
+      }
+      console.log(`    daily: ${daily.map((v) => modifierKey(v.modifier)).join(', ') || 'NONE'}`);
+      if (daily.length === 0) broken++;
+    }
     writeLevelFile(join(dir, `${String(spec.index).padStart(2, '0')}.json`), {
       ...level,
+      ...(daily ? { daily } : {}),
       plan: spec.plan,
     });
   }

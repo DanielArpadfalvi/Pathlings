@@ -1,0 +1,258 @@
+{
+  "v": 1,
+  "id": "bonus-29",
+  "title": "Clock Tower",
+  "author": "",
+  "theme": "clockworks",
+  "w": 480,
+  "h": 720,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 680,
+      "w": 480,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 140,
+      "y": 600,
+      "w": 16,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 420,
+      "w": 480,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 250,
+      "w": 480,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 320,
+      "y": 240,
+      "w": 154,
+      "h": 10
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 474,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 670,
+      "dir": 1
+    },
+    {
+      "type": "teleport",
+      "x": 220,
+      "y": 668,
+      "tx": 40,
+      "ty": 420
+    },
+    {
+      "type": "exit",
+      "x": 424,
+      "y": 228
+    },
+    {
+      "type": "teleport",
+      "x": 396,
+      "y": 468,
+      "tx": 40,
+      "ty": 250
+    }
+  ],
+  "creatures": 15,
+  "required": 13,
+  "master": 15,
+  "frugal": 3,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 2,
+    "burrower": 1,
+    "sloper": 0,
+    "delver": 1
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-29.title",
+  "difficulty": 9,
+  "hintKeys": ["level.bonus-29.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 317,
+        "creature": 0,
+        "skill": "burrower"
+      },
+      {
+        "kind": "assign",
+        "tick": 1690,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 2723,
+        "creature": 0,
+        "skill": "mason"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 3160334427
+  },
+  "daily": [
+    {
+      "modifier": {
+        "kind": "skillMinus",
+        "skill": "mason"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 317,
+            "creature": 0,
+            "skill": "burrower"
+          },
+          {
+            "kind": "assign",
+            "tick": 1690,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 2723,
+            "creature": 0,
+            "skill": "mason"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 278403018
+      }
+    },
+    {
+      "modifier": {
+        "kind": "timeMinus",
+        "seconds": 60
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 317,
+            "creature": 0,
+            "skill": "burrower"
+          },
+          {
+            "kind": "assign",
+            "tick": 1690,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 2723,
+            "creature": 0,
+            "skill": "mason"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3160334427
+      }
+    },
+    {
+      "modifier": {
+        "kind": "requiredPlus"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 317,
+            "creature": 0,
+            "skill": "burrower"
+          },
+          {
+            "kind": "assign",
+            "tick": 1690,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 2723,
+            "creature": 0,
+            "skill": "mason"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3160334427
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 132,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 401,
+        "yLte": 420,
+        "yGte": 420,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "mason",
+      "creature": 0,
+      "when": {
+        "xGte": 298,
+        "yLte": 250,
+        "state": "walk"
+      }
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "v": 1,
+  "id": "bonus-04",
+  "title": "Overpass",
+  "author": "",
+  "theme": "clockworks",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 400,
+      "w": 320,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 190,
+      "y": 400,
+      "w": 16,
+      "h": 80
+    },
+    {
+      "op": "stamp",
+      "id": "cog",
+      "m": 3,
+      "x": 60,
+      "y": 300
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 390,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 274,
+      "y": 388
+    },
+    {
+      "type": "water",
+      "x": 190,
+      "y": 450,
+      "w": 16,
+      "h": 30
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 2,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 200,
+  "hints": [],
+  "titleKey": "level.bonus-04.title",
+  "difficulty": 2,
+  "hintKeys": ["level.bonus-04.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 479,
+        "creature": 0,
+        "skill": "mason"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2521690622
+  },
+  "daily": [
+    {
+      "modifier": {
+        "kind": "skillMinus",
+        "skill": "mason"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 479,
+            "creature": 0,
+            "skill": "mason"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2202262255
+      }
+    },
+    {
+      "modifier": {
+        "kind": "timeMinus",
+        "seconds": 60
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 479,
+            "creature": 0,
+            "skill": "mason"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2521690622
+      }
+    },
+    {
+      "modifier": {
+        "kind": "requiredPlus"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 479,
+            "creature": 0,
+            "skill": "mason"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2521690622
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "mason",
+      "creature": 0,
+      "when": {
+        "xGte": 186,
+        "state": "walk"
+      }
+    }
+  ]
+}

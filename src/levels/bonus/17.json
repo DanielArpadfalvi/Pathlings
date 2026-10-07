@@ -1,0 +1,159 @@
+{
+  "v": 1,
+  "id": "bonus-17",
+  "title": "Two Burrows",
+  "author": "",
+  "theme": "glade",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 380,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 50,
+      "y": 370,
+      "dir": 1
+    },
+    {
+      "type": "entrance",
+      "x": 270,
+      "y": 370,
+      "dir": -1
+    },
+    {
+      "type": "exit",
+      "x": 154,
+      "y": 428
+    }
+  ],
+  "creatures": 16,
+  "required": 14,
+  "master": 16,
+  "frugal": 1,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 2
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-17.title",
+  "difficulty": 5,
+  "hintKeys": ["level.bonus-17.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 296,
+        "creature": 0,
+        "skill": "delver"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 3419605796
+  },
+  "daily": [
+    {
+      "modifier": {
+        "kind": "skillMinus",
+        "skill": "delver"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 296,
+            "creature": 0,
+            "skill": "delver"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1782940701
+      }
+    },
+    {
+      "modifier": {
+        "kind": "timeMinus",
+        "seconds": 60
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 296,
+            "creature": 0,
+            "skill": "delver"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3419605796
+      }
+    },
+    {
+      "modifier": {
+        "kind": "requiredPlus"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 296,
+            "creature": 0,
+            "skill": "delver"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3419605796
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 135,
+        "state": "walk"
+      }
+    }
+  ]
+}
