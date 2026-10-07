@@ -63,7 +63,7 @@ Plan / numbers: `docs/PLAN.md` (Hungarian). Section refs like (§1.1) point ther
 ## M9 – Release prep
 - [x] **T9.1 Store listing EN/HU** – first line states what is free and the unlock price; no trademarked names or keywords of the reference game; generated screenshots (`scripts/store-frames.ts` pattern) incl. editor and code sharing. AC: texts within store length limits; screenshot set for 6.7"/6.5" iPhone, 12.9" iPad, Android phone.
 - [x] **T9.2 Privacy** – privacy policy page (`docs/site/`), "Data Not Collected" answers (no analytics/crash/ad SDK; RevenueCat classification documented), age-rating questionnaire answers. AC: `docs/store-privacy-answers.md` complete; dependency audit shows no analytics/ad SDKs.
-- [ ] **T9.3 Signed release pipeline** – `docs/RELEASE.md`, `docs/APP-STORE-CHECKLIST.md`, `docs/PLAY-STORE-CHECKLIST.md` (Swaplight pattern); Family Sharing on for iOS IAPs. AC: workflows produce signed builds once owner secrets exist; checklist lists every owner action.
+- [x] **T9.3 Signed release pipeline** – `docs/RELEASE.md`, `docs/APP-STORE-CHECKLIST.md`, `docs/PLAY-STORE-CHECKLIST.md` (Swaplight pattern); Family Sharing on for iOS IAPs. AC: workflows produce signed builds once owner secrets exist; checklist lists every owner action.
 - [ ] **T9.4 Balance + full QA pass** – reviewer agent plays all 110 levels via UI-level replays, touch-precision test on small/large phone viewports, level-code compatibility test (codes generated in M4 still verify). AC: no open "major" findings; version `1.0.0` set in package.json and native projects.
 
 ## M10 – 1.1 ideas (optional)

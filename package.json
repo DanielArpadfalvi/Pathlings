@@ -1,7 +1,7 @@
 {
   "name": "pathlings",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -19,7 +19,8 @@
     "levels:solve": "tsx scripts/solve-levels.ts",
     "levels:author": "tsx scripts/author-levels.ts",
     "assets": "tsx scripts/make-assets.ts",
-    "store:frames": "tsx scripts/store-frames.ts"
+    "store:frames": "tsx scripts/store-frames.ts",
+    "version:sync": "tsx scripts/sync-version.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

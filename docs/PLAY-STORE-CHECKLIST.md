@@ -1,0 +1,45 @@
+# Google Play checklist (owner actions)
+
+Everything that has to be done by hand in Play Console. Tick in order.
+
+## Account and app
+- [ ] Google Play developer account (one-time fee paid, identity verified). New personal accounts must run a **closed test with at least 12 testers for 14 days** before production access – plan for it.
+- [ ] Payments profile set up (merchant account) – needed for in-app products.
+- [ ] Create app: name **Pathlings**, default language English (United States), Game, Free.
+- [ ] Add Hungarian (hu-HU) store listing translation.
+
+## Signing
+- [ ] Create the upload keystore (`docs/RELEASE.md`) and store it + passwords safely.
+- [ ] Secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`.
+- [ ] First upload: let **Play App Signing** manage the app signing key (default).
+- [ ] Google Cloud service account with Play Console access ("Release manager") → secret `PLAY_SERVICE_ACCOUNT_JSON`. The very first AAB may have to be uploaded by hand (Play requires one manual upload before the API can create releases) – download it from the `release.yml` artifacts.
+
+## In-app products (Monetize → Products → In-app products)
+- [ ] **`pathlings_full_game`** – "Full game", USD 2.99, active.
+- [ ] **`pathlings_supporter`** – "Supporter pack", USD 2.99, cosmetic only, active.
+
+## RevenueCat
+- [ ] Google Play app in the RevenueCat project, service-account credentials uploaded as RevenueCat asks.
+- [ ] Products attached to the entitlements **`full_game`** and **`supporter`**.
+- [ ] Public Google SDK key as repository variable `REVENUECAT_ANDROID_KEY`.
+
+## Store listing (texts in `docs/store/listing.json`)
+- [ ] App name, short description (`playShortDescription`), full description (EN + HU).
+- [ ] Phone screenshots from `docs/store/screenshots/<lang>/android-phone/` (1080 × 1920); tablet screenshots optional (`ipad-12.9` frames can be reused for 10" tablets).
+- [ ] Hi-res icon 512 × 512: `public/icon-512.png`.
+- [ ] Feature graphic 1024 × 500 (not generated yet – make one from the splash motif or the title screen).
+- [ ] Category: Puzzle; tags: puzzle, casual; contact e-mail; privacy policy URL (published `docs/site/privacy.html`).
+
+## Policy forms (App content)
+- [ ] Privacy policy URL.
+- [ ] Ads: **No ads**.
+- [ ] App access: all features available without login.
+- [ ] Content rating (IARC questionnaire): answers in `docs/store-privacy-answers.md` (expected PEGI 3 / Everyone).
+- [ ] Target audience: all ages, not primarily for children (no Families program).
+- [ ] Data safety form: `docs/store-privacy-answers.md` (decide the RevenueCat question first).
+- [ ] Government app: no. Financial features: none. Health: none.
+
+## Release
+- [ ] Tag `v1.0.0` → `release.yml` uploads a draft to **internal testing**; install from the testing link, test purchase with a licence-tester account, restore, offline start, back button, share a code and open a `pathlings://l/…` link.
+- [ ] Closed testing (12+ testers, 14 days) if the account requires it.
+- [ ] Promote to production; staged rollout (e.g. 20 % → 100 %).
