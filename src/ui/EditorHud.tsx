@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'preact/hooks';
+import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import type { EditorView } from '../app/editorScreen';
 import type { EditorActions } from '../app/gameApp';
 import type { LevelObjectType } from '../core/level';
@@ -18,7 +18,8 @@ import {
 } from '../render/objectArt';
 import { PALETTES } from '../render/palette';
 import type { ColorKey, PixelGrid } from '../render/pixelArt';
-import { NextIcon, RetryIcon } from './icons';
+import { NextIcon, PlayIcon, RetryIcon } from './icons';
+import { PropertySheet } from './Panels';
 
 /** Renders a pixel grid as crisp SVG rects (editor previews; no bitmap assets). */
 function GridSvg({
@@ -332,6 +333,7 @@ export function EditorHud({
 }) {
   const top = useRef<HTMLDivElement>(null);
   const bottom = useRef<HTMLDivElement>(null);
+  const [showProps, setShowProps] = useState(false);
   useLayoutEffect(() => {
     const report = (): void => {
       const tr = top.current?.getBoundingClientRect();
@@ -383,6 +385,38 @@ export function EditorHud({
         >
           <RetryIcon />
         </button>
+        <button
+          type="button"
+          class="control-button narrow"
+          data-testid="editor-props"
+          aria-label={t('editor.properties')}
+          title={t('editor.properties')}
+          onClick={() => setShowProps(true)}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 12 12"
+            shape-rendering="crispEdges"
+            aria-hidden="true"
+          >
+            <path
+              fill="currentColor"
+              d="M0 1h12v2H0zM0 5h12v2H0zM0 9h12v2H0zM3 0h2v4H3zM7 4h2v4H7zM2 8h2v4H2z"
+            />
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="control-button narrow test-play"
+          data-testid="editor-test"
+          aria-label={t('editor.testPlay')}
+          title={t('editor.testPlay')}
+          disabled={!view.status.playable}
+          onClick={() => actions.testPlay()}
+        >
+          <PlayIcon />
+        </button>
         <div class="editor-status" data-testid="editor-status" data-playable={st.playable}>
           <span>{format(t('editor.ops'), { ops: st.opCount, max: 1024 })}</span>
           <span>
@@ -416,6 +450,9 @@ export function EditorHud({
           ))}
         </div>
       </div>
+      {showProps && (
+        <PropertySheet view={view} actions={actions} onClose={() => setShowProps(false)} />
+      )}
     </>
   );
 }

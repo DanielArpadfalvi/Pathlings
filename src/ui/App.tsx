@@ -6,6 +6,7 @@ import type { Store } from '../app/store';
 import { getLanguage, onLanguageChange, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
 import { EditorHud } from './EditorHud';
+import { CodePanel } from './Panels';
 import { NEXT_FILTER, PlayHud } from './PlayHud';
 
 export interface AppProps {
@@ -53,6 +54,7 @@ export function App({ hud: store, editor: editorStore, actions }: AppProps) {
   useEffect(() => onLanguageChange(setLanguage), []);
   const hud = useStore(store);
   const editorView = useStore(editorStore);
+  const [codeOpen, setCodeOpen] = useState(false);
 
   if (hud.mode === 'title') {
     return (
@@ -75,6 +77,15 @@ export function App({ hud: store, editor: editorStore, actions }: AppProps) {
         >
           {t('title.editor')}
         </button>
+        <button
+          type="button"
+          class="text-button editor-button"
+          data-testid="open-code"
+          onClick={() => setCodeOpen(true)}
+        >
+          {t('title.code')}
+        </button>
+        {codeOpen && <CodePanel actions={actions} onClose={() => setCodeOpen(false)} />}
       </div>
     );
   }
@@ -120,6 +131,18 @@ export function App({ hud: store, editor: editorStore, actions }: AppProps) {
       >
         <FilterIcon filter={hud.filter} />
       </button>
+      {hud.testPlay ? (
+        <button
+          type="button"
+          class="icon-button"
+          data-testid="test-edit"
+          aria-label={t('end.edit')}
+          title={t('end.edit')}
+          onClick={() => actions.backToEditor()}
+        >
+          ✎
+        </button>
+      ) : null}
       {wholeLevel}
     </>
   );

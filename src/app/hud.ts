@@ -42,6 +42,8 @@ export interface HudState {
   progress: number;
   rewinding: boolean;
   canRewind: boolean;
+  /** Test play of the editor draft (end screen offers Edit / Publish). */
+  testPlay: boolean;
   end: EndInfo | null;
 }
 
@@ -67,6 +69,7 @@ export const TITLE_HUD: HudState = {
   progress: 0,
   rewinding: false,
   canRewind: false,
+  testPlay: false,
   end: null,
 };
 
@@ -103,6 +106,7 @@ export function hudFor(
     progress: Math.min(1, Math.round((sim.tick / level.timeLimitTicks) * 1000) / 1000),
     rewinding,
     canRewind: sim.tick > 0,
+    testPlay: false,
     end:
       showEnd && sim.ended
         ? {

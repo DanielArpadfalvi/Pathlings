@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { PublishPanel } from './Panels';
 import type { SkillId } from '../core/level';
 import { SKILLS } from '../core/level';
-import type { GameActions } from '../app/gameApp';
+import type { EditorActions, GameActions } from '../app/gameApp';
 import type { HudState } from '../app/hud';
 import { format, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
@@ -218,9 +219,13 @@ function ControlBar({ hud, actions }: { hud: HudState; actions: GameActions }) {
   );
 }
 
-function EndScreen({ hud, actions }: { hud: HudState; actions: GameActions }) {
+type HudActions = GameActions & Pick<EditorActions, 'backToEditor' | 'publish'>;
+
+function EndScreen({ hud, actions }: { hud: HudState; actions: HudActions }) {
+  const [code, setCode] = useState<string | null>(null);
   const end = hud.end;
   if (!end) return null;
+  if (code) return <PublishPanel code={code} onClose={() => setCode(null)} />;
   const heading = end.won ? t('end.won') : end.reason === 'time' ? t('end.timeUp') : t('end.lost');
   return (
     <div class="end-backdrop">
@@ -240,6 +245,7 @@ function EndScreen({ hud, actions }: { hud: HudState; actions: GameActions }) {
             <StarIcon key={n} filled={n <= end.stars} />
           ))}
         </div>
+        {hud.testPlay && !end.won && <p class="editor-hint">{t('end.publishHint')}</p>}
         <p class="end-saved">
           {format(t('end.saved'), { saved: end.saved, total: end.total, required: end.required })}
         </p>
@@ -252,6 +258,26 @@ function EndScreen({ hud, actions }: { hud: HudState; actions: GameActions }) {
           >
             <RetryIcon /> {t('end.retry')}
           </button>
+          {hud.testPlay && (
+            <button
+              type="button"
+              class="text-button"
+              data-testid="edit"
+              onClick={() => actions.backToEditor()}
+            >
+              {t('end.edit')}
+            </button>
+          )}
+          {hud.testPlay && end.won && (
+            <button
+              type="button"
+              class="text-button primary"
+              data-testid="publish-level"
+              onClick={() => setCode(actions.publish())}
+            >
+              {t('end.publish')}
+            </button>
+          )}
           {end.hasNext && (
             <button
               type="button"
@@ -275,7 +301,7 @@ export function PlayHud({
   floating,
 }: {
   hud: HudState;
-  actions: GameActions;
+  actions: HudActions;
   floating: preact.ComponentChildren;
 }) {
   const top = useRef<HTMLDivElement>(null);

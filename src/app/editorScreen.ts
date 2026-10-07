@@ -1,7 +1,7 @@
 import type { Application } from 'pixi.js';
 import type { LevelDef, LevelObject } from '../core/level';
 import type { RasterOp } from '../core/raster';
-import { EditorDoc, type EditorStatus } from '../editor/doc';
+import { EditorDoc, type EditorStatus, type LevelProps } from '../editor/doc';
 import { THEME_STAMPS } from '../editor/palette';
 import {
   PolyBuilder,
@@ -31,6 +31,7 @@ export interface EditorView {
   /** Corners of a polygon in progress. */
   polyCorners: number;
   theme: LevelDef['theme'];
+  props: LevelProps;
 }
 
 export const DEFAULT_TOOL: Tool = { kind: 'brush', size: 1, m: 1 };
@@ -62,9 +63,10 @@ export class EditorScreen {
 
   constructor(
     private readonly app: Application,
-    level?: LevelDef,
+    source?: LevelDef | EditorDoc,
   ) {
-    this.doc = new EditorDoc(level);
+    // Re-entering after a test play hands back the same document, undo history included.
+    this.doc = source instanceof EditorDoc ? source : new EditorDoc(source);
     this.renderer = new EditorRenderer(this.doc.level);
     this.camera = new Camera(this.doc.level.w, this.doc.level.h);
     this.camera.setViewport(app.screen.width, app.screen.height);
@@ -97,6 +99,7 @@ export class EditorScreen {
       stamps: THEME_STAMPS[this.doc.level.theme],
       polyCorners: (this.poly?.points.length ?? 0) / 2,
       theme: this.doc.level.theme,
+      props: this.doc.props,
     };
   }
 
@@ -351,6 +354,7 @@ export class EditorScreen {
   }
 
   destroy(): void {
+    this.doc.onChange = null;
     this.detachInput();
     this.app.stage.removeChild(this.renderer.root);
     this.renderer.destroy();

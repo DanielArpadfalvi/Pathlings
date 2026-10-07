@@ -10,7 +10,7 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | M1 Mag-motor (`src/core`) | ✅ T1.1–T1.7 – terep, raszterizáló, pálya-definíció+validátor, lények, 8 képesség, objektumok, sim loop, események, replay, rewind, state hash |
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 ✅ perf |
-| M4 Szerkesztő + pályakód | 🔄 T4.1 ✅ pályakód · T4.2 ✅ ellenőrzés · T4.3 ✅ szerkesztő-mag · következik T4.4 szerkesztő UI |
+| M4 Szerkesztő + pályakód | 🔄 T4.1 ✅ pályakód · T4.2 ✅ ellenőrzés · T4.3 ✅ szerkesztő-mag · T4.4 ✅ szerkesztő UI + közzététel · következik T4.5 megosztás |
 | M5–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
@@ -91,9 +91,15 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - Debug: `__pathlings.editor`, `editorToScreen(x,y)`, `step(n)` (teszt-hook).
 - A web-haptika csak felhasználói gesztus után rezget (különben a Chrome konzolhibát ír).
 
+## Szerkesztő UI + közzététel (T4.4)
+- `src/ui/Panels.tsx` – `PropertySheet` (§1.8 mezők léptetőkkel), `PublishPanel` (kód + másolás), `CodePanel` („Kód lejátszása”: beillesztés vágólapról / kézzel, betöltés, ellenőrzött jelzés, játék, hibaüzenetek).
+- `GameApp`: `testPlay` (a vázlat `PlayScreen`-ben, `hud.testPlay`), `backToEditor` (ugyanaz az `EditorDoc`, history-val), `publish()` (csak megnyert tesztjáték után: `exportSolution` → a saját visszajátszásnak ellenőrzöttnek kell lennie → `encodeLevel`), `loadCode` / `playLoaded`, `copyText`.
+- `src/platform/clipboard.ts` – vágólap a platform mögött (web: Clipboard API + textarea-fallback; natív a T7.1-ben).
+- Címkártya: Játék / Pályaszerkesztő / Kód lejátszása.
+
 ## Következő lépések sorrendben
 1. M3: T3.4 perf.
-2. M4: T4.4 szerkesztő UI → T4.5 megosztás; M5 (tartalom + `scripts/validate-levels`), M6–M9.
+2. M4: T4.5 megosztás (share sheet, saját pályák gyűjtemény); M5 (tartalom + `scripts/validate-levels`), M6–M9.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.

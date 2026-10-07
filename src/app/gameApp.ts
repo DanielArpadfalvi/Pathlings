@@ -9,6 +9,11 @@ import { type HudState, TITLE_HUD, hudFor } from './hud';
 import { PlayScreen } from './playScreen';
 import { EditorScreen, type EditorView } from './editorScreen';
 import type { Tool } from '../editor/tools';
+import type { EditorDoc, LevelProps } from '../editor/doc';
+import { LevelCodeError, encodeLevel } from '../core/code/levelCode';
+import { type VerifyStatus, loadLevelCode, verifyLevel } from '../core/code/verify';
+import { exportSolution } from '../core/replay';
+import { getClipboard } from '../platform/clipboard';
 import { Store } from './store';
 import { FeedbackDirector } from '../audio/feedback';
 import { WebAudioEngine } from '../audio/synth';
@@ -55,7 +60,21 @@ export interface EditorActions {
   finishPoly(): void;
   toggleWholeLevel(): void;
   setInsets(top: number, bottom: number): void;
+  setProps(patch: Partial<LevelProps>): void;
+  /** Play the draft (allowed when the level is valid). */
+  testPlay(): void;
+  backToEditor(): void;
+  /** After a won test play: the shareable code with the solution embedded (null if not won). */
+  publish(): string | null;
+  copyText(text: string): Promise<boolean>;
+  /** Decodes and verifies a pasted code; on success it can be played with `playLoaded`. */
+  loadCode(text: string): CodeLoadResult;
+  playLoaded(): void;
 }
+
+export type CodeLoadResult =
+  | { ok: true; title: string; author: string; verified: boolean; status: VerifyStatus }
+  | { ok: false; error: LevelCodeError['kind'] | 'unknown' };
 
 /**
  * The running game: title (attract demo) or one level of the prototype sequence (the five
@@ -66,6 +85,11 @@ export class GameApp implements GameActions, EditorActions {
   readonly editorView = new Store<EditorView | null>(null);
   private screen: PlayScreen | null;
   private editor: EditorScreen | null = null;
+  /** The document being edited, kept while test-playing it. */
+  private editorDoc: EditorDoc | null = null;
+  /** The current play screen is a test play of the editor draft. */
+  private testing = false;
+  private loaded: LevelDef | null = null;
   private mode: 'title' | 'play' | 'editor';
   private levels: readonly LevelDef[] = FIXTURE_LEVELS;
   private index = 0;
@@ -118,7 +142,7 @@ export class GameApp implements GameActions, EditorActions {
     window.addEventListener('pointerdown', this.unlockAudio, true);
     window.addEventListener('keydown', this.unlockAudio, true);
     this.attachFeedback();
-    this.publish();
+    this.publishHud();
   }
 
   /** The play screen (title demo or level); throws in the editor. */
@@ -135,10 +159,11 @@ export class GameApp implements GameActions, EditorActions {
     return this.current;
   }
 
-  private createEditor(level?: LevelDef): EditorScreen {
-    const ed = new EditorScreen(this.app, level);
+  private createEditor(source?: LevelDef | EditorDoc): EditorScreen {
+    const ed = new EditorScreen(this.app, source);
+    this.editorDoc = ed.doc;
     ed.setInsets(this.insets.top, this.insets.bottom);
-    ed.onViewChange = () => this.publish();
+    ed.onViewChange = () => this.publishHud();
     this.audio.playMusic(ed.doc.level.theme);
     this.audio.setDucked(true);
     return ed;
@@ -197,7 +222,7 @@ export class GameApp implements GameActions, EditorActions {
     if (this.mode === 'play') this.ps.filter = filter;
     this.endedAt = -1;
     this.rewinding = false;
-    this.publish();
+    this.publishHud();
   }
 
   /** Exponential moving averages (ms) of the game's JS per frame and of Pixi's render pass. */
@@ -234,10 +259,10 @@ export class GameApp implements GameActions, EditorActions {
       this.replaceScreen();
       return;
     }
-    this.publish();
+    this.publishHud();
   }
 
-  private publish(): void {
+  private publishHud(): void {
     if (this.editor) {
       this.hud.set({ ...TITLE_HUD, mode: 'editor' });
       this.editorView.set(this.editor.view);
@@ -249,20 +274,20 @@ export class GameApp implements GameActions, EditorActions {
       return;
     }
     const showEnd = this.endedAt >= 0 && this.now - this.endedAt >= END_SCREEN_DELAY_MS;
-    this.hud.set(
-      hudFor(
-        this.screen,
-        this.index + 1,
-        this.levels.length,
-        showEnd && !this.rewinding,
-        this.rewinding,
-      ),
+    const hud = hudFor(
+      this.screen,
+      this.index + 1,
+      this.levels.length,
+      showEnd && !this.rewinding,
+      this.rewinding,
     );
+    this.hud.set({ ...hud, testPlay: this.testing });
   }
 
   // --- GameActions ------------------------------------------------------------------------------
 
   play(): void {
+    this.testing = false;
     this.mode = 'play';
     this.levels = FIXTURE_LEVELS;
     this.index = 0;
@@ -272,13 +297,13 @@ export class GameApp implements GameActions, EditorActions {
   selectSkill(skill: SkillId): void {
     if (this.mode !== 'play') return;
     this.ps.skill = this.ps.skill === skill ? null : skill;
-    this.publish();
+    this.publishHud();
   }
 
   togglePause(): void {
     if (this.mode !== 'play') return;
     this.ps.session.paused = !this.ps.session.paused;
-    this.publish();
+    this.publishHud();
   }
 
   cycleSpeed(): void {
@@ -286,19 +311,19 @@ export class GameApp implements GameActions, EditorActions {
     const s = this.ps.session;
     const i = SPEEDS.indexOf(s.speed as (typeof SPEEDS)[number]);
     s.speed = SPEEDS[(i + 1) % SPEEDS.length] as number;
-    this.publish();
+    this.publishHud();
   }
 
   release(direction: 1 | -1): void {
     if (this.mode !== 'play') return;
     this.ps.session.changeRelease(direction);
-    this.publish();
+    this.publishHud();
   }
 
   popAll(): void {
     if (this.mode !== 'play') return;
     this.ps.session.popAll();
-    this.publish();
+    this.publishHud();
   }
 
   retry(): void {
@@ -322,7 +347,7 @@ export class GameApp implements GameActions, EditorActions {
   setFilter(filter: DirectionFilter): void {
     if (this.mode !== 'play') return;
     this.ps.filter = filter;
-    this.publish();
+    this.publishHud();
   }
 
   setInsets(top: number, bottom: number): void {
@@ -339,12 +364,84 @@ export class GameApp implements GameActions, EditorActions {
     this.feedback = null;
     this.mode = 'editor';
     this.editor = this.createEditor();
-    this.publish();
+    this.publishHud();
   }
 
   exitEditor(): void {
     if (!this.editor) return;
+    this.editorDoc = null;
     this.mode = 'title';
+    this.replaceScreen();
+  }
+
+  setProps(patch: Partial<LevelProps>): void {
+    this.editor?.doc.setProps(patch);
+  }
+
+  testPlay(): void {
+    const ed = this.editor;
+    if (!ed || !ed.doc.status.playable) return;
+    const doc = ed.doc;
+    ed.destroy();
+    this.editor = null;
+    this.editorView.set(null);
+    this.testing = true;
+    this.mode = 'play';
+    this.levels = [doc.level];
+    this.index = 0;
+    this.editorDoc = doc;
+    this.replaceScreen();
+  }
+
+  backToEditor(): void {
+    const doc = this.editorDoc;
+    if (!this.testing || !doc) return;
+    this.screen?.destroy();
+    this.screen = null;
+    this.feedback = null;
+    this.testing = false;
+    this.mode = 'editor';
+    this.editor = this.createEditor(doc);
+    this.publishHud();
+  }
+
+  publish(): string | null {
+    if (!this.testing || !this.screen || !this.editorDoc) return null;
+    const sim = this.screen.session.sim;
+    if (!sim.ended || sim.saved < sim.level.required) return null;
+    const level: LevelDef = { ...this.editorDoc.level, solution: exportSolution(sim) };
+    // Publishing = solving: the code only exists when its own replay verifies.
+    if (!verifyLevel(level).verified) return null;
+    return encodeLevel(level);
+  }
+
+  copyText(text: string): Promise<boolean> {
+    return getClipboard().write(text);
+  }
+
+  loadCode(text: string): CodeLoadResult {
+    try {
+      const { level, verify } = loadLevelCode(text);
+      this.loaded = level;
+      return {
+        ok: true,
+        title: level.title,
+        author: level.author,
+        verified: verify.verified,
+        status: verify.status,
+      };
+    } catch (e) {
+      this.loaded = null;
+      return { ok: false, error: e instanceof LevelCodeError ? e.kind : 'unknown' };
+    }
+  }
+
+  playLoaded(): void {
+    if (!this.loaded) return;
+    this.testing = false;
+    this.mode = 'play';
+    this.levels = [this.loaded];
+    this.index = 0;
     this.replaceScreen();
   }
 
@@ -377,13 +474,13 @@ export class GameApp implements GameActions, EditorActions {
     this.rewinding = true;
     this.rewindAcc = 0;
     this.ps.session.paused = true;
-    this.publish();
+    this.publishHud();
   }
 
   rewindEnd(): void {
     if (!this.rewinding) return;
     this.rewinding = false;
-    this.publish();
+    this.publishHud();
   }
 
   setAudio(settings: Partial<AudioSettings>): void {
