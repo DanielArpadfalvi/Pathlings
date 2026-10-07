@@ -10,7 +10,7 @@ Utolsó frissítés: 2026-10-06 este. A Pathlingset a **lokális, Pathlings-kön
 | M1 Mag-motor (`src/core`) | ✅ T1.1–T1.7 – terep, raszterizáló, pálya-definíció+validátor, lények, 8 képesség, objektumok, sim loop, események, replay, rewind, state hash |
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 perf-mérő kész, CI-n még ellenőrizendő |
-| M4 Szerkesztő + pályakód | 🔄 T4.1 ✅ pályakód · következik T4.2 ellenőrzés |
+| M4 Szerkesztő + pályakód | 🔄 T4.1 ✅ pályakód · T4.2 ✅ ellenőrzés · következik T4.3 szerkesztő-mag |
 | M5–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
@@ -80,11 +80,12 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 
 ## Pályakód (T4.1)
 - `src/core/code/` – `bytes.ts` (varint/zigzag, saját UTF-8, szigorú base64url), `crc32.ts`, `levelCode.ts`: `PL1-` + base64url(deflate-raw 9 (payload) ‖ CRC32(tömörített)); a payload: magic, formátum- és `SIM_VERSION`, fejléc, készlet, szövegek, delta-kódolt op- és objektumlista, megoldás (delta tick, `creature*16+skill`, 8 = pop all), végén saját CRC32. `encodeLevel` (validál, 4 KB limit), `decodeLevel` (szóköz-tűrő, kisbetűs előtag is; újabb motor → `newerVersion`), `compressedSize` (szerkesztő mérője), `looksLikeCode`.
+- `src/core/code/verify.ts` – `verifyLevel` (headless `runSolution`: `verified` / `noSolution` / `unsolved` / `hashMismatch` / `olderVersion`), `loadLevelCode` (dekódol + ellenőriz). 5 perces, 100 lényes pálya ellenőrzése < 300 ms.
 - Kódban nincs `id`, `titleKey`, `hintKeys` (közösségi pályák). Teszt: 200 generált pálya oda-vissza, minden egybájtos/egykarakteres sérülés elutasítva.
 
 ## Következő lépések sorrendben
 1. M3: T3.4 perf.
-2. M4: T4.2 ellenőrzés betöltéskor → T4.3 szerkesztő-mag → T4.4 szerkesztő UI → T4.5 megosztás; M5 (tartalom + `scripts/validate-levels`), M6–M9.
+2. M4: T4.3 szerkesztő-mag → T4.4 szerkesztő UI → T4.5 megosztás; M5 (tartalom + `scripts/validate-levels`), M6–M9.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.
