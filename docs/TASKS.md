@@ -51,10 +51,10 @@ Plan / numbers: `docs/PLAN.md` (Hungarian). Section refs like (§1.1) point ther
 - [x] **T6.4 i18n EN/HU + accessibility audit** – all strings via `src/i18n`, skill icons + shapes (no color-only info). AC: test fails on missing keys in either language; reviewer agent accessibility checklist has no "major".
 
 ## M7 – Mobile shell
-- [ ] **T7.1 Capacitor 8 setup** – android/ios projects, app id `com.arpadfalvi.pathlings`, portrait lock (tablet: centered portrait UI), safe areas, status bar, lifecycle (auto-pause on background), back button handling, clipboard + share plugins behind `platform`. AC: `npx cap sync` clean; web mock and native impls behind same interfaces.
-- [ ] **T7.2 Icon + splash from code** – `scripts/make-assets.ts` (Swaplight pattern) with an original Pathling character. AC: generated assets committed; reviewer approves.
+- [x] **T7.1 Capacitor 8 setup** – android/ios projects, app id `com.arpadfalvi.pathlings`, portrait lock (tablet: centered portrait UI), safe areas, status bar, lifecycle (auto-pause on background), back button handling, clipboard + share plugins behind `platform`. AC: `npx cap sync` clean; web mock and native impls behind same interfaces.
+- [x] **T7.2 Icon + splash from code** – `scripts/make-assets.ts` (Swaplight pattern) with an original Pathling character. AC: generated assets committed; reviewer approves.
 - [ ] **T7.3 Native CI** – `android.yml` (AAB/APK), `ios.yml` (macOS runner), adapted from Swaplight. AC: both workflows green on the default branch (unsigned/debug if secrets absent).
-- [ ] **T7.4 Deep link (optional)** – `https://<site>/l#PL1-…` and custom scheme open "Play code". AC: e2e for web route; native config present.
+- [x] **T7.4 Deep link (optional)** – `https://<site>/l#PL1-…` and custom scheme open "Play code". AC: e2e for web route; native config present.
 
 ## M8 – Monetization
 - [ ] **T8.1 Purchases interface** – `Purchases` in `platform` with mock + RevenueCat impl; entitlements `full_game` (2.99 USD non-consumable) and `supporter` (2.99 USD non-consumable, cosmetic only); restore; offline-safe cached entitlement. AC: unit tests with mock for buy/restore/cancel/offline.

@@ -305,12 +305,17 @@ function codeError(r: Extract<CodeLoadResult, { ok: false }>): string {
 export function CodePanel({
   actions,
   onClose,
+  initial,
 }: {
   actions: Pick<EditorActions, 'loadCode' | 'playLoaded'>;
   onClose: () => void;
+  /** A code to show (and load) right away, e.g. from a link. */
+  initial?: string;
 }) {
-  const [text, setText] = useState('');
-  const [result, setResult] = useState<CodeLoadResult | null>(null);
+  const [text, setText] = useState(initial ?? '');
+  const [result, setResult] = useState<CodeLoadResult | null>(() =>
+    initial && looksLikeCode(initial) ? actions.loadCode(initial) : null,
+  );
   const load = (value: string): void => setResult(actions.loadCode(value));
   return (
     <div class="sheet-backdrop">

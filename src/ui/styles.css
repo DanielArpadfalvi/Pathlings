@@ -996,3 +996,19 @@ textarea:focus-visible {
 .icon-button {
   position: relative;
 }
+
+/* Tablets: the portrait UI stays phone-width and centred (T7.1). */
+.hud-top,
+.hud-bottom,
+.title-card,
+.sheet {
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.menu-page > * {
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}

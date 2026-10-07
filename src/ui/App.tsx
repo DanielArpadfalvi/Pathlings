@@ -21,7 +21,11 @@ export interface AppProps {
   myLevels: Store<MyLevel[]>;
   menu: Store<MenuView>;
   settings: Store<Settings>;
-  actions: GameActions & EditorActions & MenuActions & SettingsActions;
+  linkCode: Store<string | null>;
+  actions: GameActions &
+    EditorActions &
+    MenuActions &
+    SettingsActions & { uiBack: (() => boolean) | null; clearLink(): void };
 }
 
 /** Pixel arrows: ← →, ←, or →. */
@@ -64,6 +68,7 @@ export function App({
   myLevels: myStore,
   menu: menuStore,
   settings: settingsStore,
+  linkCode: linkStore,
   actions,
 }: AppProps) {
   const [, setLanguage] = useState(getLanguage());
@@ -77,6 +82,26 @@ export function App({
   const menu = useStore(menuStore);
   const settings = useStore(settingsStore);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const linkCode = useStore(linkStore);
+  const [linkedCode, setLinkedCode] = useState<string | null>(null);
+  // A code from a link opens the "Play a code" panel with it.
+  useEffect(() => {
+    if (!linkCode) return;
+    setLinkedCode(linkCode);
+    setCodeOpen(true);
+    actions.clearLink();
+  }, [linkCode, actions]);
+  // System back closes the topmost sheet first (GameApp handles the rest).
+  useEffect(() => {
+    actions.uiBack = () => {
+      if (settingsOpen) setSettingsOpen(false);
+      else if (helpOpen) setHelpOpen(false);
+      else if (codeOpen) setCodeOpen(false);
+      else if (myOpen) setMyOpen(false);
+      else return false;
+      return true;
+    };
+  });
   // Display settings act on the whole overlay through classes on <html>.
   useEffect(() => {
     const c = document.documentElement.classList;
@@ -150,7 +175,17 @@ export function App({
         >
           {t('title.myLevels')}
         </button>
-        {codeOpen && <CodePanel actions={actions} onClose={() => setCodeOpen(false)} />}
+        {codeOpen && (
+          <CodePanel
+            key={linkedCode ?? ''}
+            actions={actions}
+            initial={linkedCode ?? undefined}
+            onClose={() => {
+              setCodeOpen(false);
+              setLinkedCode(null);
+            }}
+          />
+        )}
         <button
           type="button"
           class="text-button editor-button"

@@ -24,6 +24,7 @@
     "vitest.config.ts",
     "playwright.config.ts",
     "eslint.config.js",
+    "capacitor.config.ts",
     "tests/e2e"
   ]
 }

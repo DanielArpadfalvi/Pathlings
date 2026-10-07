@@ -4,6 +4,7 @@ import { createStage } from './render/stage';
 import { GameApp } from './app/gameApp';
 import { parseLaunchParams } from './game/launchParams';
 import { App } from './ui/App';
+import { installPlatform, platformReady } from './platform/install';
 import { encodeLevel } from './core/code/levelCode';
 import { findTestLevel } from './levels/test';
 import { getLanguage, onLanguageChange, t } from './i18n';
@@ -101,6 +102,8 @@ async function boot(): Promise<void> {
   document.documentElement.lang = getLanguage();
   const params = parseLaunchParams(window.location.search);
 
+  // Native implementations (storage, haptics, …) must be in place before the game reads its save.
+  await installPlatform();
   const app = await createStage(stage);
   // The world itself is visual; screen readers get a name for it, the HUD carries the numbers.
   app.canvas.setAttribute('role', 'img');
@@ -116,11 +119,13 @@ async function boot(): Promise<void> {
       myLevels: game.myLevelsList,
       menu: game.menu,
       settings: game.settings,
+      linkCode: game.linkCode,
       actions: game,
     }),
     ui,
   );
   root.dataset.ready = 'true';
+  void platformReady();
 }
 
 void boot();

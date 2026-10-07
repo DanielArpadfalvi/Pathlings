@@ -17,14 +17,26 @@
     "test:e2e": "playwright test",
     "validate-levels": "tsx scripts/validate-levels.ts",
     "levels:solve": "tsx scripts/solve-levels.ts",
-    "levels:author": "tsx scripts/author-levels.ts"
+    "levels:author": "tsx scripts/author-levels.ts",
+    "assets": "tsx scripts/make-assets.ts"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/clipboard": "^8.0.1",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.5.2",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/share": "^8.0.3",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4",
     "fflate": "^0.8.3",
     "pixi.js": "^8.22.0",
     "preact": "^11.0.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.2",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.63.0",
     "@preact/preset-vite": "^2.10.6",

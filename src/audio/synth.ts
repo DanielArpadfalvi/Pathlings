@@ -53,6 +53,15 @@ export class WebAudioEngine implements AudioSink {
     if (this.musicOn) this.startScheduler();
   }
 
+  /** App in the background: silence everything until `resume`. */
+  suspend(): void {
+    if (this.ctx?.state === 'running') void this.ctx.suspend();
+  }
+
+  resume(): void {
+    if (this.ctx?.state === 'suspended') void this.ctx.resume();
+  }
+
   setVolumes(s: AudioSettings): void {
     this.settings = s;
     this.applyVolumes();

@@ -34,6 +34,8 @@ import { FeedbackDirector } from '../audio/feedback';
 import { WebAudioEngine } from '../audio/synth';
 import { type AudioSettings, DEFAULT_AUDIO, sanitizeAudio } from '../audio/volume';
 import { getHaptics } from '../platform/haptics';
+import { getLifecycle } from '../platform/lifecycle';
+import { codeFromUrl } from './deepLink';
 import { type DailyLevel, dailyLevel, modifierText, utcDate } from './daily';
 import type { DailyInfo, HelpInfo } from './hud';
 import { HelpTracker } from './help';
@@ -239,7 +241,62 @@ export class GameApp implements GameActions, EditorActions, MenuActions, Setting
     window.addEventListener('pointerdown', this.unlockAudio, true);
     window.addEventListener('keydown', this.unlockAudio, true);
     this.attachFeedback();
+    const life = getLifecycle();
+    life.onPause(() => this.onBackground());
+    life.onResume(() => this.audio.resume());
+    life.onBack(() => this.back());
+    life.onOpenUrl((url) => this.openLink(url));
     this.publishHud();
+  }
+
+  /** A level code that arrived by link, for the "Play a code" panel (null: none pending). */
+  readonly linkCode = new Store<string | null>(null);
+
+  /** Opens a level-code link: back to the title, the code panel shows the code. */
+  openLink(url: string): void {
+    const code = codeFromUrl(url);
+    if (!code) return;
+    if (this.editor) this.exitEditor();
+    else if (this.mode === 'play') this.toMenu('main', null);
+    else if (this.menuPage !== 'main') this.toMenu('main', null);
+    this.linkCode.set(code);
+  }
+
+  clearLink(): void {
+    this.linkCode.set(null);
+  }
+
+  /** UI layer's own back handler (closes its open sheet); returns whether it did. */
+  uiBack: (() => boolean) | null = null;
+
+  /** Going to the background pauses a running level behind the pause menu and mutes audio. */
+  onBackground(): void {
+    this.audio.suspend();
+    if (this.mode === 'play' && this.screen && !this.ps.session.sim.ended) this.setPauseMenu(true);
+  }
+
+  /** System back (Android button, Escape on the web). False: nothing left to close – leave. */
+  back(): boolean {
+    if (this.uiBack?.()) return true;
+    if (this.editor) {
+      this.exitEditor();
+      return true;
+    }
+    if (this.mode === 'play') {
+      if (this.pauseMenu) this.setPauseMenu(false);
+      else if (this.ps.session.sim.ended) this.exitToMenu();
+      else this.setPauseMenu(true);
+      return true;
+    }
+    if (this.offerOpen) {
+      this.showOffer(false);
+      return true;
+    }
+    if (this.menuPage !== 'main') {
+      this.menuBack();
+      return true;
+    }
+    return false;
   }
 
   /** The play screen (title demo or level); throws in the editor. */
