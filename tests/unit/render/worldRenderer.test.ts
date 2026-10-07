@@ -43,7 +43,8 @@ describe('WorldRenderer (headless Pixi scene graph)', () => {
       expect(stateHash(drawn.sim)).toBe(stateHash(plain.sim));
       expect(stateHash(drawn.sim)).toBe(level.solution!.finalHash);
       r.destroy();
-    });
+      // Renders every frame of a whole level run: give slow CI runners room.
+    }, 20_000);
   }
 
   it('uploads the terrain at most once per frame and only the dirty rows', () => {

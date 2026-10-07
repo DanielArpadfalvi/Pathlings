@@ -4,6 +4,8 @@ export default defineConfig({
   test: {
     include: ['tests/unit/**/*.test.ts'],
     environment: 'node',
+    // Several projects share the dev machine: cap local parallelism (CI uses its default).
+    maxWorkers: process.env.CI ? undefined : 2,
     // Timing assertions (perf budgets) are skipped under coverage instrumentation.
     env: { PATHLINGS_COVERAGE: process.argv.includes('--coverage') ? '1' : '' },
     coverage: {
