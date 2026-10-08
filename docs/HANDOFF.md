@@ -5,10 +5,10 @@ Ez a futó haladási kivonat: minden befejezett feladat commitjában frissül (l
 Utolsó frissítés: 2026-10-08, felhős session, munkaág **`claude/friendly-hypatia-lyign2`** (a `main` előtt jár: T5.6–T7.x csak ezen az ágon van; PR még nincs nyitva). Ne dolgozzon egyszerre két session ugyanabban a klónban.
 
 ## Legutóbbi session (2026-10-08, felhő)
-- Kész és pusholva: T5.6 bónusz + napi pálya, T5.7 tippek + megoldás-visszajátszás (→ M5 kész), T6.3 verziózott mentés, T6.1 menü + világtérkép + pályaválasztó, T6.2 beállítások, T6.4 i18n/a11y audit → **M6 kész**; M7: T7.1 Capacitor ✅.
+- Kész és pusholva: T5.6 bónusz + napi pálya, T5.7 tippek + megoldás-visszajátszás (→ M5 kész), T6.3 verziózott mentés, T6.1 menü + világtérkép + pályaválasztó, T6.2 beállítások, T6.4 i18n/a11y audit → **M6 kész**; M7: T7.1 Capacitor, T7.2 ikon/splash, T7.3 natív CI (zöld az ágon), T7.4 deep link ✅.
 - CI (GitHub Actions `CI`) a T5.6 commitra zöld; a későbbiek helyben zöldek (`npm run check`, `npm run build`, teljes Playwright).
 - Félbehagyott munka nincs. Ismert hiányok: a bónuszpályák zöme kampánypálya-remix; a pályák többségének csak 1 írott tippje van (a 2. generált); a fizetős zár csak megjelenítés (vásárlás: T8).
-- **Következő:** T7.2 ikon + splash kódból (`scripts/make-assets.ts`, Swaplight-minta), T7.3 natív CI (`android.yml`, `ios.yml`). Natív build csak GitHub Actions-ben (a konténerből dl.google.com tiltott).
+- **Következő:** M8 – T8.1 `Purchases` interfész (mock + RevenueCat, Swaplight `src/platform/purchases*.ts` mintájára) → `GameApp.fullGame`, `restorePurchases`, bolti ár; T8.2 kapuk + paywall egyszer W2-10 után. A T7.3 elfogadásához (zöld a default ágon) a PR merge kell.
 
 ## Hol tart a projekt
 | Mérföldkő | Állapot |
@@ -21,7 +21,7 @@ Utolsó frissítés: 2026-10-08, felhős session, munkaág **`claude/friendly-hy
 | M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
 | M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · T5.4 ✅ Óraműhely (20) · T5.5 ✅ Felhőszirt (20) · T5.6 ✅ bónusz (30) + napi pálya · T5.7 ✅ tippek + megoldás-visszajátszás → **M5 kész** |
 | M6 Meta + UI | ✅ T6.3 mentés · T6.1 menü/világtérkép/pályaválasztó · T6.2 beállítások · T6.4 i18n/a11y audit |
-| M7 Mobil héj | 🔄 T7.1 ✅ Capacitor + natív platform · következik T7.2 ikon/splash, T7.3 natív CI |
+| M7 Mobil héj | ✅ T7.1 Capacitor + natív platform · T7.2 ikon/splash kódból · T7.3 natív CI (Android debug APK + iOS szimulátor zöld az ágon; „zöld a default ágon” a merge után) · T7.4 deep link |
 | M8–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
@@ -174,10 +174,15 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - `src/platform/lifecycle.ts`: `onPause/onResume/onBack` + `back()`; vissza-verem: a legújabb kezelő (nyitott párbeszédablak, `useEscape`) először, aztán `GameApp.back()` (szerkesztő → cím, pálya → menü, pályaválasztó → világtérkép → cím), végül natívban kilépés. Weben: `visibilitychange` és Escape. Háttérbe lépéskor a futó pálya szünetel, a hang felfüggesztődik (`WebAudioEngine.suspend/resume`). E2E: `tests/e2e/lifecycle.spec.ts`.
 - Natív build/futtatás itt nem ellenőrizhető (nincs Android SDK / Xcode) – a T7.3 CI bizonyítja.
 
+## Ikon, splash, natív CI, deep link (T7.2–T7.4)
+- `npm run assets` (`scripts/make-assets.ts`): a játék Pathling-sprite-ja (szemből, kitárt karral; a Play-borítón vitorlázók) a Mohaliget előtt, SVG → Chromium minden végső méretben (éles pixelek, nincs kicsinyítés) → Android mipmapek (legacy, round, adaptive előtér/háttér) + splash drawable-ök, iOS ikon (alfa nélkül) + launch képek, `store/` (App Store ikon, Play ikon, Play feature graphic). Új natív projekt (`cap add`) után újra kell futtatni. Teszt: `tests/unit/assets.test.ts`.
+- CI: `.github/workflows/android.yml` (minden push: debug APK artifact; `main`-en `android-debug-latest` pre-release; aláírt AAB + Play feltöltés csak `ANDROID_KEYSTORE_*` / `PLAY_SERVICE_ACCOUNT_JSON` titkokkal), `ios.yml` (minden push: szimulátor-build `macos-26`-on; aláírt IPA + TestFlight csak `ASC_KEY_ID` / `ASC_ISSUER_ID` / `ASC_KEY_P8` / `APPLE_TEAM_ID` titkokkal). RevenueCat-kulcsok a T8.1-gyel kerülnek be. A titkok listája a T9.3 `docs/RELEASE.md`-be kerül.
+- Deep link: `src/app/deepLink.ts` `codeFromUrl` (`…#PL1-…`, `?code=PL1-…`, `pathlings://l#…`, `pathlings://l/…`), `src/platform/deepLinks.ts` (web: induló URL + `hashchange`; natív: `App.getLaunchUrl` + `appUrlOpen`), `GameApp.incomingCode` → az `App` megnyitja a „Kód lejátszása” panelt a betöltött kóddal. Android intent-filter és iOS `CFBundleURLTypes` a `pathlings` sémára. **Tulajdonosi teendő (M9):** a weboldal domainje kell a `https://<site>/l#PL1-…` oldalhoz (a statikus oldalon `/l/index.html` → app vagy áruház), és ha kellenek, az ellenőrzött App Links (`assetlinks.json`) / Universal Links (Associated Domains + `apple-app-site-association`).
+
 ## Következő lépések sorrendben
-1. M7: T7.2 ikon/splash kódból, T7.3 natív CI (android.yml, ios.yml), T7.4 deep link (opcionális).
-2. M8 vásárlás: T8.1 `Purchases` interfész (mock + RevenueCat) → `GameApp.fullGame`, `restorePurchases`, `FULL_GAME_PRICE` helyett bolti ár; T8.2 kapuk + paywall egyszer W2-10 után.
-3. M9 kiadás.
+1. M8: T8.1 vásárlás-interfész (mock + RevenueCat) – Swaplight `src/platform/purchases.ts`, `purchasesRevenueCat.ts`, `purchasesSelect.ts` a minta (klón: `git clone --depth 1 https://github.com/DanielArpadfalvi/swaplight`); T8.2 kapuk + paywall.
+   Bekötés: `GameApp.fullGame`, `restorePurchases`, `FULL_GAME_PRICE` helyett bolti ár; T8.2: paywall egyszer W2-10 után + a menüből.
+2. M9 kiadás (store-szövegek, privacy, aláírt pipeline, QA).
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push (felhős sessionben a kijelölt `claude/…` ágra) → dashboard.

@@ -6,6 +6,7 @@ import { Preferences } from '@capacitor/preferences';
 import { Share } from '@capacitor/share';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { setClipboard } from './clipboard';
+import { createDeepLinkHub, setDeepLinks } from './deepLinks';
 import { type HapticKind, setHaptics } from './haptics';
 import { createLifecycleCore, setLifecycle } from './lifecycle';
 import { setSharer } from './share';
@@ -99,6 +100,15 @@ export async function installNativePlatform(): Promise<void> {
   // A backButton listener replaces Android's default; the stack decides (exit when unhandled).
   void safely(() => App.addListener('backButton', () => void lifecycle.back()), undefined);
   setLifecycle(lifecycle);
+
+  // Level-code links: the URL that launched the app, then links opened while it runs.
+  const links = createDeepLinkHub();
+  setDeepLinks(links);
+  void safely(async () => {
+    const launch = await App.getLaunchUrl();
+    if (launch?.url) links.emit(launch.url);
+  }, undefined);
+  void safely(() => App.addListener('appUrlOpen', (e) => links.emit(e.url)), undefined);
 }
 
 /** The first frame is on screen: drop the launch screen. */

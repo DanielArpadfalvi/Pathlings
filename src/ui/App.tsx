@@ -19,6 +19,8 @@ export interface AppProps {
   editor: Store<EditorView | null>;
   myLevels: Store<MyLevel[]>;
   settings: Store<Settings>;
+  /** A level code from an opened link (T7.4). */
+  incomingCode: Store<{ code: string; n: number } | null>;
   actions: GameActions & EditorActions;
 }
 
@@ -84,6 +86,7 @@ export function App({
   editor: editorStore,
   myLevels: myStore,
   settings: settingsStore,
+  incomingCode,
   actions,
 }: AppProps) {
   const [, setLanguage] = useState(getLanguage());
@@ -91,6 +94,10 @@ export function App({
   const hud = useStore(store);
   const editorView = useStore(editorStore);
   const [codeOpen, setCodeOpen] = useState(false);
+  const link = useStore(incomingCode);
+  useEffect(() => {
+    if (link) setCodeOpen(true);
+  }, [link]);
   const [myOpen, setMyOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -164,7 +171,17 @@ export function App({
           {t('title.settings')}
         </button>
         {settingsPanel}
-        {codeOpen && <CodePanel actions={actions} onClose={() => setCodeOpen(false)} />}
+        {codeOpen && (
+          <CodePanel
+            key={link?.n ?? 0}
+            actions={actions}
+            initial={link?.code ?? ''}
+            onClose={() => {
+              setCodeOpen(false);
+              incomingCode.set(null);
+            }}
+          />
+        )}
         {myOpen && (
           <MyLevelsPanel levels={myLevels} actions={actions} onClose={() => setMyOpen(false)} />
         )}

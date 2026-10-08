@@ -44,6 +44,8 @@ import { getClipboard } from '../platform/clipboard';
 import { getSharer, type ShareOutcome } from '../platform/share';
 import { getStore } from '../platform/storage';
 import { getLifecycle } from '../platform/lifecycle';
+import { getDeepLinks } from '../platform/deepLinks';
+import { codeFromUrl } from './deepLink';
 import { type MyLevel, MyLevels, clearDraft, loadDraft, saveDraft } from './myLevels';
 import { Store } from './store';
 import { FeedbackDirector } from '../audio/feedback';
@@ -242,11 +244,22 @@ export class GameApp implements GameActions, EditorActions {
       lifecycle.onPause(() => this.toBackground()),
       lifecycle.onResume(() => this.audio.resume()),
       lifecycle.onBack(() => this.back()),
+      getDeepLinks().onUrl((url) => this.openLink(url)),
     );
     this.publishHud();
   }
 
   private readonly unsubscribe: (() => void)[] = [];
+
+  /** A level code arriving from a link: the UI opens "Play a code" with it (T7.4). */
+  readonly incomingCode = new Store<{ code: string; n: number } | null>(null);
+
+  private openLink(url: string): void {
+    const code = codeFromUrl(url);
+    if (!code) return;
+    if (this.mode !== 'title' || this.menu.screen !== 'main') this.openMenu('main');
+    this.incomingCode.set({ code, n: (this.incomingCode.get()?.n ?? 0) + 1 });
+  }
 
   /** App sent to the background: a running level pauses (it never runs unseen), sound stops. */
   private toBackground(): void {

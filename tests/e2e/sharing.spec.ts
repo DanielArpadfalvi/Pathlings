@@ -122,3 +122,25 @@ test.describe('sharing and my levels', () => {
     expect(await ops()).toBe(1);
   });
 });
+
+test.describe('level-code links (T7.4)', () => {
+  test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+
+  test('a /l#PL1-… link opens "Play a code" with the level loaded and verified', async ({
+    page,
+  }) => {
+    await page.goto('/?debug=1');
+    const code = await testCode(page, 'test-tunnel');
+    await page.goto(`/#${code}`);
+    await expect(page.getByTestId('code-panel')).toBeVisible();
+    await expect(page.getByTestId('code-result')).toHaveAttribute('data-verified', 'true');
+    await page.getByTestId('code-play').click();
+    await expect(page.getByTestId('hud')).toBeVisible();
+    // A link opened while playing takes the player to the code too.
+    await page.evaluate((c) => {
+      window.location.hash = 'other';
+      window.location.hash = c;
+    }, code);
+    await expect(page.getByTestId('code-panel')).toBeVisible();
+  });
+});

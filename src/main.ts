@@ -125,6 +125,7 @@ async function boot(): Promise<void> {
       editor: game.editorView,
       myLevels: game.myLevelsList,
       settings: game.settings,
+      incomingCode: game.incomingCode,
       actions: game,
     }),
     ui,
