@@ -2,13 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { solutionHint } from '../../../src/app/hud';
 import type { Solution } from '../../../src/core/level';
 import { setLanguage } from '../../../src/i18n';
-import {
-  HELP_STORAGE_KEY,
-  HINT_FAILS,
-  HelpTracker,
-  SOLUTION_FAILS,
-  solutionSkills,
-} from '../../../src/app/help';
+import { HINT_FAILS, HelpTracker, SOLUTION_FAILS, solutionSkills } from '../../../src/app/help';
+import { SaveGame } from '../../../src/app/save';
 import { createMemoryStore } from '../../../src/platform/storage';
 
 function failTimes(h: HelpTracker, key: string, n: number): void {
@@ -18,7 +13,7 @@ function failTimes(h: HelpTracker, key: string, n: number): void {
 describe('HelpTracker', () => {
   it('unlocks hints after 3 failed tries and the solution after 5', () => {
     expect([HINT_FAILS, SOLUTION_FAILS]).toEqual([3, 5]);
-    const h = new HelpTracker(createMemoryStore());
+    const h = new HelpTracker(new SaveGame(createMemoryStore()));
     failTimes(h, 'w1-01', 2);
     expect(h.hintsUnlocked('w1-01')).toBe(false);
     h.recordFail('w1-01');
@@ -31,14 +26,14 @@ describe('HelpTracker', () => {
   });
 
   it('refuses the solution while locked', () => {
-    const h = new HelpTracker(createMemoryStore());
+    const h = new HelpTracker(new SaveGame(createMemoryStore()));
     failTimes(h, 'a', SOLUTION_FAILS - 1);
     expect(h.watchSolution('a')).toBe(false);
     expect(h.get('a').watched).toBe(false);
   });
 
   it('marks a win after watching the solution "with help", a later clean win upgrades it', () => {
-    const h = new HelpTracker(createMemoryStore());
+    const h = new HelpTracker(new SaveGame(createMemoryStore()));
     failTimes(h, 'a', SOLUTION_FAILS);
     expect(h.watchSolution('a')).toBe(true);
     expect(h.recordWin('a')).toBe('withHelp');
@@ -47,30 +42,19 @@ describe('HelpTracker', () => {
   });
 
   it('keeps a clean solve clean even after watching the solution later', () => {
-    const h = new HelpTracker(createMemoryStore());
+    const h = new HelpTracker(new SaveGame(createMemoryStore()));
     expect(h.recordWin('a')).toBe('clean');
     failTimes(h, 'a', SOLUTION_FAILS);
     h.watchSolution('a');
     expect(h.recordWin('a')).toBe('clean');
   });
 
-  it('persists across instances and survives damaged storage', () => {
+  it('persists in the save game', () => {
     const store = createMemoryStore();
-    const h = new HelpTracker(store);
+    const h = new HelpTracker(new SaveGame(store));
     failTimes(h, 'w2-03', 4);
-    expect(new HelpTracker(store).get('w2-03').fails).toBe(4);
-    store.set(HELP_STORAGE_KEY, '{not json');
-    expect(new HelpTracker(store).get('w2-03').fails).toBe(0);
-    store.set(HELP_STORAGE_KEY, '[1,2]');
-    expect(new HelpTracker(store).get('x').fails).toBe(0);
-    store.set(
-      HELP_STORAGE_KEY,
-      JSON.stringify({ a: { fails: -3, solved: 'maybe' }, b: 'junk', c: { fails: 2.5 } }),
-    );
-    const d = new HelpTracker(store);
-    expect(d.get('a')).toEqual({ fails: 0, watched: false, solved: 'no' });
-    expect(d.get('b').fails).toBe(0);
-    expect(d.get('c').fails).toBe(0);
+    expect(h.recordWin('w2-03', 2)).toBe('clean');
+    expect(new HelpTracker(new SaveGame(store)).get('w2-03')).toMatchObject({ fails: 4, stars: 2 });
   });
 });
 

@@ -50,7 +50,8 @@ test.describe('hints and solution replay', () => {
     await expect(page.getByTestId('replay-badge')).toHaveCount(0);
     await expect(page.getByTestId('help')).toBeVisible();
     expect(await tick(page)).toBeLessThan(600);
-    const stored = await page.evaluate(() => localStorage.getItem('pathlings.help.v1'));
-    expect(JSON.parse(stored!)['w1-09']).toMatchObject({ fails: 5, watched: true });
+    // The v1 help record was migrated into the save game.
+    const stored = await page.evaluate(() => localStorage.getItem('pathlings.save'));
+    expect(JSON.parse(stored!).levels['w1-09']).toMatchObject({ fails: 5, watched: true });
   });
 });

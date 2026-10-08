@@ -8,7 +8,7 @@ import { FIXTURE_LEVELS, findTestLevel } from '../levels/test';
 import { BONUS_DAILY, BUILTIN_LEVELS, builtInLevel } from '../levels/catalog';
 import { type DailyLevel, dailyLevel } from '../levels/daily';
 import { epochDay } from '../core/daily';
-import { TUTORIAL, TUTORIAL_SKIPPED_KEY } from '../levels/tutorial';
+import { TUTORIAL } from '../levels/tutorial';
 import { TutorialDirector } from './tutorial';
 import {
   type DailyInfo,
@@ -20,6 +20,7 @@ import {
   solutionHint,
 } from './hud';
 import { HINT_FAILS, HelpTracker, SOLUTION_FAILS } from './help';
+import { SaveGame } from './save';
 import { type TranslationKey, t } from '../i18n';
 import { PlayScreen } from './playScreen';
 import { EditorScreen, type EditorView } from './editorScreen';
@@ -28,6 +29,7 @@ import type { EditorDoc, LevelProps } from '../editor/doc';
 import { LevelCodeError, encodeLevel } from '../core/code/levelCode';
 import { type VerifyStatus, loadLevelCode, verifyLevel } from '../core/code/verify';
 import { exportSolution } from '../core/replay';
+import { rateRun } from '../core/stars';
 import { getClipboard } from '../platform/clipboard';
 import { getSharer, type ShareOutcome } from '../platform/share';
 import { getStore } from '../platform/storage';
@@ -125,7 +127,8 @@ export class GameApp implements GameActions, EditorActions {
   private testing = false;
   private loaded: LevelDef | null = null;
   private tutorial: TutorialDirector | null = null;
-  readonly myLevels = new MyLevels(getStore(), () => Date.now());
+  readonly save = new SaveGame(getStore());
+  readonly myLevels = new MyLevels(this.save.store, () => Date.now());
   readonly myLevelsList = new Store<MyLevel[]>(this.myLevels.list());
   private mode: 'title' | 'play' | 'editor';
   private levels: readonly LevelDef[] = FIXTURE_LEVELS;
@@ -142,7 +145,7 @@ export class GameApp implements GameActions, EditorActions {
   private rewindAcc = 0;
   /** The daily level being played (null for any other level). */
   private daily: DailyLevel | null = null;
-  readonly help = new HelpTracker(getStore());
+  readonly help = new HelpTracker(this.save);
   /** Help key of a played level code (`code:<id>`), set when one is loaded. */
   private codeKey: string | null = null;
   /** The current screen replays the level's solution. */
@@ -269,12 +272,7 @@ export class GameApp implements GameActions, EditorActions {
     this.tutorial = null;
     if (!screen) return;
     const steps = TUTORIAL[screen.session.level.id];
-    if (
-      this.mode === 'play' &&
-      !this.replaying &&
-      steps &&
-      getStore().get(TUTORIAL_SKIPPED_KEY) !== '1'
-    ) {
+    if (this.mode === 'play' && !this.replaying && steps && !this.save.tutorialSkipped) {
       this.tutorial = new TutorialDirector(steps, screen);
     }
     if (this.mode === 'title') {
@@ -354,7 +352,7 @@ export class GameApp implements GameActions, EditorActions {
 
   private publishHud(): void {
     if (this.editor) {
-      saveDraft(getStore(), this.editor.doc.level);
+      saveDraft(this.save.store, this.editor.doc.level);
       this.hud.set({ ...TITLE_HUD, mode: 'editor' });
       this.editorView.set(this.editor.view);
       return;
@@ -427,7 +425,8 @@ export class GameApp implements GameActions, EditorActions {
     const sim = this.screen.session.sim;
     if (sim.saved >= sim.level.required) {
       this.outcome = 'win';
-      this.wonWithHelp = this.help.recordWin(key) === 'withHelp';
+      const stars = rateRun(sim.level, sim.saved, sim.assignments).count;
+      this.wonWithHelp = this.help.recordWin(key, stars) === 'withHelp';
     } else if (this.outcome === 'none') {
       this.outcome = 'fail';
       this.help.recordFail(key);
@@ -543,7 +542,7 @@ export class GameApp implements GameActions, EditorActions {
     this.feedback = null;
     this.testing = false;
     this.mode = 'editor';
-    this.editor = this.createEditor(level ?? loadDraft(getStore()) ?? undefined);
+    this.editor = this.createEditor(level ?? loadDraft(this.save.store) ?? undefined);
     this.daily = null;
     this.replaying = false;
     this.publishHud();
@@ -551,7 +550,7 @@ export class GameApp implements GameActions, EditorActions {
 
   newLevel(): void {
     if (!this.editor) return;
-    clearDraft(getStore());
+    clearDraft(this.save.store);
     this.editor.destroy();
     this.editor = this.createEditor();
     this.publishHud();
@@ -727,7 +726,7 @@ export class GameApp implements GameActions, EditorActions {
   }
 
   skipTutorial(): void {
-    getStore().set(TUTORIAL_SKIPPED_KEY, '1');
+    this.save.tutorialSkipped = true;
     this.tutorial?.stop();
     this.tutorial = null;
     this.publishHud();

@@ -1,0 +1,6 @@
+{
+  "pathlings.help.v1": "{\"w1-03\":{\"fails\":4,\"watched\":false,\"solved\":\"no\"},\"w1-09\":{\"fails\":6,\"watched\":true,\"solved\":\"withHelp\"},\"daily:2026-10-08\":{\"fails\":1,\"watched\":false,\"solved\":\"clean\"}}",
+  "pathlings.tutorialSkipped.v1": "1",
+  "pathlings.myLevels.v1": "[{\"id\":\"0badc0de\",\"code\":\"PL1-x\",\"title\":\"Mine\",\"author\":\"\",\"source\":\"mine\",\"favourite\":true,\"verified\":true,\"addedAt\":1000}]",
+  "pathlings.draft.v1": "{\"v\":1,\"id\":\"\",\"title\":\"Draft\"}"
+}
