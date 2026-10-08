@@ -1,4 +1,11 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+
+/** Title → world map → Mossy Glade → level 1. */
+async function openLevel1(page: Page): Promise<void> {
+  await page.getByTestId('play').click();
+  await page.getByTestId('world-w1').click();
+  await page.getByTestId('level-w1-01').click();
+}
 
 test.describe('tutorial', () => {
   test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
@@ -6,7 +13,7 @@ test.describe('tutorial', () => {
   test('level 1 can be completed by following the hints only', async ({ page }, testInfo) => {
     test.setTimeout(120_000);
     await page.goto('/');
-    await page.getByTestId('play').click();
+    await openLevel1(page);
 
     // 1. Welcome bubble: "Got it".
     const bubble = page.getByTestId('tutorial-bubble');
@@ -51,13 +58,13 @@ test.describe('tutorial', () => {
 
   test('the tutorial can be skipped and stays skipped', async ({ page }) => {
     await page.goto('/');
-    await page.getByTestId('play').click();
+    await openLevel1(page);
     await expect(page.getByTestId('tutorial-bubble')).toBeVisible();
     await page.getByTestId('tutorial-skip').click();
     await expect(page.getByTestId('tutorial-bubble')).toHaveCount(0);
     await expect(page.getByTestId('pause')).toHaveAttribute('aria-pressed', 'false');
     await page.reload();
-    await page.getByTestId('play').click();
+    await openLevel1(page);
     await page.waitForTimeout(500);
     await expect(page.getByTestId('tutorial-bubble')).toHaveCount(0);
   });

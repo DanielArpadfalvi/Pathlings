@@ -72,12 +72,12 @@ export const RetryIcon = () => (
 export const NextIcon = () => <PixelIcon d="M1 5h6V2l4 4-4 4V7H1z" size={18} />;
 
 /** Five-point star in pixels: filled or hollow. */
-export function StarIcon({ filled }: { filled: boolean }) {
+export function StarIcon({ filled, size = 36 }: { filled: boolean; size?: number }) {
   const outline = 'M5 0h2v3h5v2h-2v1h-1v2h1v4h-2v-1H5v1H3V8h1V6H3V5H1V3h4z';
   return (
     <svg
-      width="36"
-      height="36"
+      width={size}
+      height={size}
       viewBox="0 0 12 12"
       shape-rendering="crispEdges"
       aria-hidden="true"

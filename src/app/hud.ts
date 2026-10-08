@@ -8,6 +8,8 @@ import { type TranslationKey, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
 import { solutionSkills } from './help';
 import type { PlayScreen } from './playScreen';
+import type { WorldState } from './progression';
+import type { WorldId } from '../levels/validate';
 import type { TutorialView } from './tutorial';
 
 export interface EndInfo {
@@ -32,6 +34,12 @@ export interface HelpInfo {
   hasSolution: boolean;
   hintFails: number;
   solutionFails: number;
+}
+
+/** Which menu page the title screen shows (T6.1). */
+export interface MenuState {
+  screen: 'main' | 'worlds' | 'levels';
+  world: WorldId;
 }
 
 /** The daily level: its UTC date and the modifier, as display text. */
@@ -88,6 +96,10 @@ export interface HudState {
   help: HelpInfo | null;
   /** Watching the level's solution replay. */
   replay: boolean;
+  /** Title mode: the menu page, campaign progress and the full-game price. */
+  menu: MenuState;
+  worlds: WorldState[];
+  price: string;
   end: EndInfo | null;
 }
 
@@ -118,6 +130,9 @@ export const TITLE_HUD: HudState = {
   daily: null,
   help: null,
   replay: false,
+  menu: { screen: 'main', world: 'w1' },
+  worlds: [],
+  price: '',
   end: null,
 };
 
@@ -159,6 +174,9 @@ export function hudFor(
     daily: null,
     help: null,
     replay: false,
+    menu: TITLE_HUD.menu,
+    worlds: [],
+    price: '',
     end:
       showEnd && sim.ended
         ? {

@@ -6,6 +6,7 @@ import type { Store } from '../app/store';
 import { getLanguage, onLanguageChange, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
 import { EditorHud } from './EditorHud';
+import { MenuPages } from './Menu';
 import { HelpPanel } from './HelpPanel';
 import { CodePanel, MyLevelsPanel } from './Panels';
 import type { MyLevel } from '../app/myLevels';
@@ -61,6 +62,10 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
   const [myOpen, setMyOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const myLevels = useStore(myStore);
+
+  if (hud.mode === 'title' && hud.menu.screen !== 'main') {
+    return <MenuPages hud={hud} actions={actions} />;
+  }
 
   if (hud.mode === 'title') {
     return (
@@ -151,6 +156,16 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
   const floating = (
     <>
       <span class="floating-group">
+        <button
+          type="button"
+          class="icon-button"
+          data-testid="exit-level"
+          aria-label={t('hud.exit')}
+          title={t('hud.exit')}
+          onClick={() => actions.exitToMenu()}
+        >
+          ←
+        </button>
         <button
           type="button"
           class="icon-button"

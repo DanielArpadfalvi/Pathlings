@@ -322,6 +322,16 @@ function EndScreen({
               {t('end.publish')}
             </button>
           )}
+          {!hud.testPlay && (
+            <button
+              type="button"
+              class="text-button"
+              data-testid="end-menu"
+              onClick={() => actions.exitToMenu()}
+            >
+              {t('end.menu')}
+            </button>
+          )}
           {end.hasNext && (
             <button
               type="button"

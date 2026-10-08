@@ -82,6 +82,17 @@ export const hu: Record<TranslationKey, string> = {
   'help.usesSkillsPopAll':
     'A megoldás ezeket osztja ki: {list} – a végén pedig mindenkit kipukkaszt.',
   'help.usesNoSkills': 'A megoldáshoz nem kell képesség – csak jó időzítés.',
+  'menu.back': 'Vissza',
+  'menu.worlds': 'Világok',
+  'menu.fullGame': 'Teljes játék',
+  'menu.fullGameText':
+    'Ez a pálya a teljes játék része: további 80 pálya és a bónuszarchívum egyszeri {price} áron. Az 1. világ, a 2. világ első 10 pályája, a napi pálya, a szerkesztő és minden pályakód ingyenes marad.',
+  'menu.level': '{n}. pálya, {stars}/3 csillag',
+  'menu.levelLocked': '{n}. pálya, zárva',
+  'menu.levelPaid': '{n}. pálya, teljes játék ({price})',
+  'world.bonus': 'Bónuszarchívum',
+  'hud.exit': 'Vissza a menübe',
+  'end.menu': 'Pályák',
   'title.editor': 'Pályaszerkesztő',
   'title.code': 'Kód lejátszása',
   'title.myLevels': 'Saját pályák',

@@ -4,6 +4,8 @@ Portrait "guide the walkers home" puzzle game: creatures march automatically, th
 
 **Starting a new session? Read `docs/HANDOFF.md` first** (current state, next steps, local setup).
 
+**Session handoff rule (always):** `docs/HANDOFF.md` is the running progress summary. Update it in the same commit as every finished task (and before a session ends): milestone status table, the working branch, what this session did, decisions and known gaps, and the exact next steps. A new session must be able to continue from `CLAUDE.md` + `docs/HANDOFF.md` + `docs/TASKS.md` alone, without the user explaining where the work stopped.
+
 ## Stack
 Vite + TypeScript (strict) · PixiJS v8 (gameplay canvas) · Preact (DOM UI overlay) · Capacitor 8 (iOS/Android) · fflate · Vitest · Playwright.
 

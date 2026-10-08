@@ -1,6 +1,14 @@
-# Pathlings – átadási jegyzet (lokális session indulásához)
+# Pathlings – átadási jegyzet (új session indulásához)
 
-Utolsó frissítés: 2026-10-08 (T5.6 + T5.7 – felhős session, ág `claude/friendly-hypatia-lyign2`). A Pathlingset a **lokális, Pathlings-könyvtárban futó session** viszi (a lokális orkesztrátor-session a Craterpultot és az orchestrator repó könyvelését; ne dolgozzon egyszerre két session ugyanebben a klónban). Minden munka pusholva a `main`-re, WIP-branch nincs.
+Ez a futó haladási kivonat: minden befejezett feladat commitjában frissül (lásd `CLAUDE.md` „Session handoff rule”). Egy új session ebből + `docs/TASKS.md`-ből folytatja a munkát.
+
+Utolsó frissítés: 2026-10-08, felhős session, munkaág **`claude/friendly-hypatia-lyign2`** (a `main` előtt jár: T5.6, T5.7, T6.3, T6.1 csak ezen az ágon van; PR még nincs nyitva). Ne dolgozzon egyszerre két session ugyanabban a klónban.
+
+## Legutóbbi session (2026-10-08, felhő)
+- Kész és pusholva: T5.6 bónusz + napi pálya, T5.7 tippek + megoldás-visszajátszás (→ M5 kész), T6.3 verziózott mentés, T6.1 menü + világtérkép + pályaválasztó.
+- CI (GitHub Actions `CI`) a T5.6 commitra zöld; a későbbiek helyben zöldek (`npm run check`, `npm run build`, teljes Playwright).
+- Félbehagyott munka nincs. Ismert hiányok: a bónuszpályák zöme kampánypálya-remix; a pályák többségének csak 1 írott tippje van (a 2. generált); a fizetős zár csak megjelenítés (vásárlás: T8).
+- **Következő:** T6.2 beállítások + szünet menü (a `Settings` séma és perzisztencia már kész a `src/app/save.ts`-ben – „csak” a UI és a hatások bekötése kell), utána T6.4 i18n/a11y audit, majd M7.
 
 ## Hol tart a projekt
 | Mérföldkő | Állapot |
@@ -12,7 +20,8 @@ Utolsó frissítés: 2026-10-08 (T5.6 + T5.7 – felhős session, ág `claude/fr
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 ✅ perf |
 | M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
 | M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · T5.4 ✅ Óraműhely (20) · T5.5 ✅ Felhőszirt (20) · T5.6 ✅ bónusz (30) + napi pálya · T5.7 ✅ tippek + megoldás-visszajátszás → **M5 kész** |
-| M6–M10 | nincs elkezdve |
+| M6 Meta + UI | 🔄 T6.3 ✅ mentés · T6.1 ✅ menü/világtérkép/pályaválasztó · következik T6.2 beállítások, T6.4 i18n/a11y |
+| M7–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
 
@@ -134,8 +143,22 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - Szinte minden pályának 1 írott tippje van; a második tipp generált: „A megoldás ezeket osztja ki: …” (`solutionHint` a `hud.ts`-ben). Ha valaki írott 2. tippeket ad, azok elsőbbséget kapnak.
 - E2E: `tests/e2e/help.spec.ts` (3 újrakezdés → tippek; előre beállított 5 próba → visszajátszás végig).
 
+## Mentés (T6.3)
+- `src/app/save.ts` – `SaveGame` egyetlen `pathlings.save` dokumentum (v2): `levels` (best `stars`, `fails`, `watched`, `solved`), `settings` (`Settings`: hangerők, haptika, kezdősebesség, auto-szünet, érintési sugár 20/28/36, balkezes, magas kontraszt, csökkentett mozgás `null`=rendszer, nagy betű, nyelv `null`=eszköz), `tutorialSkipped`, `myLevels`, `draft`.
+- `save.store` kulcs-érték nézet: a `MyLevels` és a vázlat változatlan kóddal a mentésbe ír. `GameApp.save`, `GameApp.help = new HelpTracker(save)`.
+- v1 = a régi külön kulcsok (`pathlings.help.v1`, `.tutorialSkipped.v1`, `.myLevels.v1`, `.draft.v1`): egyszer migrálódnak, utána törlődnek. Sérült mentés → alapértékek + a szöveg a `pathlings.save.corrupt` kulcsba; újabb verziójú mentést soha nem írunk felül. Tesztek: `tests/unit/app/save.test.ts`, fixture-ök: `tests/fixtures/save/v1-*.json`.
+- Új séma-verziónál: `SAVE_VERSION` emelés + `migrateVn` lépés + fixture.
+
+## Menü, világtérkép, pályaválasztó (T6.1)
+- `src/app/progression.ts` (tiszta): `progressView` → világonként `open`/`paid`, pályánként `solved`/`open`/`locked`/`paid`; mindig 3 megoldatlan nyitott pálya, az utolsó 17 megoldottnál nyílik, a következő világ az utolsó pálya megoldásával; ingyenes: W1 + W2 1–10 (`FREE_LEVELS`), a bónuszarchívum csak teljes játékkal; `FULL_GAME_PRICE` helyőrző, amíg a T8.1 nem ad bolti árat. `GameApp.fullGame` (T8.1 köti be).
+- `GameApp`: `play()` → világtérkép; `openMenu(screen, world)`, `playLevel(id)` (csak nyitott pályát), `exitToMenu()` (pályából a világ pályaválasztójára, napi/kódos pályából a főmenübe, tesztjátékból a szerkesztőbe); `next` csak nyitott következő pályára; győzelemkor a csillagok a mentésbe.
+- UI: `src/ui/Menu.tsx` (`world-map`, `world-<id>` `data-open`, `level-select` `data-world`, `level-<id>` `data-access`, `menu-back`, `full-game-note`), HUD-ban `exit-level` (←), végkártyán `end-menu`. A `?level=<id>` tesztparaméter nem ellenőriz zárakat.
+- E2E: `tests/e2e/menu.spec.ts`; a tutorial/hud e2e a világtérképen át nyitja az 1. pályát.
+
 ## Következő lépések sorrendben
-1. M6: T6.1 menü + világtérkép + pályaválasztó (3 nyitott pálya szabály, 17/20 világkapu), T6.2 beállítások, T6.3 mentés (a `HelpTracker` és `MyLevels` tárhelykulcsai beolvasztandók a verziózott mentésbe), T6.4 i18n/a11y; utána M7–M9.
+1. T6.2 beállítások + szünet: a `Settings` mezők hatásai (hangerő → `GameApp.setAudio`, haptika, kezdősebesség, auto-szünet → `PlayScreen.autoPause`, érintési sugár → `selection` 28 pt konstans paraméterezése, balkezes → vezérlősor tükrözése, magas kontraszt, csökkentett mozgás → renderer `reducedMotion`, nagy betű, nyelv → `setLanguage`), tutorial újraindítása, „Vásárlások visszaállítása” helyőrző; e2e képernyőkép beállításonként.
+2. T6.4 i18n (hiányzó kulcs teszt mindkét nyelvre már van: `tests/unit/i18n.test.ts` – ellenőrizni) + a11y audit.
+3. M7 Capacitor, M8 vásárlás (T8.2: paywall egyszer W2-10 után), M9 kiadás.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.

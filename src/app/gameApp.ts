@@ -14,6 +14,7 @@ import {
   type DailyInfo,
   type HelpInfo,
   type HudState,
+  type MenuState,
   TITLE_HUD,
   hudFor,
   modifierText,
@@ -21,6 +22,15 @@ import {
 } from './hud';
 import { HINT_FAILS, HelpTracker, SOLUTION_FAILS } from './help';
 import { SaveGame } from './save';
+import {
+  CAMPAIGN,
+  FULL_GAME_PRICE,
+  type WorldState,
+  accessOf,
+  canPlay,
+  progressView,
+} from './progression';
+import type { WorldId } from '../levels/validate';
 import { type TranslationKey, t } from '../i18n';
 import { PlayScreen } from './playScreen';
 import { EditorScreen, type EditorView } from './editorScreen';
@@ -53,7 +63,14 @@ export const REWIND_SPEED = 4;
 
 /** UI → game commands (buttons, keyboard). */
 export interface GameActions {
+  /** Title "Play": the world map. */
   play(): void;
+  /** Show a menu page (from play: leaves the level). */
+  openMenu(screen: MenuState['screen'], world?: WorldId): void;
+  /** Start a built-in level from the level select (only when it is open). */
+  playLevel(id: string): void;
+  /** Leave the level for the menu it was started from. */
+  exitToMenu(): void;
   /** Today's daily level (bonus pool + modifier). */
   playDaily(): void;
   selectSkill(skill: SkillId): void;
@@ -154,6 +171,11 @@ export class GameApp implements GameActions, EditorActions {
   private outcome: 'none' | 'fail' | 'win' = 'none';
   /** Mark of the current run's win (end screen "solved with help"). */
   private wonWithHelp = false;
+  private menu: MenuState = { screen: 'main', world: 'w1' };
+  private worldsView: WorldState[] = [];
+  /** Full-game entitlement (T8.1 connects the store). */
+  fullGame = false;
+  private dailyCache: { day: number; daily: DailyLevel | null } | null = null;
 
   constructor(
     private readonly app: Application,
@@ -162,6 +184,7 @@ export class GameApp implements GameActions, EditorActions {
     const direct = params.levelId
       ? (builtInLevel(params.levelId) ?? findTestLevel(params.levelId))
       : undefined;
+    this.refreshProgress();
     const daily = params.daily ? this.todaysDaily() : null;
     if (params.editor) {
       this.mode = 'editor';
@@ -214,7 +237,29 @@ export class GameApp implements GameActions, EditorActions {
   }
 
   private todaysDaily(): DailyLevel | null {
-    return dailyLevel(this.today(), BUILTIN_LEVELS.bonus, BONUS_DAILY);
+    const day = this.today();
+    if (this.dailyCache?.day !== day) {
+      this.dailyCache = { day, daily: dailyLevel(day, BUILTIN_LEVELS.bonus, BONUS_DAILY) };
+    }
+    return this.dailyCache.daily;
+  }
+
+  /** Recomputes the campaign progress (after a win, on entering the menu). */
+  private refreshProgress(): void {
+    const ids = [...CAMPAIGN, 'bonus' as const];
+    this.worldsView = progressView({
+      worlds: ids.map((id) => ({ id, levels: BUILTIN_LEVELS[id].map((l) => l.id) })),
+      stars: (id) => this.save.level(id).stars,
+      fullGame: this.fullGame,
+    });
+  }
+
+  /** The built-in world a level belongs to. */
+  private worldOf(id: string): WorldId | null {
+    for (const [w, list] of Object.entries(BUILTIN_LEVELS)) {
+      if (list.some((l) => l.id === id)) return w as WorldId;
+    }
+    return null;
   }
 
   private dailyInfo(d: DailyLevel | null): DailyInfo | null {
@@ -359,7 +404,13 @@ export class GameApp implements GameActions, EditorActions {
     }
     if (!this.screen) return;
     if (this.mode === 'title') {
-      this.hud.set({ ...TITLE_HUD, daily: this.dailyInfo(this.todaysDaily()) });
+      this.hud.set({
+        ...TITLE_HUD,
+        daily: this.dailyInfo(this.todaysDaily()),
+        menu: this.menu,
+        worlds: this.worldsView,
+        price: FULL_GAME_PRICE,
+      });
       return;
     }
     const showEnd = this.endedAt >= 0 && this.now - this.endedAt >= END_SCREEN_DELAY_MS;
@@ -375,7 +426,7 @@ export class GameApp implements GameActions, EditorActions {
       end: hud.end && {
         ...hud.end,
         withHelp: this.wonWithHelp,
-        hasNext: hud.end.hasNext && !this.replaying,
+        hasNext: hud.end.hasNext && !this.replaying && this.nextPlayable(),
       },
       testPlay: this.testing,
       tutorial: this.tutorial?.view ?? null,
@@ -427,6 +478,7 @@ export class GameApp implements GameActions, EditorActions {
       this.outcome = 'win';
       const stars = rateRun(sim.level, sim.saved, sim.assignments).count;
       this.wonWithHelp = this.help.recordWin(key, stars) === 'withHelp';
+      this.refreshProgress();
     } else if (this.outcome === 'none') {
       this.outcome = 'fail';
       this.help.recordFail(key);
@@ -444,13 +496,58 @@ export class GameApp implements GameActions, EditorActions {
   // --- GameActions ------------------------------------------------------------------------------
 
   play(): void {
+    this.openMenu('worlds');
+  }
+
+  openMenu(screen: MenuState['screen'], world: WorldId = this.menu.world): void {
+    this.menu = { screen, world };
+    this.refreshProgress();
+    if (this.mode !== 'title') this.toTitle();
+    else this.publishHud();
+  }
+
+  /** Back to the title screen (attract demo behind the menu). */
+  private toTitle(): void {
     this.testing = false;
     this.daily = null;
     this.replaying = false;
-    this.mode = 'play';
-    this.levels = BUILTIN_LEVELS.w1.length > 0 ? BUILTIN_LEVELS.w1 : FIXTURE_LEVELS;
-    this.index = 0;
+    this.editorDoc = null;
+    this.mode = 'title';
     this.replaceScreen();
+  }
+
+  playLevel(id: string): void {
+    const world = this.worldOf(id);
+    const access = accessOf(this.worldsView, id);
+    if (!world || !access || !canPlay(access)) return;
+    const list = BUILTIN_LEVELS[world];
+    this.testing = false;
+    this.daily = null;
+    this.replaying = false;
+    this.menu = { screen: 'levels', world };
+    this.mode = 'play';
+    this.levels = list;
+    this.index = list.findIndex((l) => l.id === id);
+    this.replaceScreen();
+  }
+
+  exitToMenu(): void {
+    if (this.testing) {
+      this.backToEditor();
+      return;
+    }
+    const id = this.screen?.session.level.id ?? '';
+    const world = this.daily ? null : this.worldOf(id);
+    if (world) this.openMenu('levels', world);
+    else this.openMenu('main');
+  }
+
+  /** The level after the current one in its sequence can be played now. */
+  private nextPlayable(): boolean {
+    const next = this.levels[this.index + 1];
+    if (!next) return false;
+    const access = accessOf(this.worldsView, next.id);
+    return !access || canPlay(access);
   }
 
   playDaily(): void {
@@ -510,7 +607,7 @@ export class GameApp implements GameActions, EditorActions {
 
   next(): void {
     if (this.mode !== 'play' || this.replaying) return;
-    if (this.index + 1 < this.levels.length) {
+    if (this.index + 1 < this.levels.length && this.nextPlayable()) {
       this.index++;
       this.replaceScreen();
     }

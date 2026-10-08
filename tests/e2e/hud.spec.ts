@@ -141,9 +141,11 @@ test.describe('hud play', () => {
     expect(d.tick).toBeLessThan(120);
   });
 
-  test('title screen Play button starts level 1', async ({ page }) => {
+  test('title screen Play → world map → level 1', async ({ page }) => {
     await page.goto('/?debug=1');
     await page.getByTestId('play').click();
+    await page.getByTestId('world-w1').click();
+    await page.getByTestId('level-w1-01').click();
     await expect(page.getByTestId('hud')).toBeVisible();
     expect((await info(page)).hud.levelNumber).toBe(1);
   });
