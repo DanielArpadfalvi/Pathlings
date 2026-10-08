@@ -7,6 +7,7 @@ import { App } from './ui/App';
 import { encodeLevel } from './core/code/levelCode';
 import { findTestLevel } from './levels/test';
 import { getLanguage } from './i18n';
+import { installPlatform, platformReady } from './platform/setup';
 
 /** Read-only diagnostics for e2e tests (`?debug=1`). */
 function exposeDebug(game: GameApp): void {
@@ -112,6 +113,8 @@ async function boot(): Promise<void> {
   document.documentElement.lang = getLanguage();
   const params = parseLaunchParams(window.location.search);
 
+  // Native shell: Capacitor services + the save data preloaded before the game reads it.
+  await installPlatform();
   const app = await createStage(stage);
   const game = new GameApp(app, params);
   if (params.debug) exposeDebug(game);
@@ -127,6 +130,7 @@ async function boot(): Promise<void> {
     ui,
   );
   root.dataset.ready = 'true';
+  platformReady();
 }
 
 void boot();

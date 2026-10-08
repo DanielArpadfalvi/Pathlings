@@ -53,6 +53,16 @@ export class WebAudioEngine implements AudioSink {
     if (this.musicOn) this.startScheduler();
   }
 
+  /** App in the background: silence everything (the context keeps its state). */
+  suspend(): void {
+    if (this.ctx?.state === 'running') void this.ctx.suspend();
+  }
+
+  /** Back in the foreground (only if audio was already unlocked by a gesture). */
+  resume(): void {
+    if (this.ctx?.state === 'suspended') void this.ctx.resume();
+  }
+
   setVolumes(s: AudioSettings): void {
     this.settings = s;
     this.applyVolumes();

@@ -61,6 +61,51 @@ export function createWebStore(): KeyValueStore {
   };
 }
 
+/** An asynchronous key-value store (Capacitor Preferences on devices). */
+export interface AsyncKeyValueBackend {
+  /** Every stored entry the game owns. */
+  load(): Promise<Record<string, string>>;
+  set(key: string, value: string): Promise<void>;
+  remove(key: string): Promise<void>;
+}
+
+/**
+ * The game reads storage synchronously, devices store asynchronously: everything is loaded into
+ * memory once at boot, reads come from memory, writes update memory at once and are written
+ * through in order (per key, the last write wins). A failing backend never throws into the game.
+ */
+export async function createPreloadedStore(backend: AsyncKeyValueBackend): Promise<
+  KeyValueStore & {
+    /** Resolves when every write so far has reached the backend (tests, app pause). */
+    flushed(): Promise<void>;
+  }
+> {
+  let initial: Record<string, string>;
+  try {
+    initial = await backend.load();
+  } catch {
+    initial = {};
+  }
+  const memory = createMemoryStore(initial);
+  let queue: Promise<void> = Promise.resolve();
+  const enqueue = (op: () => Promise<void>): void => {
+    queue = queue.then(op).catch(() => undefined);
+  };
+  return {
+    get: (k) => memory.get(k),
+    set(k, v) {
+      memory.set(k, v);
+      enqueue(() => backend.set(k, v));
+      return true;
+    },
+    remove(k) {
+      memory.remove(k);
+      enqueue(() => backend.remove(k));
+    },
+    flushed: () => queue,
+  };
+}
+
 let current: KeyValueStore | null = null;
 
 export function getStore(): KeyValueStore {

@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 async function testCode(page: Page, id: string): Promise<string> {
+  await expect(page.locator('#app')).toHaveAttribute('data-ready', 'true');
   const code = await page.evaluate(
     (lid) =>
       (

@@ -43,6 +43,7 @@ import { rateRun } from '../core/stars';
 import { getClipboard } from '../platform/clipboard';
 import { getSharer, type ShareOutcome } from '../platform/share';
 import { getStore } from '../platform/storage';
+import { getLifecycle } from '../platform/lifecycle';
 import { type MyLevel, MyLevels, clearDraft, loadDraft, saveDraft } from './myLevels';
 import { Store } from './store';
 import { FeedbackDirector } from '../audio/feedback';
@@ -236,7 +237,50 @@ export class GameApp implements GameActions, EditorActions {
     window.addEventListener('keydown', this.unlockAudio, true);
     this.attachFeedback();
     this.applySettings();
+    const lifecycle = getLifecycle();
+    this.unsubscribe.push(
+      lifecycle.onPause(() => this.toBackground()),
+      lifecycle.onResume(() => this.audio.resume()),
+      lifecycle.onBack(() => this.back()),
+    );
     this.publishHud();
+  }
+
+  private readonly unsubscribe: (() => void)[] = [];
+
+  /** App sent to the background: a running level pauses (it never runs unseen), sound stops. */
+  private toBackground(): void {
+    this.rewinding = false;
+    if (this.mode === 'play' && this.screen && !this.screen.session.sim.ended) {
+      this.screen.session.paused = true;
+    }
+    this.audio.suspend();
+    this.publishHud();
+  }
+
+  /**
+   * The back action under any open dialog (dialogs register their own handler on top): editor →
+   * title, level → its menu, level select → world map → title. False on the title screen (the
+   * native app then exits).
+   */
+  back(): boolean {
+    if (this.mode === 'editor') {
+      this.exitEditor();
+      return true;
+    }
+    if (this.mode === 'play') {
+      this.exitToMenu();
+      return true;
+    }
+    if (this.menu.screen === 'levels') {
+      this.openMenu('worlds');
+      return true;
+    }
+    if (this.menu.screen === 'worlds') {
+      this.openMenu('main');
+      return true;
+    }
+    return false;
   }
 
   /** Pushes the settings into audio, haptics, language and the running level. */
@@ -929,6 +973,7 @@ export class GameApp implements GameActions, EditorActions {
   };
 
   destroy(): void {
+    for (const u of this.unsubscribe.splice(0)) u();
     window.removeEventListener('keydown', this.onKey);
     window.removeEventListener('keyup', this.onKeyUp);
     window.removeEventListener('pointerdown', this.unlockAudio, true);

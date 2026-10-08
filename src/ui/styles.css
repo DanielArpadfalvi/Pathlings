@@ -35,6 +35,9 @@ body {
 #ui {
   position: fixed;
   inset: 0;
+  /* Portrait game: on landscape screens (tablets, desktop browsers) a centred portrait column. */
+  width: min(100vw, 80vh);
+  margin-inline: auto;
 }
 
 #ui {

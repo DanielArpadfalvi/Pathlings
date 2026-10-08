@@ -2,13 +2,13 @@
 
 Ez a futó haladási kivonat: minden befejezett feladat commitjában frissül (lásd `CLAUDE.md` „Session handoff rule”). Egy új session ebből + `docs/TASKS.md`-ből folytatja a munkát.
 
-Utolsó frissítés: 2026-10-08, felhős session, munkaág **`claude/friendly-hypatia-lyign2`** (a `main` előtt jár: T5.6–T6.4 csak ezen az ágon van; PR még nincs nyitva). Ne dolgozzon egyszerre két session ugyanabban a klónban.
+Utolsó frissítés: 2026-10-08, felhős session, munkaág **`claude/friendly-hypatia-lyign2`** (a `main` előtt jár: T5.6–T7.x csak ezen az ágon van; PR még nincs nyitva). Ne dolgozzon egyszerre két session ugyanabban a klónban.
 
 ## Legutóbbi session (2026-10-08, felhő)
-- Kész és pusholva: T5.6 bónusz + napi pálya, T5.7 tippek + megoldás-visszajátszás (→ M5 kész), T6.3 verziózott mentés, T6.1 menü + világtérkép + pályaválasztó, T6.2 beállítások, T6.4 i18n/a11y audit → **M6 kész**.
+- Kész és pusholva: T5.6 bónusz + napi pálya, T5.7 tippek + megoldás-visszajátszás (→ M5 kész), T6.3 verziózott mentés, T6.1 menü + világtérkép + pályaválasztó, T6.2 beállítások, T6.4 i18n/a11y audit → **M6 kész**; M7: T7.1 Capacitor ✅.
 - CI (GitHub Actions `CI`) a T5.6 commitra zöld; a későbbiek helyben zöldek (`npm run check`, `npm run build`, teljes Playwright).
 - Félbehagyott munka nincs. Ismert hiányok: a bónuszpályák zöme kampánypálya-remix; a pályák többségének csak 1 írott tippje van (a 2. generált); a fizetős zár csak megjelenítés (vásárlás: T8).
-- **Következő:** M7 – T7.1 Capacitor 8 (android/ios projekt, `src/platform` natív implementációk: storage → Preferences, haptics, clipboard, share, életciklus → auto-szünet háttérbe menéskor, vissza gomb), T7.2 ikon + splash kódból, T7.3 natív CI. Natív build csak GitHub Actions-ben (a konténerből dl.google.com tiltott).
+- **Következő:** T7.2 ikon + splash kódból (`scripts/make-assets.ts`, Swaplight-minta), T7.3 natív CI (`android.yml`, `ios.yml`). Natív build csak GitHub Actions-ben (a konténerből dl.google.com tiltott).
 
 ## Hol tart a projekt
 | Mérföldkő | Állapot |
@@ -21,7 +21,8 @@ Utolsó frissítés: 2026-10-08, felhős session, munkaág **`claude/friendly-hy
 | M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
 | M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · T5.4 ✅ Óraműhely (20) · T5.5 ✅ Felhőszirt (20) · T5.6 ✅ bónusz (30) + napi pálya · T5.7 ✅ tippek + megoldás-visszajátszás → **M5 kész** |
 | M6 Meta + UI | ✅ T6.3 mentés · T6.1 menü/világtérkép/pályaválasztó · T6.2 beállítások · T6.4 i18n/a11y audit |
-| M7–M10 | nincs elkezdve |
+| M7 Mobil héj | 🔄 T7.1 ✅ Capacitor + natív platform · következik T7.2 ikon/splash, T7.3 natív CI |
+| M8–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
 
@@ -166,8 +167,15 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - `tests/unit/i18n.test.ts` – kulcsok egyezése, helyőrzők egyezése, beégetett UI-szöveg keresése `src/ui/*.tsx`-ben (kivétel: „English”, „Magyar”).
 - Párbeszédablakok Escape-re zárnak (`src/ui/useEscape.ts`).
 
+## Mobil héj (T7.1)
+- `capacitor.config.ts` (appId/név a `src/config.ts`-ből), `android/` és `ios/` a `npx cap add`-dal generálva (iOS: Swift Package Manager, nincs CocoaPods). Swaplight-mintából: `android/app/build.gradle` (verzió `VERSION_CODE`/`VERSION_NAME` env-ből, release aláírás `ANDROID_KEYSTORE_*` env-ből, közös nem-titkos `debug.keystore`), `MainActivity` (nincs túlgörgetés), `Info.plist` (csak álló, `UIRequiresFullScreen`, EN/HU lokalizáció, kategória: puzzle, nincs titkosítás).
+- Álló zár: Android manifest + iOS plist; fekvő képernyőn (Android tablet, asztali böngésző) a `#app/#stage/#ui` középre igazított `min(100vw, 80vh)` széles oszlop.
+- `src/platform/native.ts` az egyetlen `@capacitor/*` importáló (teszt: `tests/unit/platformNative.test.ts`); `setup.ts` → `installPlatform()` a `main.ts` boot elején (natívban a Preferences-ből előtölti a `pathlings.*` kulcsokat: `createPreloadedStore`, szinkron olvasás, sorrendtartó háttér-írás), `platformReady()` elrejti a splash-t az első render után.
+- `src/platform/lifecycle.ts`: `onPause/onResume/onBack` + `back()`; vissza-verem: a legújabb kezelő (nyitott párbeszédablak, `useEscape`) először, aztán `GameApp.back()` (szerkesztő → cím, pálya → menü, pályaválasztó → világtérkép → cím), végül natívban kilépés. Weben: `visibilitychange` és Escape. Háttérbe lépéskor a futó pálya szünetel, a hang felfüggesztődik (`WebAudioEngine.suspend/resume`). E2E: `tests/e2e/lifecycle.spec.ts`.
+- Natív build/futtatás itt nem ellenőrizhető (nincs Android SDK / Xcode) – a T7.3 CI bizonyítja.
+
 ## Következő lépések sorrendben
-1. M7: T7.1 Capacitor 8 + natív `platform` implementációk, T7.2 ikon/splash kódból, T7.3 natív CI (android.yml, ios.yml), T7.4 deep link (opcionális).
+1. M7: T7.2 ikon/splash kódból, T7.3 natív CI (android.yml, ios.yml), T7.4 deep link (opcionális).
 2. M8 vásárlás: T8.1 `Purchases` interfész (mock + RevenueCat) → `GameApp.fullGame`, `restorePurchases`, `FULL_GAME_PRICE` helyett bolti ár; T8.2 kapuk + paywall egyszer W2-10 után.
 3. M9 kiadás.
 
