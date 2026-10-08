@@ -17,7 +17,8 @@
     "test:e2e": "playwright test",
     "validate-levels": "tsx scripts/validate-levels.ts",
     "levels:solve": "tsx scripts/solve-levels.ts",
-    "levels:author": "tsx scripts/author-levels.ts"
+    "levels:author": "tsx scripts/author-levels.ts",
+    "assets": "tsx scripts/make-assets.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",
@@ -47,6 +48,7 @@
     "globals": "^17.13.0",
     "happy-dom": "^20.14.5",
     "prettier": "^3.9.9",
+    "sharp": "^0.34.5",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.1",
