@@ -274,7 +274,7 @@ function EndScreen({
         <h2 id="end-title" class={end.won ? 'end-won' : 'end-lost'}>
           {heading}
         </h2>
-        <div class="end-stars" aria-label={format(t('end.stars'), { count: end.stars })}>
+        <div class="end-stars" role="img" aria-label={format(t('end.stars'), { count: end.stars })}>
           {[1, 2, 3].map((n) => (
             <StarIcon key={n} filled={n <= end.stars} />
           ))}

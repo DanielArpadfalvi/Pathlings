@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import { useEscape } from './useEscape';
 import type { GameActions } from '../app/gameApp';
 import type { HudState } from '../app/hud';
 import type { LevelState, WorldState } from '../app/progression';
@@ -34,7 +35,12 @@ function LockIcon() {
 
 function Stars({ count, label }: { count: number; label?: string }) {
   return (
-    <span class="tile-stars" aria-label={label ?? t('end.stars', { count })}>
+    <span
+      class="tile-stars"
+      {...(label === ''
+        ? { 'aria-hidden': true }
+        : { role: 'img', 'aria-label': label ?? t('end.stars', { count }) })}
+    >
       {[1, 2, 3].map((n) => (
         <StarIcon key={n} filled={n <= count} size={14} />
       ))}
@@ -60,6 +66,7 @@ function MenuHeader({ title, onBack }: { title: string; onBack: () => void }) {
 }
 
 function FullGameNote({ price, onClose }: { price: string; onClose: () => void }) {
+  useEscape(onClose);
   return (
     <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div class="sheet" role="dialog" aria-modal="true" data-testid="full-game-note">

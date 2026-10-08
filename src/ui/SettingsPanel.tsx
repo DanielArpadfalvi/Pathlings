@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import { useEscape } from './useEscape';
 import type { GameActions } from '../app/gameApp';
 import { DEFAULT_SPEEDS, type Settings, TOUCH_RADII } from '../app/save';
 import { t } from '../i18n';
@@ -110,6 +111,7 @@ export function SettingsPanel({
   actions: Actions;
   onClose: () => void;
 }) {
+  useEscape(onClose);
   const [note, setNote] = useState('');
   const set = (patch: Partial<Settings>): void => actions.updateSettings(patch);
   return (

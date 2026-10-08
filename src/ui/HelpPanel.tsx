@@ -1,4 +1,5 @@
 import type { HelpInfo } from '../app/hud';
+import { useEscape } from './useEscape';
 import { t } from '../i18n';
 
 /**
@@ -14,6 +15,7 @@ export function HelpPanel({
   onWatch: () => void;
   onClose: () => void;
 }) {
+  useEscape(onClose);
   const hintsLeft = Math.max(0, help.hintFails - help.fails);
   const solutionLeft = Math.max(0, help.solutionFails - help.fails);
   return (

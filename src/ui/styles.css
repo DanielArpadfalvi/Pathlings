@@ -84,7 +84,7 @@ button {
 }
 
 .text-button.primary {
-  background: #3f8f2c;
+  background: #2e7320;
   border-color: var(--accent);
 }
 
@@ -949,7 +949,7 @@ button {
 }
 
 .segmented button {
-  min-height: 44px;
+  min-height: 48px;
   min-width: 52px;
   padding: 0 10px;
   border: 0;
