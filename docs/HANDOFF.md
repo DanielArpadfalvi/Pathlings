@@ -2,13 +2,13 @@
 
 Ez a futó haladási kivonat: minden befejezett feladat commitjában frissül (lásd `CLAUDE.md` „Session handoff rule”). Egy új session ebből + `docs/TASKS.md`-ből folytatja a munkát.
 
-Utolsó frissítés: 2026-10-08, felhős session, munkaág **`claude/friendly-hypatia-lyign2`** (a `main` előtt jár: T5.6, T5.7, T6.3, T6.1, T6.2 csak ezen az ágon van; PR még nincs nyitva). Ne dolgozzon egyszerre két session ugyanabban a klónban.
+Utolsó frissítés: 2026-10-08, felhős session, munkaág **`claude/friendly-hypatia-lyign2`** (a `main` előtt jár: T5.6–T6.4 csak ezen az ágon van; PR még nincs nyitva). Ne dolgozzon egyszerre két session ugyanabban a klónban.
 
 ## Legutóbbi session (2026-10-08, felhő)
-- Kész és pusholva: T5.6 bónusz + napi pálya, T5.7 tippek + megoldás-visszajátszás (→ M5 kész), T6.3 verziózott mentés, T6.1 menü + világtérkép + pályaválasztó, T6.2 beállítások.
+- Kész és pusholva: T5.6 bónusz + napi pálya, T5.7 tippek + megoldás-visszajátszás (→ M5 kész), T6.3 verziózott mentés, T6.1 menü + világtérkép + pályaválasztó, T6.2 beállítások, T6.4 i18n/a11y audit → **M6 kész**.
 - CI (GitHub Actions `CI`) a T5.6 commitra zöld; a későbbiek helyben zöldek (`npm run check`, `npm run build`, teljes Playwright).
 - Félbehagyott munka nincs. Ismert hiányok: a bónuszpályák zöme kampánypálya-remix; a pályák többségének csak 1 írott tippje van (a 2. generált); a fizetős zár csak megjelenítés (vásárlás: T8).
-- **Következő:** T6.4 i18n/a11y audit, majd M7 (Capacitor).
+- **Következő:** M7 – T7.1 Capacitor 8 (android/ios projekt, `src/platform` natív implementációk: storage → Preferences, haptics, clipboard, share, életciklus → auto-szünet háttérbe menéskor, vissza gomb), T7.2 ikon + splash kódból, T7.3 natív CI. Natív build csak GitHub Actions-ben (a konténerből dl.google.com tiltott).
 
 ## Hol tart a projekt
 | Mérföldkő | Állapot |
@@ -20,7 +20,7 @@ Utolsó frissítés: 2026-10-08, felhős session, munkaág **`claude/friendly-hy
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 ✅ perf |
 | M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
 | M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · T5.4 ✅ Óraműhely (20) · T5.5 ✅ Felhőszirt (20) · T5.6 ✅ bónusz (30) + napi pálya · T5.7 ✅ tippek + megoldás-visszajátszás → **M5 kész** |
-| M6 Meta + UI | 🔄 T6.3 ✅ mentés · T6.1 ✅ menü/világtérkép/pályaválasztó · T6.2 ✅ beállítások · következik T6.4 i18n/a11y |
+| M6 Meta + UI | ✅ T6.3 mentés · T6.1 menü/világtérkép/pályaválasztó · T6.2 beállítások · T6.4 i18n/a11y audit |
 | M7–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
@@ -160,12 +160,19 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - `GameApp.updateSettings(patch)` → `SaveGame.updateSettings` → `applySettings()`: hang, haptika, nyelv (`null` → `systemLanguage()`), futó pályán auto-szünet, érintési sugár (`PlayScreen.selectRadius`), magas kontraszt (`WorldRenderer.setHighContrast`: egyszínű ég). Kezdősebesség és csökkentett mozgás a következő pályától. A `<html>` osztályai: `left-handed` (vezérlősor + lebegő sor tükrözve), `high-contrast`, `large-text`; `lang` követi a nyelvet.
 - `restartTutorial`, `restorePurchases` (most mindig „nincs mit visszaállítani” – T8.1 köti be). Debug: `__pathlings.settings`, `__pathlings.play`.
 
+## i18n + akadálymentesség (T6.4)
+- `docs/a11y-audit.md` – ellenőrzőlista és a maradék apróságok (alacsony idő csak színnel; szerkesztő-lapok Escape nélkül; kezdősebesség/csökkentett mozgás csak a következő pályától).
+- `tests/e2e/a11y.spec.ts` – `@axe-core/playwright` (dev-függőség, csak teszt) WCAG 2.1 A/AA minden fő képernyőn, a `#stage` canvas kizárva, a `meta-viewport` szabály szándékosan kikapcsolva (a csípés a kamerát zoomolja).
+- `tests/unit/i18n.test.ts` – kulcsok egyezése, helyőrzők egyezése, beégetett UI-szöveg keresése `src/ui/*.tsx`-ben (kivétel: „English”, „Magyar”).
+- Párbeszédablakok Escape-re zárnak (`src/ui/useEscape.ts`).
+
 ## Következő lépések sorrendben
-1. T6.4 i18n (hiányzó kulcs teszt mindkét nyelvre már van: `tests/unit/i18n.test.ts` – ellenőrizni) + a11y audit.
-3. M7 Capacitor, M8 vásárlás (T8.2: paywall egyszer W2-10 után), M9 kiadás.
+1. M7: T7.1 Capacitor 8 + natív `platform` implementációk, T7.2 ikon/splash kódból, T7.3 natív CI (android.yml, ios.yml), T7.4 deep link (opcionális).
+2. M8 vásárlás: T8.1 `Purchases` interfész (mock + RevenueCat) → `GameApp.fullGame`, `restorePurchases`, `FULL_GAME_PRICE` helyett bolti ár; T8.2 kapuk + paywall egyszer W2-10 után.
+3. M9 kiadás.
 
 ## Munkamódszer
-Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.
+Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push (felhős sessionben a kijelölt `claude/…` ágra) → dashboard.
 
 ## Lokális futtatás
 - `npm ci` (ha egy másik folyamat is telepít ugyanide, `ENOTEMPTY`-vel elhasal – egyszerre csak egy session dolgozzon egy klónban)
