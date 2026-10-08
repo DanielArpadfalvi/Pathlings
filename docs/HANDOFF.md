@@ -1,6 +1,6 @@
 # Pathlings – átadási jegyzet (lokális session indulásához)
 
-Utolsó frissítés: 2026-10-08 (T5.6 – felhős session, ág `claude/friendly-hypatia-lyign2`). A Pathlingset a **lokális, Pathlings-könyvtárban futó session** viszi (a lokális orkesztrátor-session a Craterpultot és az orchestrator repó könyvelését; ne dolgozzon egyszerre két session ugyanebben a klónban). Minden munka pusholva a `main`-re, WIP-branch nincs.
+Utolsó frissítés: 2026-10-08 (T5.6 + T5.7 – felhős session, ág `claude/friendly-hypatia-lyign2`). A Pathlingset a **lokális, Pathlings-könyvtárban futó session** viszi (a lokális orkesztrátor-session a Craterpultot és az orchestrator repó könyvelését; ne dolgozzon egyszerre két session ugyanebben a klónban). Minden munka pusholva a `main`-re, WIP-branch nincs.
 
 ## Hol tart a projekt
 | Mérföldkő | Állapot |
@@ -11,7 +11,7 @@ Utolsó frissítés: 2026-10-08 (T5.6 – felhős session, ág `claude/friendly-
 | M2 Játszható prototípus | ✅ T2.1 renderer · T2.2 kamera · T2.3 okos kijelölés · T2.4 HUD |
 | M3 Játékélmény | 🔄 T3.1 ✅ effektek · T3.2 ✅ rewind · T3.3 ✅ hang/haptika · T3.4 ✅ perf |
 | M4 Szerkesztő + pályakód | ✅ T4.1 pályakód · T4.2 ellenőrzés · T4.3 szerkesztő-mag · T4.4 szerkesztő UI + közzététel · T4.5 megosztás |
-| M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · T5.4 ✅ Óraműhely (20) · T5.5 ✅ Felhőszirt (20) · T5.6 ✅ bónusz (30) + napi pálya · következik T5.7 tippek |
+| M5 Tartalom | 🔄 T5.1 ✅ pálya-pipeline · T5.2 ✅ Mohaliget (20) + tutorial · T5.3 ✅ Kristálymély (20) · T5.4 ✅ Óraműhely (20) · T5.5 ✅ Felhőszirt (20) · T5.6 ✅ bónusz (30) + napi pálya · T5.7 ✅ tippek + megoldás-visszajátszás → **M5 kész** |
 | M6–M10 | nincs elkezdve |
 
 Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run build` zöld, `npm run test:e2e` 26/26 zöld; `src/core` 100% sorlefedettség; 18 000 tick × 100 lény ≈ 110–170 ms.
@@ -126,8 +126,16 @@ Ellenőrzés (T3.3 után): `npm run check` 419/419 unit teszt zöld, `npm run bu
 - UI: címképernyő „Napi pálya” gomb a mai módosítóval (`play-daily`, `daily-modifier`), játék közben `daily-badge`; `GameApp.playDaily()`. URL: `?daily=1` vagy `?daily=YYYY-MM-DD` (e2e: `tests/e2e/daily.spec.ts`). Az ingyenes/fizetős kapuzás (csak a mai ingyenes, archívum = Teljes játék) a T8.2-ben jön.
 - Figyelem: a bónuszkészlet vagy a változatok listájának módosítása megváltoztatja a jövőbeli napi választásokat (a szimet nem, így `SIM_VERSION` nem érintett).
 
+## Tippek + megoldás-visszajátszás (T5.7)
+- `src/app/help.ts` – `HelpTracker` (tárhely: `pathlings.help.v1`, sérült rekord → üres): `recordFail`, `recordWin` (→ `clean` / `withHelp`), `watchSolution` (csak feloldva), `HINT_FAILS = 3`, `SOLUTION_FAILS = 5`; `solutionSkills` a generált tipphez.
+- Kulcs (`GameApp.helpKey`): beépített pálya id-je, napi pálya `daily:YYYY-MM-DD`, kódos/saját pálya `code:<MyLevels id>`; tesztjátékban és attract módban nincs segítség.
+- Sikertelen próba: a pálya vesztéssel ér véget (egyszer számít; visszatekerés utáni győzelem is rögzül), vagy újrakezdés ≥ 600 tick (10 s) után (`RETRY_FAIL_TICKS`).
+- UI: `help` gomb a bal alsó csoportban (`data-unlocked`), `HelpPanel` (zárolt állapotban hány próba kell még), vesztés-kártyán „Segítség” (`end-help`), visszajátszás: `PlayScreen` `watchOnly` (kamera megy, kijelölés nem), `replay-badge`, végén `replay-end` + „Most te jössz” (= retry); a győzelmi kártyán „Segítséggel megoldva” (`solved-with-help`).
+- Szinte minden pályának 1 írott tippje van; a második tipp generált: „A megoldás ezeket osztja ki: …” (`solutionHint` a `hud.ts`-ben). Ha valaki írott 2. tippeket ad, azok elsőbbséget kapnak.
+- E2E: `tests/e2e/help.spec.ts` (3 újrakezdés → tippek; előre beállított 5 próba → visszajátszás végig).
+
 ## Következő lépések sorrendben
-1. M5: T5.7 tippek + megoldás-visszajátszás; utána M6–M9.
+1. M6: T6.1 menü + világtérkép + pályaválasztó (3 nyitott pálya szabály, 17/20 világkapu), T6.2 beállítások, T6.3 mentés (a `HelpTracker` és `MyLevels` tárhelykulcsai beolvasztandók a verziózott mentésbe), T6.4 i18n/a11y; utána M7–M9.
 
 ## Munkamódszer
 Lásd az orchestrator repót (`DanielArpadfalvi/orchestrator`, ág `claude/upbeat-bohr-rofk9t`): `CLAUDE.md`, `playbook/PIPELINE.md`, agent-szerepek `.claude/agents/`. Feladatonként egy `game-builder` agent → orkesztrátor ellenőrzi (check/build/e2e/screenshot) → `docs/TASKS.md` pipa → commit + push `main`-re → dashboard.

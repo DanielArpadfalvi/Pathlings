@@ -1,11 +1,12 @@
 import type { DailyModifier } from '../core/daily';
-import type { SkillId, SkillSet } from '../core/level';
+import type { SkillId, SkillSet, Solution } from '../core/level';
 import { TICKS_PER_SECOND } from '../core/level';
 import { liveCount, releaseBounds, timeLeftTicks } from '../core/sim';
 import type { LevelEndReason } from '../core/world';
 import { rateRun } from '../core/stars';
 import { type TranslationKey, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
+import { solutionSkills } from './help';
 import type { PlayScreen } from './playScreen';
 import type { TutorialView } from './tutorial';
 
@@ -17,6 +18,20 @@ export interface EndInfo {
   stars: number;
   reason: LevelEndReason;
   hasNext: boolean;
+  /** Won after watching the solution ("solved with help"). */
+  withHelp: boolean;
+}
+
+/** Hints and solution replay of the level being played (T5.7). */
+export interface HelpInfo {
+  fails: number;
+  /** Hint texts (shown once unlocked). */
+  hints: string[];
+  hintsUnlocked: boolean;
+  solutionUnlocked: boolean;
+  hasSolution: boolean;
+  hintFails: number;
+  solutionFails: number;
 }
 
 /** The daily level: its UTC date and the modifier, as display text. */
@@ -28,6 +43,14 @@ export interface DailyInfo {
 export function modifierText(mod: DailyModifier): string {
   if (mod.kind === 'fewer') return t('daily.mod.fewer', { skill: t(`skill.${mod.skill}`) });
   return mod.kind === 'shorter' ? t('daily.mod.shorter') : t('daily.mod.more');
+}
+
+/** "The solution uses: 1× Delver, 2× Mason (and pop-all)." */
+export function solutionHint(solution: Solution): string {
+  const { skills, popAll } = solutionSkills(solution);
+  const list = skills.map(([s, n]) => `${n}× ${t(`skill.${s}`)}`).join(', ');
+  if (!list) return t('help.usesNoSkills');
+  return t(popAll ? 'help.usesSkillsPopAll' : 'help.usesSkills', { list });
 }
 
 /** Everything the DOM overlay shows during play, as plain data (see `Store`). */
@@ -61,6 +84,10 @@ export interface HudState {
   tutorial: TutorialView | null;
   /** Title: today's daily level (null when unavailable); play: the daily being played. */
   daily: DailyInfo | null;
+  /** Help for the current level (null: none, e.g. test play or attract mode). */
+  help: HelpInfo | null;
+  /** Watching the level's solution replay. */
+  replay: boolean;
   end: EndInfo | null;
 }
 
@@ -89,6 +116,8 @@ export const TITLE_HUD: HudState = {
   testPlay: false,
   tutorial: null,
   daily: null,
+  help: null,
+  replay: false,
   end: null,
 };
 
@@ -128,6 +157,8 @@ export function hudFor(
     testPlay: false,
     tutorial: null,
     daily: null,
+    help: null,
+    replay: false,
     end:
       showEnd && sim.ended
         ? {
@@ -138,6 +169,7 @@ export function hudFor(
             stars,
             reason: sim.endReason ?? 'done',
             hasNext: stars > 0 && levelNumber < levelCount,
+            withHelp: false,
           }
         : null,
   };

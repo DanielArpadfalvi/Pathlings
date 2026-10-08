@@ -10,7 +10,17 @@ import { type DailyLevel, dailyLevel } from '../levels/daily';
 import { epochDay } from '../core/daily';
 import { TUTORIAL, TUTORIAL_SKIPPED_KEY } from '../levels/tutorial';
 import { TutorialDirector } from './tutorial';
-import { type DailyInfo, type HudState, TITLE_HUD, hudFor, modifierText } from './hud';
+import {
+  type DailyInfo,
+  type HelpInfo,
+  type HudState,
+  TITLE_HUD,
+  hudFor,
+  modifierText,
+  solutionHint,
+} from './hud';
+import { HINT_FAILS, HelpTracker, SOLUTION_FAILS } from './help';
+import { type TranslationKey, t } from '../i18n';
 import { PlayScreen } from './playScreen';
 import { EditorScreen, type EditorView } from './editorScreen';
 import type { Tool } from '../editor/tools';
@@ -34,6 +44,8 @@ export const SPEEDS = [1, 2, 4, 0.5] as const;
 const END_SCREEN_DELAY_MS = 700;
 /** Attract mode restarts the demo this long after it ends. */
 const ATTRACT_RESTART_MS = 2000;
+/** Restarting a level after this many ticks without finishing counts as a failed try. */
+export const RETRY_FAIL_TICKS = 600;
 /** Hold-to-rewind runs backwards at this multiple of real time (§1.7). */
 export const REWIND_SPEED = 4;
 
@@ -59,6 +71,8 @@ export interface GameActions {
   /** Tutorial: "Got it" / skip the whole tutorial. */
   tutorialOk(): void;
   skipTutorial(): void;
+  /** Watch the level's solution (once unlocked; marks a later win "with help"). */
+  watchSolution(): void;
 }
 
 /** UI → editor commands. */
@@ -128,6 +142,15 @@ export class GameApp implements GameActions, EditorActions {
   private rewindAcc = 0;
   /** The daily level being played (null for any other level). */
   private daily: DailyLevel | null = null;
+  readonly help = new HelpTracker(getStore());
+  /** Help key of a played level code (`code:<id>`), set when one is loaded. */
+  private codeKey: string | null = null;
+  /** The current screen replays the level's solution. */
+  private replaying = false;
+  /** What the current run has counted so far (a loss rewound into a win counts both). */
+  private outcome: 'none' | 'fail' | 'win' = 'none';
+  /** Mark of the current run's win (end screen "solved with help"). */
+  private wonWithHelp = false;
 
   constructor(
     private readonly app: Application,
@@ -227,7 +250,8 @@ export class GameApp implements GameActions, EditorActions {
     }
     const level = this.levels[this.index] as LevelDef;
     const screen = new PlayScreen(this.app, level, {
-      autoplay: fromParams && p.autoplay ? level.solution : undefined,
+      autoplay: this.replaying || (fromParams && p.autoplay) ? level.solution : undefined,
+      watchOnly: this.replaying,
       seek: fromParams ? p.seek : 0,
       paused: fromParams && p.paused,
       interactive: true,
@@ -245,7 +269,12 @@ export class GameApp implements GameActions, EditorActions {
     this.tutorial = null;
     if (!screen) return;
     const steps = TUTORIAL[screen.session.level.id];
-    if (this.mode === 'play' && steps && getStore().get(TUTORIAL_SKIPPED_KEY) !== '1') {
+    if (
+      this.mode === 'play' &&
+      !this.replaying &&
+      steps &&
+      getStore().get(TUTORIAL_SKIPPED_KEY) !== '1'
+    ) {
       this.tutorial = new TutorialDirector(steps, screen);
     }
     if (this.mode === 'title') {
@@ -277,6 +306,8 @@ export class GameApp implements GameActions, EditorActions {
     if (this.mode === 'play') this.ps.filter = filter;
     this.endedAt = -1;
     this.rewinding = false;
+    this.outcome = 'none';
+    this.wonWithHelp = false;
     this.publishHud();
   }
 
@@ -310,7 +341,10 @@ export class GameApp implements GameActions, EditorActions {
     this.audio.setDucked(this.mode === 'play' && (session.paused || session.sim.ended));
     const ended = session.sim.ended;
     if (!ended) this.endedAt = -1;
-    else if (this.endedAt < 0) this.endedAt = this.now;
+    else if (this.endedAt < 0) {
+      this.endedAt = this.now;
+      this.recordOutcome();
+    }
     if (this.mode === 'title' && ended && this.now - this.endedAt > ATTRACT_RESTART_MS) {
       this.replaceScreen();
       return;
@@ -340,10 +374,72 @@ export class GameApp implements GameActions, EditorActions {
     );
     this.hud.set({
       ...hud,
+      end: hud.end && {
+        ...hud.end,
+        withHelp: this.wonWithHelp,
+        hasNext: hud.end.hasNext && !this.replaying,
+      },
       testPlay: this.testing,
       tutorial: this.tutorial?.view ?? null,
       daily: this.dailyInfo(this.daily),
+      help: this.helpInfo(),
+      replay: this.replaying,
     });
+  }
+
+  // --- Help (T5.7) -----------------------------------------------------------------------------
+
+  /** Which help record the current level uses (null: no help, e.g. test play / attract). */
+  private helpKey(): string | null {
+    if (this.mode !== 'play' || this.testing || !this.screen) return null;
+    if (this.daily) return `daily:${this.daily.label}`;
+    const level = this.screen.session.level;
+    return level.id || this.codeKey;
+  }
+
+  private helpInfo(): HelpInfo | null {
+    const key = this.helpKey();
+    if (!key || !this.screen) return null;
+    const level = this.screen.session.level;
+    const hints = level.hintKeys?.length
+      ? level.hintKeys.map((k) => t(k as TranslationKey))
+      : level.hints.filter((h) => h.trim() !== '');
+    if (hints.length < 2 && level.solution) hints.push(solutionHint(level.solution));
+    const fails = this.help.get(key).fails;
+    return {
+      fails,
+      hints,
+      hintsUnlocked: this.help.hintsUnlocked(key),
+      solutionUnlocked: this.help.solutionUnlocked(key),
+      hasSolution: !!level.solution,
+      hintFails: HINT_FAILS,
+      solutionFails: SOLUTION_FAILS,
+    };
+  }
+
+  /**
+   * Counts a finished run: the first loss is one failed try; a win (also one reached by rewinding
+   * a loss) is recorded once and may be "with help".
+   */
+  private recordOutcome(): void {
+    const key = this.helpKey();
+    if (!key || this.replaying || this.outcome === 'win' || !this.screen) return;
+    const sim = this.screen.session.sim;
+    if (sim.saved >= sim.level.required) {
+      this.outcome = 'win';
+      this.wonWithHelp = this.help.recordWin(key) === 'withHelp';
+    } else if (this.outcome === 'none') {
+      this.outcome = 'fail';
+      this.help.recordFail(key);
+    }
+  }
+
+  watchSolution(): void {
+    const key = this.helpKey();
+    if (!key || this.replaying || !this.screen?.session.level.solution) return;
+    if (!this.help.watchSolution(key)) return;
+    this.replaying = true;
+    this.replaceScreen();
   }
 
   // --- GameActions ------------------------------------------------------------------------------
@@ -351,6 +447,7 @@ export class GameApp implements GameActions, EditorActions {
   play(): void {
     this.testing = false;
     this.daily = null;
+    this.replaying = false;
     this.mode = 'play';
     this.levels = BUILTIN_LEVELS.w1.length > 0 ? BUILTIN_LEVELS.w1 : FIXTURE_LEVELS;
     this.index = 0;
@@ -361,6 +458,7 @@ export class GameApp implements GameActions, EditorActions {
     const daily = this.todaysDaily();
     if (!daily) return;
     this.testing = false;
+    this.replaying = false;
     this.daily = daily;
     this.mode = 'play';
     this.levels = [daily.level];
@@ -369,7 +467,7 @@ export class GameApp implements GameActions, EditorActions {
   }
 
   selectSkill(skill: SkillId): void {
-    if (this.mode !== 'play') return;
+    if (this.mode !== 'play' || this.replaying) return;
     this.ps.skill = this.ps.skill === skill ? null : skill;
     this.publishHud();
   }
@@ -389,24 +487,30 @@ export class GameApp implements GameActions, EditorActions {
   }
 
   release(direction: 1 | -1): void {
-    if (this.mode !== 'play') return;
+    if (this.mode !== 'play' || this.replaying) return;
     this.ps.session.changeRelease(direction);
     this.publishHud();
   }
 
   popAll(): void {
-    if (this.mode !== 'play') return;
+    if (this.mode !== 'play' || this.replaying) return;
     this.ps.session.popAll();
     this.publishHud();
   }
 
   retry(): void {
     if (this.mode !== 'play') return;
+    const sim = this.ps.session.sim;
+    if (!sim.ended && sim.tick >= RETRY_FAIL_TICKS && !this.replaying) {
+      const key = this.helpKey();
+      if (key && this.outcome === 'none') this.help.recordFail(key);
+    }
+    this.replaying = false;
     this.replaceScreen();
   }
 
   next(): void {
-    if (this.mode !== 'play') return;
+    if (this.mode !== 'play' || this.replaying) return;
     if (this.index + 1 < this.levels.length) {
       this.index++;
       this.replaceScreen();
@@ -441,6 +545,7 @@ export class GameApp implements GameActions, EditorActions {
     this.mode = 'editor';
     this.editor = this.createEditor(level ?? loadDraft(getStore()) ?? undefined);
     this.daily = null;
+    this.replaying = false;
     this.publishHud();
   }
 
@@ -470,6 +575,7 @@ export class GameApp implements GameActions, EditorActions {
     const level = this.myLevels.level(id);
     if (!level) return;
     this.loaded = level;
+    this.codeKey = `code:${id}`;
     this.playLoaded();
   }
 
@@ -492,6 +598,7 @@ export class GameApp implements GameActions, EditorActions {
     this.editorDoc = null;
     this.mode = 'title';
     this.daily = null;
+    this.replaying = false;
     this.replaceScreen();
   }
 
@@ -509,6 +616,7 @@ export class GameApp implements GameActions, EditorActions {
     this.testing = true;
     this.mode = 'play';
     this.daily = null;
+    this.replaying = false;
     this.levels = [doc.level];
     this.index = 0;
     this.editorDoc = doc;
@@ -548,7 +656,7 @@ export class GameApp implements GameActions, EditorActions {
     try {
       const { level, verify } = loadLevelCode(text);
       this.loaded = level;
-      this.myLevels.add(text, 'received');
+      this.codeKey = `code:${this.myLevels.add(text, 'received').id}`;
       this.refreshMyLevels();
       return {
         ok: true,
@@ -567,6 +675,7 @@ export class GameApp implements GameActions, EditorActions {
     if (!this.loaded) return;
     this.testing = false;
     this.daily = null;
+    this.replaying = false;
     this.mode = 'play';
     this.levels = [this.loaded];
     this.index = 0;

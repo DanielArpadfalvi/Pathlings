@@ -227,12 +227,40 @@ function ControlBar({ hud, actions }: { hud: HudState; actions: GameActions }) {
 
 type HudActions = GameActions & Pick<EditorActions, 'backToEditor' | 'publish'>;
 
-function EndScreen({ hud, actions }: { hud: HudState; actions: HudActions }) {
+function EndScreen({
+  hud,
+  actions,
+  onHelp,
+}: {
+  hud: HudState;
+  actions: HudActions;
+  onHelp: () => void;
+}) {
   const [code, setCode] = useState<string | null>(null);
   const end = hud.end;
   if (!end) return null;
   if (code) return <PublishPanel code={code} onClose={() => setCode(null)} />;
+  if (hud.replay) {
+    return (
+      <div class="end-backdrop">
+        <div class="end-card" role="dialog" aria-modal="true" data-testid="replay-end">
+          <h2>{t('help.replayDone')}</h2>
+          <div class="end-buttons">
+            <button
+              type="button"
+              class="text-button primary"
+              data-testid="retry"
+              onClick={() => actions.retry()}
+            >
+              <RetryIcon /> {t('help.yourTurn')}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const heading = end.won ? t('end.won') : end.reason === 'time' ? t('end.timeUp') : t('end.lost');
+  const helpReady = !end.won && hud.help && (hud.help.hintsUnlocked || hud.help.solutionUnlocked);
   return (
     <div class="end-backdrop">
       <div
@@ -252,6 +280,11 @@ function EndScreen({ hud, actions }: { hud: HudState; actions: HudActions }) {
           ))}
         </div>
         {hud.testPlay && !end.won && <p class="editor-hint">{t('end.publishHint')}</p>}
+        {end.won && end.withHelp && (
+          <p class="editor-hint" data-testid="solved-with-help">
+            {t('help.solvedWithHelp')}
+          </p>
+        )}
         <p class="end-saved">
           {format(t('end.saved'), { saved: end.saved, total: end.total, required: end.required })}
         </p>
@@ -264,6 +297,11 @@ function EndScreen({ hud, actions }: { hud: HudState; actions: HudActions }) {
           >
             <RetryIcon /> {t('end.retry')}
           </button>
+          {helpReady && (
+            <button type="button" class="text-button" data-testid="end-help" onClick={onHelp}>
+              {t('help.title')}
+            </button>
+          )}
           {hud.testPlay && (
             <button
               type="button"
@@ -305,10 +343,12 @@ export function PlayHud({
   hud,
   actions,
   floating,
+  onHelp,
 }: {
   hud: HudState;
   actions: HudActions;
   floating: preact.ComponentChildren;
+  onHelp: () => void;
 }) {
   const top = useRef<HTMLDivElement>(null);
   const bottom = useRef<HTMLDivElement>(null);
@@ -353,7 +393,12 @@ export function PlayHud({
           onSkip={() => actions.skipTutorial()}
         />
       )}
-      <EndScreen hud={hud} actions={actions} />
+      {hud.replay && !hud.end && (
+        <div class="replay-badge" data-testid="replay-badge">
+          {t('help.replaying')}
+        </div>
+      )}
+      <EndScreen hud={hud} actions={actions} onHelp={onHelp} />
     </>
   );
 }

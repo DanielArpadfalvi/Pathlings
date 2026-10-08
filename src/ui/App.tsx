@@ -6,6 +6,7 @@ import type { Store } from '../app/store';
 import { getLanguage, onLanguageChange, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
 import { EditorHud } from './EditorHud';
+import { HelpPanel } from './HelpPanel';
 import { CodePanel, MyLevelsPanel } from './Panels';
 import type { MyLevel } from '../app/myLevels';
 import { NEXT_FILTER, PlayHud } from './PlayHud';
@@ -58,6 +59,7 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
   const editorView = useStore(editorStore);
   const [codeOpen, setCodeOpen] = useState(false);
   const [myOpen, setMyOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const myLevels = useStore(myStore);
 
   if (hud.mode === 'title') {
@@ -148,17 +150,32 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
 
   const floating = (
     <>
-      <button
-        type="button"
-        class="icon-button"
-        data-testid="direction-filter"
-        data-filter={hud.filter}
-        aria-label={t(`filter.${hud.filter}`)}
-        title={t(`filter.${hud.filter}`)}
-        onClick={() => actions.setFilter(NEXT_FILTER[hud.filter])}
-      >
-        <FilterIcon filter={hud.filter} />
-      </button>
+      <span class="floating-group">
+        <button
+          type="button"
+          class="icon-button"
+          data-testid="direction-filter"
+          data-filter={hud.filter}
+          aria-label={t(`filter.${hud.filter}`)}
+          title={t(`filter.${hud.filter}`)}
+          onClick={() => actions.setFilter(NEXT_FILTER[hud.filter])}
+        >
+          <FilterIcon filter={hud.filter} />
+        </button>
+        {hud.help && !hud.replay && (
+          <button
+            type="button"
+            class="icon-button help-button"
+            data-testid="help"
+            data-unlocked={hud.help.hintsUnlocked}
+            aria-label={t('help.title')}
+            title={t('help.title')}
+            onClick={() => setHelpOpen(true)}
+          >
+            ?
+          </button>
+        )}
+      </span>
       {hud.testPlay ? (
         <button
           type="button"
@@ -174,5 +191,19 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
       {wholeLevel}
     </>
   );
-  return <PlayHud hud={hud} actions={actions} floating={floating} />;
+  return (
+    <>
+      <PlayHud hud={hud} actions={actions} floating={floating} onHelp={() => setHelpOpen(true)} />
+      {helpOpen && hud.help && !hud.replay && (
+        <HelpPanel
+          help={hud.help}
+          onWatch={() => {
+            setHelpOpen(false);
+            actions.watchSolution();
+          }}
+          onClose={() => setHelpOpen(false)}
+        />
+      )}
+    </>
+  );
 }

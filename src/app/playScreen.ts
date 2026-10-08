@@ -24,6 +24,8 @@ export interface PlayScreenOptions {
   paused?: boolean;
   /** Accept touch / mouse input (off in attract mode). */
   interactive?: boolean;
+  /** With `interactive`: camera gestures only, creatures cannot be selected (solution replay). */
+  watchOnly?: boolean;
   /** Start showing the whole level instead of the entrance framing (attract mode). */
   wholeLevel?: boolean;
   skill?: SkillId | null;
@@ -90,7 +92,7 @@ export class PlayScreen {
       ? attachPointerInput(app.canvas, {
           onGesture: (g) => this.onGesture(g),
           onWheelZoom: (x, y, f) => this.camera.zoomAt({ x, y }, f),
-          hitTest: (x, y) => this.pickAt(x, y) !== null,
+          hitTest: (x, y) => !options.watchOnly && this.pickAt(x, y) !== null,
         })
       : null;
     this.draw(0);
