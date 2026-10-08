@@ -1,0 +1,225 @@
+{
+  "v": 1,
+  "id": "bonus-09",
+  "title": "Hedge Maze",
+  "author": "",
+  "theme": "glade",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 380,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 200,
+      "y": 340,
+      "w": 12,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 240,
+      "y": 420,
+      "w": 16,
+      "h": 20
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 370,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 279,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 2,
+    "sloper": 0,
+    "delver": 2
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-09.title",
+  "difficulty": 4,
+  "hintKeys": ["level.bonus-09.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 281,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 957,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 4021282116
+  },
+  "daily": [
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "burrower"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 281,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 957,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 4035298901
+      }
+    },
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "delver"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 281,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 957,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3315425717
+      }
+    },
+    {
+      "mod": {
+        "kind": "shorter"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 281,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 957,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 4021282116
+      }
+    },
+    {
+      "mod": {
+        "kind": "more"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 281,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 957,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 4021282116
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 120,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 232,
+        "yGte": 440,
+        "state": "walk"
+      }
+    }
+  ]
+}

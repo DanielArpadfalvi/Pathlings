@@ -7,10 +7,17 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { ThemeId } from '../src/core/level';
+import {
+  type DailyVariant,
+  applyModifier,
+  candidateModifiers,
+  modifierKey,
+} from '../src/core/daily';
+import type { LevelDef, ThemeId } from '../src/core/level';
 import { compilePlan } from '../src/levels/plan';
 import type { WorldId } from '../src/levels/validate';
 import { type LevelSpec, toLevel } from './author/build';
+import { BONUS } from './author/bonus';
 import { W1 } from './author/w1';
 import { W2 } from './author/w2';
 import { W3 } from './author/w3';
@@ -28,7 +35,35 @@ const SOURCES: WorldSource[] = [
   { id: 'w2', theme: 'deep', levels: W2 },
   { id: 'w3', theme: 'clockworks', levels: W3 },
   { id: 'w4', theme: 'skyreach', levels: W4 },
+  { id: 'bonus', theme: 'glade', levels: BONUS },
 ];
+
+/**
+ * Daily variants of a bonus level (T5.6): every applicable modifier that the main plan – or the
+ * spec's dedicated plan for it – still wins, with its own recorded solution.
+ */
+function dailyVariants(level: LevelDef, spec: LevelSpec): DailyVariant[] {
+  const out: DailyVariant[] = [];
+  const keys = new Set<string>();
+  for (const mod of candidateModifiers(level)) {
+    const key = modifierKey(mod);
+    keys.add(key);
+    const modded = applyModifier(level, mod);
+    const r = compilePlan(modded, spec.daily?.[key] ?? spec.plan);
+    if (r.won && r.unfired.length === 0) out.push({ mod, solution: r.solution });
+    else if (spec.daily?.[key]) {
+      console.log(`    ✗ ${level.id} daily plan "${key}" does not win (${r.saved})`);
+      broken++;
+    }
+  }
+  for (const key of Object.keys(spec.daily ?? {})) {
+    if (!keys.has(key)) {
+      console.log(`    ✗ ${level.id} daily plan "${key}" is not an applicable modifier`);
+      broken++;
+    }
+  }
+  return out;
+}
 
 const only = new Set(process.argv.slice(2));
 const en: Record<string, string> = {};
@@ -61,8 +96,14 @@ for (const world of SOURCES) {
     level.master = Math.max(level.required, r.saved);
     level.frugal = assigns;
     level.solution = r.solution;
+    const daily = world.id === 'bonus' && ok ? dailyVariants(level, spec) : undefined;
+    if (daily) {
+      console.log(`    daily: ${daily.map((v) => modifierKey(v.mod)).join(', ') || 'NONE'}`);
+      if (daily.length === 0) broken++;
+    }
     writeLevelFile(join(dir, `${String(spec.index).padStart(2, '0')}.json`), {
       ...level,
+      ...(daily ? { daily } : {}),
       plan: spec.plan,
     });
   }

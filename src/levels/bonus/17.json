@@ -1,0 +1,216 @@
+{
+  "v": 1,
+  "id": "bonus-17",
+  "title": "Long Tunnel",
+  "author": "",
+  "theme": "glade",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 300,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 0,
+      "y": 360,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 60,
+      "y": 290,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 284,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 2,
+    "delver": 2
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-17.title",
+  "difficulty": 6,
+  "hintKeys": ["level.bonus-17.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 161,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 501,
+        "creature": 0,
+        "skill": "sloper"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 304880822
+  },
+  "daily": [
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "sloper"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 161,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 501,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3424260095
+      }
+    },
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "delver"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 161,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 501,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1375128655
+      }
+    },
+    {
+      "mod": {
+        "kind": "shorter"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 161,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 501,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 304880822
+      }
+    },
+    {
+      "mod": {
+        "kind": "more"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 161,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 501,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 304880822
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 100,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "sloper",
+      "creature": 0,
+      "when": {
+        "yGte": 360,
+        "state": "walk"
+      }
+    }
+  ]
+}

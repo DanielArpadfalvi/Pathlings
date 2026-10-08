@@ -1,0 +1,232 @@
+{
+  "v": 1,
+  "id": "bonus-21",
+  "title": "Underpass",
+  "author": "",
+  "theme": "glade",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 360,
+      "w": 320,
+      "h": 60
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 150,
+      "y": 360,
+      "w": 60,
+      "h": 20
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 240,
+      "y": 400,
+      "w": 16,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 350,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 279,
+      "y": 428
+    },
+    {
+      "type": "water",
+      "x": 150,
+      "y": 362,
+      "w": 60,
+      "h": 18
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 2,
+    "sloper": 2,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-21.title",
+  "difficulty": 7,
+  "hintKeys": ["level.bonus-21.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 191,
+        "creature": 0,
+        "skill": "sloper"
+      },
+      {
+        "kind": "assign",
+        "tick": 994,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 1696156637
+  },
+  "daily": [
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "burrower"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 191,
+            "creature": 0,
+            "skill": "sloper"
+          },
+          {
+            "kind": "assign",
+            "tick": 994,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3876755828
+      }
+    },
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "sloper"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 191,
+            "creature": 0,
+            "skill": "sloper"
+          },
+          {
+            "kind": "assign",
+            "tick": 994,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2615100068
+      }
+    },
+    {
+      "mod": {
+        "kind": "shorter"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 191,
+            "creature": 0,
+            "skill": "sloper"
+          },
+          {
+            "kind": "assign",
+            "tick": 994,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1696156637
+      }
+    },
+    {
+      "mod": {
+        "kind": "more"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 191,
+            "creature": 0,
+            "skill": "sloper"
+          },
+          {
+            "kind": "assign",
+            "tick": 994,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1696156637
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "sloper",
+      "creature": 0,
+      "when": {
+        "xGte": 90,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 232,
+        "yGte": 440,
+        "state": "walk"
+      }
+    }
+  ]
+}

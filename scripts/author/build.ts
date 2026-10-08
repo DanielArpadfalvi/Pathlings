@@ -26,6 +26,8 @@ export interface LevelSpec {
   title: Text;
   hints?: Text[];
   difficulty: number;
+  /** Theme override (bonus pool levels mix all four). */
+  theme?: LevelDef['theme'];
   w?: number;
   h?: number;
   ops: RasterOp[];
@@ -36,6 +38,11 @@ export interface LevelSpec {
   timeLimitSeconds?: number;
   minReleaseTicks?: number;
   plan: PlanStep[];
+  /**
+   * Bonus pool only: reference plans for daily modifiers (key = `modifierKey`) where the main
+   * plan does not win under the modifier. Every modifier that some plan wins becomes a variant.
+   */
+  daily?: Record<string, PlanStep[]>;
 }
 
 export function rect(m: Material, x: number, y: number, w: number, h: number): RasterOp {
@@ -114,7 +121,7 @@ export function toLevel(world: string, theme: LevelDef['theme'], spec: LevelSpec
     title: spec.title[0],
     titleKey: `level.${id}.title`,
     author: '',
-    theme,
+    theme: spec.theme ?? theme,
     difficulty: spec.difficulty,
     w: spec.w ?? 320,
     h: spec.h ?? 480,

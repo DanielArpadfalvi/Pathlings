@@ -1,0 +1,366 @@
+{
+  "v": 1,
+  "id": "bonus-24",
+  "title": "Sky Chimney",
+  "author": "",
+  "theme": "skyreach",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 160,
+      "y": 270,
+      "w": 12,
+      "h": 170
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 172,
+      "y": 270,
+      "w": 148,
+      "h": 12
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 264,
+      "y": 258
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 10,
+  "skills": {
+    "scaler": 10,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 50,
+  "hints": [],
+  "titleKey": "level.bonus-24.title",
+  "difficulty": 8,
+  "hintKeys": ["level.bonus-24.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 41,
+        "creature": 0,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 91,
+        "creature": 1,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 141,
+        "creature": 2,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 191,
+        "creature": 3,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 241,
+        "creature": 4,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 291,
+        "creature": 5,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 341,
+        "creature": 6,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 391,
+        "creature": 7,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 441,
+        "creature": 8,
+        "skill": "scaler"
+      },
+      {
+        "kind": "assign",
+        "tick": 491,
+        "creature": 9,
+        "skill": "scaler"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 2492292724
+  },
+  "daily": [
+    {
+      "mod": {
+        "kind": "shorter"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 41,
+            "creature": 0,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 91,
+            "creature": 1,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 141,
+            "creature": 2,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 191,
+            "creature": 3,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 241,
+            "creature": 4,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 291,
+            "creature": 5,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 341,
+            "creature": 6,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 391,
+            "creature": 7,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 441,
+            "creature": 8,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 491,
+            "creature": 9,
+            "skill": "scaler"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2492292724
+      }
+    },
+    {
+      "mod": {
+        "kind": "more"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 41,
+            "creature": 0,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 91,
+            "creature": 1,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 141,
+            "creature": 2,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 191,
+            "creature": 3,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 241,
+            "creature": 4,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 291,
+            "creature": 5,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 341,
+            "creature": 6,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 391,
+            "creature": 7,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 441,
+            "creature": 8,
+            "skill": "scaler"
+          },
+          {
+            "kind": "assign",
+            "tick": 491,
+            "creature": 9,
+            "skill": "scaler"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2492292724
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "scaler",
+      "creature": 0,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 1,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 2,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 3,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 4,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 5,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 6,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 7,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 8,
+      "when": {
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "scaler",
+      "creature": 9,
+      "when": {
+        "state": "walk"
+      }
+    }
+  ]
+}

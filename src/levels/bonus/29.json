@@ -1,0 +1,294 @@
+{
+  "v": 1,
+  "id": "bonus-29",
+  "title": "Grand Tour",
+  "author": "",
+  "theme": "glade",
+  "w": 480,
+  "h": 720,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 640,
+      "w": 480,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 470,
+      "w": 480,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 260,
+      "y": 510,
+      "w": 20,
+      "h": 20
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 530,
+      "w": 480,
+      "h": 60
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 474,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 60,
+      "y": 460,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 414,
+      "y": 628
+    }
+  ],
+  "creatures": 15,
+  "required": 12,
+  "master": 15,
+  "frugal": 3,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 2,
+    "sloper": 2,
+    "delver": 2
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-29.title",
+  "difficulty": 10,
+  "hintKeys": ["level.bonus-29.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 341,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 957,
+        "creature": 0,
+        "skill": "burrower"
+      },
+      {
+        "kind": "assign",
+        "tick": 1160,
+        "creature": 0,
+        "skill": "sloper"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 1528899326
+  },
+  "daily": [
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "burrower"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 341,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 957,
+            "creature": 0,
+            "skill": "burrower"
+          },
+          {
+            "kind": "assign",
+            "tick": 1160,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 413481199
+      }
+    },
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "sloper"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 341,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 957,
+            "creature": 0,
+            "skill": "burrower"
+          },
+          {
+            "kind": "assign",
+            "tick": 1160,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 109889823
+      }
+    },
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "delver"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 341,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 957,
+            "creature": 0,
+            "skill": "burrower"
+          },
+          {
+            "kind": "assign",
+            "tick": 1160,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1151444975
+      }
+    },
+    {
+      "mod": {
+        "kind": "shorter"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 341,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 957,
+            "creature": 0,
+            "skill": "burrower"
+          },
+          {
+            "kind": "assign",
+            "tick": 1160,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1528899326
+      }
+    },
+    {
+      "mod": {
+        "kind": "more"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 341,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 957,
+            "creature": 0,
+            "skill": "burrower"
+          },
+          {
+            "kind": "assign",
+            "tick": 1160,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1528899326
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 160,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 252,
+        "yGte": 530,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "sloper",
+      "creature": 0,
+      "when": {
+        "xGte": 310,
+        "yGte": 530,
+        "state": "walk"
+      }
+    }
+  ]
+}

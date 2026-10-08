@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { epochDay } from '../../../src/core/daily';
 import { validateLevel } from '../../../src/core/level';
 import { runSolution } from '../../../src/core/replay';
 import { stateHash } from '../../../src/core/sim';
@@ -130,6 +131,8 @@ describe('launch params', () => {
       filter: 'both',
       autoPause: false,
       editor: false,
+      daily: false,
+      dailyDate: null,
     });
   });
 
@@ -146,6 +149,8 @@ describe('launch params', () => {
       filter: 'left',
       autoPause: true,
       editor: false,
+      daily: false,
+      dailyDate: null,
     });
   });
 
@@ -158,6 +163,16 @@ describe('launch params', () => {
     expect(parseLaunchParams('?skill=bogus').skill).toBeNull();
     expect(parseLaunchParams('?filter=up').filter).toBe('both');
     expect(parseLaunchParams('?filter=right').filter).toBe('right');
+  });
+
+  it('parses the daily level with an optional UTC date', () => {
+    expect(parseLaunchParams('?daily=1')).toMatchObject({ daily: true, dailyDate: null });
+    expect(parseLaunchParams('?daily=2026-10-08')).toMatchObject({
+      daily: true,
+      dailyDate: epochDay(2026, 10, 8),
+    });
+    expect(parseLaunchParams('?daily=0')).toMatchObject({ daily: false, dailyDate: null });
+    expect(parseLaunchParams('?daily=2026-02-31').dailyDate).toBeNull();
   });
 });
 

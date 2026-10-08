@@ -1,0 +1,234 @@
+{
+  "v": 1,
+  "id": "bonus-06",
+  "title": "Ore Vein",
+  "author": "",
+  "theme": "deep",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 260,
+      "w": 320,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 0,
+      "y": 320,
+      "w": 320,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 380,
+      "w": 320,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 60,
+      "y": 250,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 264,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 10,
+  "frugal": 3,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 4
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-06.title",
+  "difficulty": 3,
+  "hintKeys": ["level.bonus-06.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 161,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 551,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 1181,
+        "creature": 0,
+        "skill": "delver"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 4115177195
+  },
+  "daily": [
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "delver"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 161,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 551,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 1181,
+            "creature": 0,
+            "skill": "delver"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1967055770
+      }
+    },
+    {
+      "mod": {
+        "kind": "shorter"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 161,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 551,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 1181,
+            "creature": 0,
+            "skill": "delver"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 4115177195
+      }
+    },
+    {
+      "mod": {
+        "kind": "more"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 161,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 551,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 1181,
+            "creature": 0,
+            "skill": "delver"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 4115177195
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 100,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 140,
+        "yGte": 320,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 180,
+        "yGte": 380,
+        "state": "walk"
+      }
+    }
+  ]
+}

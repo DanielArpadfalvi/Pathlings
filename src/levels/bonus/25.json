@@ -1,0 +1,191 @@
+{
+  "v": 1,
+  "id": "bonus-25",
+  "title": "Bramble Lid",
+  "author": "",
+  "theme": "glade",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 440,
+      "w": 320,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 210,
+      "y": 400,
+      "w": 110,
+      "h": 10
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 210,
+      "y": 400,
+      "w": 8,
+      "h": 40
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 430,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 264,
+      "y": 428
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 9,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 2,
+    "warden": 1,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-25.title",
+  "difficulty": 8,
+  "hintKeys": ["level.bonus-25.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 539,
+        "creature": 0,
+        "skill": "warden"
+      },
+      {
+        "kind": "assign",
+        "tick": 539,
+        "creature": 0,
+        "skill": "popper"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 1392610420
+  },
+  "daily": [
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "popper"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 539,
+            "creature": 0,
+            "skill": "warden"
+          },
+          {
+            "kind": "assign",
+            "tick": 539,
+            "creature": 0,
+            "skill": "popper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2132450569
+      }
+    },
+    {
+      "mod": {
+        "kind": "shorter"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 539,
+            "creature": 0,
+            "skill": "warden"
+          },
+          {
+            "kind": "assign",
+            "tick": 539,
+            "creature": 0,
+            "skill": "popper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1392610420
+      }
+    },
+    {
+      "mod": {
+        "kind": "more"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 539,
+            "creature": 0,
+            "skill": "warden"
+          },
+          {
+            "kind": "assign",
+            "tick": 539,
+            "creature": 0,
+            "skill": "popper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 1392610420
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "warden",
+      "creature": 0,
+      "when": {
+        "xGte": 206,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "popper",
+      "creature": 0,
+      "when": {
+        "state": "warden"
+      }
+    }
+  ]
+}

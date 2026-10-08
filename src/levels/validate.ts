@@ -1,3 +1,10 @@
+import {
+  type DailyVariant,
+  applyModifier,
+  isDailyModifier,
+  modifierKey,
+  modifierProblem,
+} from '../core/daily';
 import type { LevelDef, ThemeId } from '../core/level';
 import { validateLevel } from '../core/level';
 import { runSolution } from '../core/replay';
@@ -105,4 +112,39 @@ export function checkBuiltIn(
     }
   }
   return { id, problems, saved, assignments, stars };
+}
+
+/**
+ * Checks the daily variants of a bonus level (T5.6): at least one, no duplicates, each modifier
+ * applicable, and each variant's own reference solution wins the modified level with its recorded
+ * hash. Every modifier the daily pick can ever choose is one of these, so validating them covers
+ * all future days.
+ */
+export function checkDailyVariants(level: LevelDef, variants: unknown): string[] {
+  if (!Array.isArray(variants) || variants.length === 0) return ['daily variants missing'];
+  const problems: string[] = [];
+  const seen = new Set<string>();
+  for (const [i, v] of (variants as DailyVariant[]).entries()) {
+    if (!isDailyModifier(v?.mod)) {
+      problems.push(`daily[${i}]: invalid modifier`);
+      continue;
+    }
+    const key = modifierKey(v.mod);
+    if (seen.has(key)) problems.push(`daily[${i}]: duplicate modifier ${key}`);
+    seen.add(key);
+    const why = modifierProblem(level, v.mod);
+    if (why) {
+      problems.push(`daily ${key}: ${why}`);
+      continue;
+    }
+    if (!v.solution) {
+      problems.push(`daily ${key}: solution missing`);
+      continue;
+    }
+    const r = runSolution(applyModifier(level, v.mod, v.solution));
+    if (r.rejected > 0) problems.push(`daily ${key}: ${r.rejected} command(s) rejected`);
+    if (!r.won) problems.push(`daily ${key}: solution saves ${r.saved}`);
+    if (!r.hashMatches) problems.push(`daily ${key}: solution hash drifted`);
+  }
+  return problems;
 }

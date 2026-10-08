@@ -60,6 +60,11 @@ function TopBar({ hud }: { hud: HudState }) {
           {clock(hud.timeLeftSeconds)}
         </span>
       </div>
+      {hud.daily && (
+        <div class="daily-badge" data-testid="daily-badge">
+          {t('daily.badge', { date: hud.daily.date })} · {hud.daily.modifier}
+        </div>
+      )}
       <div class={`timeline ${hud.rewinding ? 'rewinding' : ''}`} aria-hidden="true">
         <div class="timeline-fill" style={{ width: `${hud.progress * 100}%` }} />
       </div>

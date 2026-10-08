@@ -1,0 +1,326 @@
+{
+  "v": 1,
+  "id": "bonus-27",
+  "title": "Express Lift",
+  "author": "",
+  "theme": "clockworks",
+  "w": 480,
+  "h": 720,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 0,
+      "y": 650,
+      "w": 480,
+      "h": 70
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 140,
+      "y": 360,
+      "w": 8,
+      "h": 290
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 148,
+      "y": 400,
+      "w": 326,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 148,
+      "y": 460,
+      "w": 326,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 1,
+      "x": 148,
+      "y": 520,
+      "w": 326,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 148,
+      "y": 580,
+      "w": 326,
+      "h": 30
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 474,
+      "y": 0,
+      "w": 6,
+      "h": 720
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 640,
+      "dir": 1
+    },
+    {
+      "type": "teleport",
+      "x": 100,
+      "y": 638,
+      "tx": 180,
+      "ty": 400
+    },
+    {
+      "type": "exit",
+      "x": 434,
+      "y": 638
+    }
+  ],
+  "creatures": 15,
+  "required": 13,
+  "master": 15,
+  "frugal": 4,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 0,
+    "burrower": 0,
+    "sloper": 2,
+    "delver": 4
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 60,
+  "hints": [],
+  "titleKey": "level.bonus-27.title",
+  "difficulty": 9,
+  "hintKeys": ["level.bonus-27.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 342,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 732,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 1122,
+        "creature": 0,
+        "skill": "delver"
+      },
+      {
+        "kind": "assign",
+        "tick": 1512,
+        "creature": 0,
+        "skill": "sloper"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 3287497489
+  },
+  "daily": [
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "sloper"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 342,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 732,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 1122,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 1512,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 456216096
+      }
+    },
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "delver"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 342,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 732,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 1122,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 1512,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 2727502448
+      }
+    },
+    {
+      "mod": {
+        "kind": "shorter"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 342,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 732,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 1122,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 1512,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3287497489
+      }
+    },
+    {
+      "mod": {
+        "kind": "more"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 342,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 732,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 1122,
+            "creature": 0,
+            "skill": "delver"
+          },
+          {
+            "kind": "assign",
+            "tick": 1512,
+            "creature": 0,
+            "skill": "sloper"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3287497489
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 220,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 260,
+        "yGte": 460,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "delver",
+      "creature": 0,
+      "when": {
+        "xGte": 300,
+        "yGte": 520,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "sloper",
+      "creature": 0,
+      "when": {
+        "xGte": 340,
+        "yGte": 580,
+        "state": "walk"
+      }
+    }
+  ]
+}

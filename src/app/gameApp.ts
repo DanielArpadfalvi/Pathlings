@@ -5,10 +5,12 @@ import type { LaunchParams } from '../game/launchParams';
 import { ATTRACT_LEVEL_ID } from '../game/launchParams';
 import type { DirectionFilter } from '../input/selection';
 import { FIXTURE_LEVELS, findTestLevel } from '../levels/test';
-import { BUILTIN_LEVELS, builtInLevel } from '../levels/catalog';
+import { BONUS_DAILY, BUILTIN_LEVELS, builtInLevel } from '../levels/catalog';
+import { type DailyLevel, dailyLevel } from '../levels/daily';
+import { epochDay } from '../core/daily';
 import { TUTORIAL, TUTORIAL_SKIPPED_KEY } from '../levels/tutorial';
 import { TutorialDirector } from './tutorial';
-import { type HudState, TITLE_HUD, hudFor } from './hud';
+import { type DailyInfo, type HudState, TITLE_HUD, hudFor, modifierText } from './hud';
 import { PlayScreen } from './playScreen';
 import { EditorScreen, type EditorView } from './editorScreen';
 import type { Tool } from '../editor/tools';
@@ -38,6 +40,8 @@ export const REWIND_SPEED = 4;
 /** UI → game commands (buttons, keyboard). */
 export interface GameActions {
   play(): void;
+  /** Today's daily level (bonus pool + modifier). */
+  playDaily(): void;
   selectSkill(skill: SkillId): void;
   togglePause(): void;
   cycleSpeed(): void;
@@ -122,6 +126,8 @@ export class GameApp implements GameActions, EditorActions {
   private hapticsOn = true;
   /** Fractional ticks still to rewind (rewinding is real-time driven). */
   private rewindAcc = 0;
+  /** The daily level being played (null for any other level). */
+  private daily: DailyLevel | null = null;
 
   constructor(
     private readonly app: Application,
@@ -130,10 +136,16 @@ export class GameApp implements GameActions, EditorActions {
     const direct = params.levelId
       ? (builtInLevel(params.levelId) ?? findTestLevel(params.levelId))
       : undefined;
+    const daily = params.daily ? this.todaysDaily() : null;
     if (params.editor) {
       this.mode = 'editor';
       this.screen = null;
       this.editor = this.createEditor();
+    } else if (daily) {
+      this.daily = daily;
+      this.levels = [daily.level];
+      this.mode = 'play';
+      this.screen = this.createScreen(true);
     } else if (direct) {
       // A built-in level opens inside its world's sequence ("next" works); test levels alone.
       const world = Object.values(BUILTIN_LEVELS).find((list) => list.includes(direct));
@@ -166,6 +178,21 @@ export class GameApp implements GameActions, EditorActions {
     window.addEventListener('keydown', this.unlockAudio, true);
     this.attachFeedback();
     this.publishHud();
+  }
+
+  /** UTC epoch day of "today" (`daily=YYYY-MM-DD` overrides it for testing). */
+  private today(): number {
+    if (this.params.dailyDate !== null) return this.params.dailyDate;
+    const now = new Date();
+    return epochDay(now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
+  }
+
+  private todaysDaily(): DailyLevel | null {
+    return dailyLevel(this.today(), BUILTIN_LEVELS.bonus, BONUS_DAILY);
+  }
+
+  private dailyInfo(d: DailyLevel | null): DailyInfo | null {
+    return d ? { date: d.label, modifier: modifierText(d.mod) } : null;
   }
 
   /** The play screen (title demo or level); throws in the editor. */
@@ -300,7 +327,7 @@ export class GameApp implements GameActions, EditorActions {
     }
     if (!this.screen) return;
     if (this.mode === 'title') {
-      this.hud.set(TITLE_HUD);
+      this.hud.set({ ...TITLE_HUD, daily: this.dailyInfo(this.todaysDaily()) });
       return;
     }
     const showEnd = this.endedAt >= 0 && this.now - this.endedAt >= END_SCREEN_DELAY_MS;
@@ -311,15 +338,32 @@ export class GameApp implements GameActions, EditorActions {
       showEnd && !this.rewinding,
       this.rewinding,
     );
-    this.hud.set({ ...hud, testPlay: this.testing, tutorial: this.tutorial?.view ?? null });
+    this.hud.set({
+      ...hud,
+      testPlay: this.testing,
+      tutorial: this.tutorial?.view ?? null,
+      daily: this.dailyInfo(this.daily),
+    });
   }
 
   // --- GameActions ------------------------------------------------------------------------------
 
   play(): void {
     this.testing = false;
+    this.daily = null;
     this.mode = 'play';
     this.levels = BUILTIN_LEVELS.w1.length > 0 ? BUILTIN_LEVELS.w1 : FIXTURE_LEVELS;
+    this.index = 0;
+    this.replaceScreen();
+  }
+
+  playDaily(): void {
+    const daily = this.todaysDaily();
+    if (!daily) return;
+    this.testing = false;
+    this.daily = daily;
+    this.mode = 'play';
+    this.levels = [daily.level];
     this.index = 0;
     this.replaceScreen();
   }
@@ -396,6 +440,7 @@ export class GameApp implements GameActions, EditorActions {
     this.testing = false;
     this.mode = 'editor';
     this.editor = this.createEditor(level ?? loadDraft(getStore()) ?? undefined);
+    this.daily = null;
     this.publishHud();
   }
 
@@ -446,6 +491,7 @@ export class GameApp implements GameActions, EditorActions {
     if (!this.editor) return;
     this.editorDoc = null;
     this.mode = 'title';
+    this.daily = null;
     this.replaceScreen();
   }
 
@@ -462,6 +508,7 @@ export class GameApp implements GameActions, EditorActions {
     this.editorView.set(null);
     this.testing = true;
     this.mode = 'play';
+    this.daily = null;
     this.levels = [doc.level];
     this.index = 0;
     this.editorDoc = doc;
@@ -519,6 +566,7 @@ export class GameApp implements GameActions, EditorActions {
   playLoaded(): void {
     if (!this.loaded) return;
     this.testing = false;
+    this.daily = null;
     this.mode = 'play';
     this.levels = [this.loaded];
     this.index = 0;

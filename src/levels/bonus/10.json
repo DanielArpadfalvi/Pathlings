@@ -1,0 +1,223 @@
+{
+  "v": 1,
+  "id": "bonus-10",
+  "title": "Ember Bridge",
+  "author": "",
+  "theme": "deep",
+  "w": 320,
+  "h": 480,
+  "ops": [
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 0,
+      "y": 400,
+      "w": 320,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 0,
+      "x": 160,
+      "y": 400,
+      "w": 14,
+      "h": 80
+    },
+    {
+      "op": "rect",
+      "m": 2,
+      "x": 240,
+      "y": 340,
+      "w": 14,
+      "h": 60
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    },
+    {
+      "op": "rect",
+      "m": 3,
+      "x": 314,
+      "y": 0,
+      "w": 6,
+      "h": 480
+    }
+  ],
+  "objects": [
+    {
+      "type": "entrance",
+      "x": 40,
+      "y": 390,
+      "dir": 1
+    },
+    {
+      "type": "exit",
+      "x": 284,
+      "y": 388
+    },
+    {
+      "type": "lava",
+      "x": 160,
+      "y": 450,
+      "w": 14,
+      "h": 30
+    }
+  ],
+  "creatures": 10,
+  "required": 8,
+  "master": 9,
+  "frugal": 2,
+  "skills": {
+    "scaler": 0,
+    "glider": 0,
+    "popper": 0,
+    "warden": 0,
+    "mason": 2,
+    "burrower": 2,
+    "sloper": 0,
+    "delver": 0
+  },
+  "timeLimitTicks": 18000,
+  "minReleaseTicks": 200,
+  "hints": [],
+  "titleKey": "level.bonus-10.title",
+  "difficulty": 4,
+  "hintKeys": ["level.bonus-10.hint1"],
+  "solution": {
+    "log": [
+      {
+        "kind": "assign",
+        "tick": 389,
+        "creature": 0,
+        "skill": "mason"
+      },
+      {
+        "kind": "assign",
+        "tick": 941,
+        "creature": 0,
+        "skill": "burrower"
+      }
+    ],
+    "releaseChanges": [],
+    "finalHash": 4130520641
+  },
+  "daily": [
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "mason"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 389,
+            "creature": 0,
+            "skill": "mason"
+          },
+          {
+            "kind": "assign",
+            "tick": 941,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 3415989480
+      }
+    },
+    {
+      "mod": {
+        "kind": "fewer",
+        "skill": "burrower"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 389,
+            "creature": 0,
+            "skill": "mason"
+          },
+          {
+            "kind": "assign",
+            "tick": 941,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 294759704
+      }
+    },
+    {
+      "mod": {
+        "kind": "shorter"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 389,
+            "creature": 0,
+            "skill": "mason"
+          },
+          {
+            "kind": "assign",
+            "tick": 941,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 4130520641
+      }
+    },
+    {
+      "mod": {
+        "kind": "more"
+      },
+      "solution": {
+        "log": [
+          {
+            "kind": "assign",
+            "tick": 389,
+            "creature": 0,
+            "skill": "mason"
+          },
+          {
+            "kind": "assign",
+            "tick": 941,
+            "creature": 0,
+            "skill": "burrower"
+          }
+        ],
+        "releaseChanges": [],
+        "finalHash": 4130520641
+      }
+    }
+  ],
+  "plan": [
+    {
+      "assign": "mason",
+      "creature": 0,
+      "when": {
+        "xGte": 156,
+        "state": "walk"
+      }
+    },
+    {
+      "assign": "burrower",
+      "creature": 0,
+      "when": {
+        "xGte": 232,
+        "state": "walk"
+      }
+    }
+  ]
+}

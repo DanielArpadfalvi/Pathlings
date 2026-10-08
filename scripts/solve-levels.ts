@@ -2,6 +2,7 @@
  * Level authoring tool (T5.1): compiles each level's `plan` into its exact reference solution
  * (input log + final hash) and writes it back. Run after editing a level or its plan:
  * `npm run levels:solve [id…]`. Prints the result per level (saved, assignments, stars).
+ * Daily variants of bonus levels are not touched: `npm run levels:author bonus` rebuilds them.
  */
 import { compilePlan } from '../src/levels/plan';
 import { rateRun } from '../src/core/stars';
@@ -17,6 +18,7 @@ for (const f of findLevelFiles()) {
   }
   const level = { ...f.data };
   delete level.plan;
+  delete level.daily;
   delete level.solution;
   const r = compilePlan(level, f.data.plan);
   const stars = rateRun(

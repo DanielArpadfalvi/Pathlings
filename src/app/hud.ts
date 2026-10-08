@@ -1,3 +1,4 @@
+import type { DailyModifier } from '../core/daily';
 import type { SkillId, SkillSet } from '../core/level';
 import { TICKS_PER_SECOND } from '../core/level';
 import { liveCount, releaseBounds, timeLeftTicks } from '../core/sim';
@@ -16,6 +17,17 @@ export interface EndInfo {
   stars: number;
   reason: LevelEndReason;
   hasNext: boolean;
+}
+
+/** The daily level: its UTC date and the modifier, as display text. */
+export interface DailyInfo {
+  date: string;
+  modifier: string;
+}
+
+export function modifierText(mod: DailyModifier): string {
+  if (mod.kind === 'fewer') return t('daily.mod.fewer', { skill: t(`skill.${mod.skill}`) });
+  return mod.kind === 'shorter' ? t('daily.mod.shorter') : t('daily.mod.more');
 }
 
 /** Everything the DOM overlay shows during play, as plain data (see `Store`). */
@@ -47,6 +59,8 @@ export interface HudState {
   /** Test play of the editor draft (end screen offers Edit / Publish). */
   testPlay: boolean;
   tutorial: TutorialView | null;
+  /** Title: today's daily level (null when unavailable); play: the daily being played. */
+  daily: DailyInfo | null;
   end: EndInfo | null;
 }
 
@@ -74,6 +88,7 @@ export const TITLE_HUD: HudState = {
   canRewind: false,
   testPlay: false,
   tutorial: null,
+  daily: null,
   end: null,
 };
 
@@ -112,6 +127,7 @@ export function hudFor(
     canRewind: sim.tick > 0,
     testPlay: false,
     tutorial: null,
+    daily: null,
     end:
       showEnd && sim.ended
         ? {

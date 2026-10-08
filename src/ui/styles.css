@@ -301,6 +301,30 @@ button {
   font-weight: 700;
 }
 
+.daily-badge {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #ffd56a;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.daily-button {
+  margin-top: 12px;
+  min-width: 160px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.daily-mod {
+  font-size: 12px;
+  font-weight: 400;
+  color: #ffd56a;
+}
+
 /* --- Editor ------------------------------------------------------------------------------- */
 
 .editor-button {

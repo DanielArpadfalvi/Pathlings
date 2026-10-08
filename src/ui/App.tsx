@@ -73,6 +73,19 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
         >
           {t('title.play')}
         </button>
+        {hud.daily && (
+          <button
+            type="button"
+            class="text-button daily-button"
+            data-testid="play-daily"
+            onClick={() => actions.playDaily()}
+          >
+            <span>{t('title.daily')}</span>
+            <span class="daily-mod" data-testid="daily-modifier">
+              {hud.daily.modifier}
+            </span>
+          </button>
+        )}
         <button
           type="button"
           class="text-button editor-button"
