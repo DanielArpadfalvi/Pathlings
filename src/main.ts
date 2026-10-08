@@ -57,6 +57,20 @@ function exposeDebug(game: GameApp): void {
       get hud() {
         return game.hud.get();
       },
+      get settings() {
+        return game.settings.get();
+      },
+      /** Effective settings of the running level. */
+      get play() {
+        const ps = game.current;
+        return {
+          autoPause: ps.autoPause,
+          selectRadius: ps.selectRadius,
+          speed: ps.session.speed,
+          highContrast: ps.renderer.highContrast,
+          reducedMotion: ps.renderer.reducedMotion,
+        };
+      },
       get nuked() {
         return game.current.session.sim.nuked;
       },
@@ -103,7 +117,13 @@ async function boot(): Promise<void> {
   if (params.debug) exposeDebug(game);
 
   render(
-    h(App, { hud: game.hud, editor: game.editorView, myLevels: game.myLevelsList, actions: game }),
+    h(App, {
+      hud: game.hud,
+      editor: game.editorView,
+      myLevels: game.myLevelsList,
+      settings: game.settings,
+      actions: game,
+    }),
     ui,
   );
   root.dataset.ready = 'true';

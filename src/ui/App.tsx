@@ -6,6 +6,8 @@ import type { Store } from '../app/store';
 import { getLanguage, onLanguageChange, t } from '../i18n';
 import type { DirectionFilter } from '../input/selection';
 import { EditorHud } from './EditorHud';
+import { SettingsPanel } from './SettingsPanel';
+import type { Settings } from '../app/save';
 import { MenuPages } from './Menu';
 import { HelpPanel } from './HelpPanel';
 import { CodePanel, MyLevelsPanel } from './Panels';
@@ -16,6 +18,7 @@ export interface AppProps {
   hud: Store<HudState>;
   editor: Store<EditorView | null>;
   myLevels: Store<MyLevel[]>;
+  settings: Store<Settings>;
   actions: GameActions & EditorActions;
 }
 
@@ -43,6 +46,18 @@ function WholeLevelIcon() {
   );
 }
 
+/** A pixel cog: settings. */
+function GearIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M5 0h2v2h1V1h2v2H9v1h3v2H9v2h1v2H8V9H7v3H5V9H4v1H2V8h1V6H0V4h3V3H2V1h2v1h1zM5 4v3h2V4z"
+      />
+    </svg>
+  );
+}
+
 function useStore<T>(store: Store<T>): T {
   const [value, setValue] = useState(store.get());
   useEffect(() => {
@@ -53,7 +68,24 @@ function useStore<T>(store: Store<T>): T {
 }
 
 /** Root of the DOM overlay above the Pixi canvas: title card or the play HUD. */
-export function App({ hud: store, editor: editorStore, myLevels: myStore, actions }: AppProps) {
+/** Settings that change the whole overlay: classes on <html> (styles.css) and its language. */
+function useRootSettings(s: Settings, language: string): void {
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle('left-handed', s.leftHanded);
+    root.classList.toggle('high-contrast', s.highContrast);
+    root.classList.toggle('large-text', s.largeText);
+    root.lang = language;
+  }, [s.leftHanded, s.highContrast, s.largeText, language]);
+}
+
+export function App({
+  hud: store,
+  editor: editorStore,
+  myLevels: myStore,
+  settings: settingsStore,
+  actions,
+}: AppProps) {
   const [, setLanguage] = useState(getLanguage());
   useEffect(() => onLanguageChange(setLanguage), []);
   const hud = useStore(store);
@@ -61,6 +93,12 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
   const [codeOpen, setCodeOpen] = useState(false);
   const [myOpen, setMyOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settings = useStore(settingsStore);
+  useRootSettings(settings, getLanguage());
+  const settingsPanel = settingsOpen && (
+    <SettingsPanel settings={settings} actions={actions} onClose={() => setSettingsOpen(false)} />
+  );
   const myLevels = useStore(myStore);
 
   if (hud.mode === 'title' && hud.menu.screen !== 'main') {
@@ -117,6 +155,15 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
         >
           {t('title.myLevels')}
         </button>
+        <button
+          type="button"
+          class="text-button editor-button"
+          data-testid="open-settings"
+          onClick={() => setSettingsOpen(true)}
+        >
+          {t('title.settings')}
+        </button>
+        {settingsPanel}
         {codeOpen && <CodePanel actions={actions} onClose={() => setCodeOpen(false)} />}
         {myOpen && (
           <MyLevelsPanel levels={myLevels} actions={actions} onClose={() => setMyOpen(false)} />
@@ -177,6 +224,19 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
         >
           <FilterIcon filter={hud.filter} />
         </button>
+        <button
+          type="button"
+          class="icon-button"
+          data-testid="settings"
+          aria-label={t('settings.title')}
+          title={t('settings.title')}
+          onClick={() => {
+            actions.setPaused(true);
+            setSettingsOpen(true);
+          }}
+        >
+          <GearIcon />
+        </button>
         {hud.help && !hud.replay && (
           <button
             type="button"
@@ -209,6 +269,7 @@ export function App({ hud: store, editor: editorStore, myLevels: myStore, action
   return (
     <>
       <PlayHud hud={hud} actions={actions} floating={floating} onHelp={() => setHelpOpen(true)} />
+      {settingsPanel}
       {helpOpen && hud.help && !hud.replay && (
         <HelpPanel
           help={hud.help}

@@ -889,3 +889,134 @@ button {
     animation: none;
   }
 }
+
+/* --- Settings (T6.2) ---------------------------------------------------------------------- */
+
+.settings-sheet h3 {
+  margin: 8px 0 0;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+}
+
+.setting-row,
+.setting-toggle {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.setting-toggle {
+  width: 100%;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  text-align: left;
+}
+
+.toggle-knob {
+  min-width: 52px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(244, 241, 232, 0.12);
+  text-align: center;
+  font-weight: 700;
+}
+
+.setting-toggle.on .toggle-knob {
+  background: var(--accent);
+  color: #10200a;
+}
+
+.setting-label {
+  flex: 1;
+}
+
+.setting-row input[type='range'] {
+  flex: 1.3;
+  min-height: 32px;
+  accent-color: var(--accent);
+}
+
+.segmented {
+  display: inline-flex;
+  border: 2px solid rgba(244, 241, 232, 0.25);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.segmented button {
+  min-height: 44px;
+  min-width: 52px;
+  padding: 0 10px;
+  border: 0;
+  background: rgba(30, 40, 66, 0.9);
+}
+
+.segmented button.selected {
+  background: var(--accent);
+  color: #10200a;
+  font-weight: 700;
+}
+
+/* Left-handed: the bottom bars and the floating row are mirrored (§1.7). */
+.left-handed .control-bar,
+.left-handed .floating-row,
+.left-handed .floating-group {
+  flex-direction: row-reverse;
+}
+
+.left-handed .skill-bar {
+  direction: rtl;
+}
+
+.left-handed .skill-button {
+  direction: ltr;
+}
+
+/* High contrast: solid dark panels, bright outlines (the canvas switches to a flat sky). */
+.high-contrast {
+  --dim: #d8def0;
+}
+
+.high-contrast .skill-button,
+.high-contrast .control-button,
+.high-contrast .icon-button,
+.high-contrast .text-button,
+.high-contrast .level-tile,
+.high-contrast .world-card {
+  background: #000;
+  border-color: #fff;
+}
+
+.high-contrast .hud-top,
+.high-contrast .hud-bottom {
+  background: #000;
+}
+
+/* Larger text and buttons. */
+.large-text {
+  font-size: 118%;
+}
+
+.large-text .text-button {
+  min-height: 56px;
+  font-size: 21px;
+}
+
+.large-text .skill-button,
+.large-text .control-button {
+  min-height: 58px;
+}
+
+.large-text .icon-button {
+  width: 60px;
+  height: 60px;
+}
+
+.large-text .hud-numbers {
+  font-size: 20px;
+}

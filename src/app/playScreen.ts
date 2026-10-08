@@ -6,7 +6,12 @@ import { canAssign } from '../core/sim';
 import { GameSession } from '../game/session';
 import type { Gesture } from '../input/gestures';
 import { attachPointerInput } from '../input/pointerInput';
-import { type DirectionFilter, candidatesFromSim, pickCandidate } from '../input/selection';
+import {
+  type DirectionFilter,
+  SELECT_RADIUS,
+  candidatesFromSim,
+  pickCandidate,
+} from '../input/selection';
 import {
   LOUPE_RADIUS,
   LOUPE_ZOOM,
@@ -30,6 +35,11 @@ export interface PlayScreenOptions {
   wholeLevel?: boolean;
   skill?: SkillId | null;
   filter?: DirectionFilter;
+  /** Settings (§1.10): null reduced motion = follow the system. */
+  reducedMotion?: boolean | null;
+  highContrast?: boolean;
+  /** Smart-selection radius in pt (default `SELECT_RADIUS`). */
+  selectRadius?: number;
 }
 
 /** Outcome of a release on a creature, for feedback (sound / haptics from M3 on). */
@@ -56,6 +66,8 @@ export class PlayScreen {
   onAttempt: ((a: AssignAttempt) => void) | null = null;
   /** "Auto-pause while selecting" option (§1.7 point 5). */
   autoPause = false;
+  /** Smart-selection radius in pt (setting: 20 / 28 / 36). */
+  selectRadius: number;
   /** The current press paused the game and will resume it. */
   private resumeAfterPress = false;
   private readonly selection: SelectionController;
@@ -71,7 +83,11 @@ export class PlayScreen {
     this.skill = options.skill ?? null;
     this.filter = options.filter ?? 'both';
     const sim = this.session.sim;
-    this.renderer = new WorldRenderer(sim, { reducedMotion: prefersReducedMotion() });
+    this.selectRadius = options.selectRadius ?? SELECT_RADIUS;
+    this.renderer = new WorldRenderer(sim, {
+      reducedMotion: options.reducedMotion ?? prefersReducedMotion(),
+      highContrast: options.highContrast ?? false,
+    });
     this.session.onStep((s, events) => this.renderer.onStep(s, events));
     if (options.seek) this.session.seek(options.seek);
     this.session.paused = options.paused ?? false;
@@ -106,6 +122,7 @@ export class PlayScreen {
       y: w.y,
       scale: this.camera.scale,
       filter: this.filter,
+      radius: this.selectRadius,
     });
   }
 

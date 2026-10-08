@@ -25,7 +25,12 @@ function mixRgb(a: number, b: number, t: number): number {
 export interface WorldRendererOptions {
   /** No screen shake or creature jitter (accessibility, §1.10). */
   reducedMotion?: boolean;
+  /** One flat dark sky instead of the gradient (accessibility, §1.10). */
+  highContrast?: boolean;
 }
+
+/** Flat background of the high-contrast mode. */
+const HIGH_CONTRAST_SKY = 0x05060a;
 
 /** Longest real-time step fed to effects (a stalled tab must not explode particles). */
 const MAX_EFFECT_DT = 100;
@@ -68,6 +73,8 @@ export class WorldRenderer {
     this.effects = new EffectsLayer(this.palette, options.reducedMotion ?? false);
     this.terrain = new TerrainLayer(sim.terrain, this.palette);
     this.objects = new ObjectLayer(sim.objects, this.palette);
+    this.contrast = options.highContrast ?? false;
+    this.reducedMotion = options.reducedMotion ?? false;
     this.drawSky();
     this.world.addChild(
       this.sky,
@@ -133,9 +140,29 @@ export class WorldRenderer {
     };
   }
 
+  private contrast: boolean;
+  /** No shake / jitter (fixed for the renderer's lifetime). */
+  readonly reducedMotion: boolean;
+
+  get highContrast(): boolean {
+    return this.contrast;
+  }
+
+  /** Switches the high-contrast background (redraws the sky). */
+  setHighContrast(on: boolean): void {
+    if (on === this.contrast) return;
+    this.contrast = on;
+    this.sky.clear();
+    this.drawSky();
+  }
+
   private drawSky(): void {
     const [top, bottom] = this.palette.sky;
     const { width, height } = this.sim;
+    if (this.contrast) {
+      this.sky.rect(0, 0, width, height).fill(HIGH_CONTRAST_SKY);
+      return;
+    }
     for (let i = 0; i < SKY_BANDS; i++) {
       const y0 = Math.floor((i * height) / SKY_BANDS);
       const y1 = Math.floor(((i + 1) * height) / SKY_BANDS);

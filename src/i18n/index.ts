@@ -26,6 +26,11 @@ export function detectLanguage(preferred: readonly string[]): Language {
   return DEFAULT_LANGUAGE;
 }
 
+/** The device's preferred supported language (the "automatic" language setting). */
+export function systemLanguage(): Language {
+  return detectLanguage(navigatorLanguages());
+}
+
 function navigatorLanguages(): string[] {
   const nav = globalThis.navigator as Navigator | undefined;
   if (!nav) return [];

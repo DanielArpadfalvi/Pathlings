@@ -21,7 +21,7 @@ import {
   solutionHint,
 } from './hud';
 import { HINT_FAILS, HelpTracker, SOLUTION_FAILS } from './help';
-import { SaveGame } from './save';
+import { SaveGame, type Settings } from './save';
 import {
   CAMPAIGN,
   FULL_GAME_PRICE,
@@ -31,7 +31,7 @@ import {
   progressView,
 } from './progression';
 import type { WorldId } from '../levels/validate';
-import { type TranslationKey, t } from '../i18n';
+import { type TranslationKey, setLanguage, systemLanguage, t } from '../i18n';
 import { PlayScreen } from './playScreen';
 import { EditorScreen, type EditorView } from './editorScreen';
 import type { Tool } from '../editor/tools';
@@ -90,6 +90,14 @@ export interface GameActions {
   /** Tutorial: "Got it" / skip the whole tutorial. */
   tutorialOk(): void;
   skipTutorial(): void;
+  /** Change settings (persisted, applied at once). */
+  updateSettings(patch: Partial<Settings>): void;
+  /** Pause the level (opening a menu over it). */
+  setPaused(paused: boolean): void;
+  /** Show the tutorial again from world 1. */
+  restartTutorial(): void;
+  /** Store restore (T8.1); until then nothing to restore. */
+  restorePurchases(): Promise<'restored' | 'none' | 'failed'>;
   /** Watch the level's solution (once unlocked; marks a later win "with help"). */
   watchSolution(): void;
 }
@@ -146,6 +154,7 @@ export class GameApp implements GameActions, EditorActions {
   private tutorial: TutorialDirector | null = null;
   readonly save = new SaveGame(getStore());
   readonly myLevels = new MyLevels(this.save.store, () => Date.now());
+  readonly settings = new Store<Settings>({ ...this.save.settings });
   readonly myLevelsList = new Store<MyLevel[]>(this.myLevels.list());
   private mode: 'title' | 'play' | 'editor';
   private levels: readonly LevelDef[] = FIXTURE_LEVELS;
@@ -226,7 +235,42 @@ export class GameApp implements GameActions, EditorActions {
     window.addEventListener('pointerdown', this.unlockAudio, true);
     window.addEventListener('keydown', this.unlockAudio, true);
     this.attachFeedback();
+    this.applySettings();
     this.publishHud();
+  }
+
+  /** Pushes the settings into audio, haptics, language and the running level. */
+  private applySettings(): void {
+    const s = this.save.settings;
+    this.settings.set({ ...s });
+    this.setAudio({ master: s.master, sfx: s.sfx, music: s.music });
+    this.setHaptics(s.haptics);
+    setLanguage(s.language ?? systemLanguage());
+    if (this.screen && this.mode === 'play') {
+      this.screen.autoPause = s.autoPause || this.params.autoPause;
+      this.screen.selectRadius = s.touchRadius;
+      this.screen.renderer.setHighContrast(s.highContrast);
+    }
+  }
+
+  updateSettings(patch: Partial<Settings>): void {
+    this.save.updateSettings(patch);
+    this.applySettings();
+    this.publishHud();
+  }
+
+  setPaused(paused: boolean): void {
+    if (this.mode !== 'play' || !this.screen) return;
+    this.screen.session.paused = paused;
+    this.publishHud();
+  }
+
+  restartTutorial(): void {
+    this.save.tutorialSkipped = false;
+  }
+
+  restorePurchases(): Promise<'restored' | 'none' | 'failed'> {
+    return Promise.resolve('none');
   }
 
   /** UTC epoch day of "today" (`daily=YYYY-MM-DD` overrides it for testing). */
@@ -294,7 +338,12 @@ export class GameApp implements GameActions, EditorActions {
     const p = this.params;
     if (this.mode === 'title') {
       const demo = findTestLevel(ATTRACT_LEVEL_ID) as LevelDef;
-      return new PlayScreen(this.app, demo, { autoplay: demo.solution, wholeLevel: true });
+      return new PlayScreen(this.app, demo, {
+        autoplay: demo.solution,
+        wholeLevel: true,
+        reducedMotion: this.save.settings.reducedMotion,
+        highContrast: this.save.settings.highContrast,
+      });
     }
     const level = this.levels[this.index] as LevelDef;
     const screen = new PlayScreen(this.app, level, {
@@ -304,9 +353,14 @@ export class GameApp implements GameActions, EditorActions {
       paused: fromParams && p.paused,
       interactive: true,
       skill: fromParams ? p.skill : null,
+      reducedMotion: this.save.settings.reducedMotion,
+      highContrast: this.save.settings.highContrast,
+      selectRadius: this.save.settings.touchRadius,
       filter: fromParams ? p.filter : 'both',
     });
-    screen.autoPause = p.autoPause;
+    const s = this.save.settings;
+    screen.autoPause = p.autoPause || s.autoPause;
+    if (!(fromParams && p.autoplay)) screen.session.speed = s.speed;
     screen.camera.setInsets(this.insets.top, this.insets.bottom);
     return screen;
   }
